@@ -1,0 +1,140 @@
+:root {
+  --card-header: rgba(75, 4, 255, 0.724);
+  --text-light: #ffffff;
+  --card-body: rgba(84, 57, 151, 0.202);
+  --text-dark-base: #ffffff;
+}
+
+.icon-btn {
+  border: none;
+  background: none;
+  padding: 2px 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.icon-btn.edit {
+  color: #0b1a35
+}
+
+.icon-btn.delete {
+  color: red;
+}
+
+.is-invalid {
+  border-color: red !important;
+  background-color: #fff0f0;
+}
+
+/* Style for checked test type checkboxes */
+.form-check-input:checked {
+  background-color: #0b1a35;
+  border-color: #0b1a35;
+}
+
+.form-check-input:checked+.form-check-label {
+  font-weight: bold;
+  color: #0b1a35;
+}
+
+.card-header {
+  background-color: var(--card-header);
+  color: var(--text-light);
+
+}
+
+.card-body {
+  background-color: var(--card-body)
+}
+
+.hide-col {
+  display: none;
+}
+
+/* Modal Footer Button Styles */
+.modal-footer .btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+}
+
+.modal-footer .btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+  color: white;
+}
+
+.modal-footer .btn-success:focus,
+.modal-footer .btn-success:active {
+  background-color: #1e7e34;
+  border-color: #1c7430;
+  color: white;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5);
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  color: white;
+}
+
+.modal-footer .btn-secondary:focus,
+.modal-footer .btn-secondary:active {
+  background-color: #545b62;
+  border-color: #4e555b;
+  color: white;
+  box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.5);
+}
+
+/* Table Add/Delete Button Styles */
+.btn-brand {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white !important;
+  font-weight: 600;
+}
+
+.btn-brand:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  color: white !important;
+}
+
+.btn-brand:focus,
+.btn-brand:active {
+  background-color: #0a58ca;
+  border-color: #0a53be;
+  color: white !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.5);
+}
+
+/* Delete buttons in tables */
+.btn.text-danger {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: #dc3545 !important;
+  transition: all 0.2s ease;
+}
+
+.btn.text-danger:hover {
+  background-color: #fff5f5;
+  border-color: #dc3545;
+  color: #dc3545 !important;
+}
+
+.btn.text-danger:focus,
+.btn.text-danger:active {
+  background-color: #ffe5e5;
+  border-color: #dc3545;
+  color: #dc3545 !important;
+}

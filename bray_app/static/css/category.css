@@ -1,0 +1,16 @@
+ :root{
+  --card-header: rgba(75, 4, 255, 0.724);
+   --text-light: #ffffff;
+   --card-body:  rgba(84, 57, 151, 0.202);
+  --text-dark-base: #ffffff;
+}
+   .card-header{
+    background-color:var(--card-header) ;
+    color: var(--text-light);
+
+  }
+
+  .card-body{
+    background-color:var(--card-body)
+
+  }

@@ -1,0 +1,353 @@
+{% extends 'base_new.html' %}
+{% load static %}
+
+{% block header_title %}Category{% endblock %}
+
+{% block content %}
+<style>
+  /* ===== Container & Scroll (Matching gauge_details.html) ===== */
+  .table-container-wrapper {
+    height: calc(100vh - 150px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .card {
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .card-body {
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    background: white;
+  }
+
+  /* ===== Hint Bar ===== */
+  .edit-hint {
+    padding: 0.5rem 1rem;
+    background: #e7f3ff;
+    color: #0066cc;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid #b3d9ff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .edit-hint .close-btn {
+    background: transparent;
+    border: none;
+    color: #0066cc;
+    font-size: 1.125rem;
+    cursor: pointer;
+    margin-left: auto;
+    line-height: 1;
+  }
+
+  /* ===== Table Styling ===== */
+  .table-responsive {
+    flex: 1;
+    overflow: auto;
+    background: white;
+  }
+
+  .table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #e9ecef;
+    color: black;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid #edf2f7;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .table tbody td {
+    padding: 0.5rem;
+    vertical-align: middle;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+  }
+
+  .table tbody tr:first-child td {
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* Inputs in table */
+  .table .form-control,
+  .table .form-select {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.5rem;
+    border-color: #e2e8f0;
+  }
+
+  .table .form-control:focus,
+  .table .form-select:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 1px rgba(49, 130, 206, 0.2);
+  }
+
+  /* Footer Controls */
+  .footer-controls {
+    padding: 0.75rem 1rem;
+    background: white;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .invalid-feedback {
+    font-size: 0.75rem;
+  }
+</style>
+
+<div class="container-fluid table-container-wrapper">
+  <div class="card">
+
+    <!-- Hint -->
+    <div class="edit-hint" id="editHint">
+      <div>💡 Tip: Modify values directly in the table cells • Click 'Save Changes' to update</div>
+      <button class="close-btn" onclick="document.getElementById('editHint').style.display='none'">&times;</button>
+    </div>
+
+    <!-- MAIN FORM -->
+    <form id="categoryForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+      {% csrf_token %}
+
+      <!-- Table Area -->
+      <div class="table-responsive">
+        <table class="table" id="categoryTable">
+          <thead>
+            <tr>
+              <th class="text-end pe-3" style="width: 60px;">CATEGORY ID</th>
+              <th class="text-start" style="width: auto;">CATEGORY NAME</th>
+              <th class="text-start" style="width: 150px;">STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="categoryTableBody">
+            <tr>
+              <td colspan="3" class="text-center py-4">Loading categories...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="footer-controls">
+        <!-- <button type="button" class="btn btn-light border" onclick="loadCategories()">Refresh</button> -->
+        <button type="submit" class="btn btn-success px-4" >SAVE</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script src="{% static 'scripts/dialog-manager.js' %}"></script>
+<script src="{% static 'scripts/form-validator.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCategories();
+
+    // Validation - Allow any characters
+    let categoriesData = [];
+    const validator = new FormValidator('categoryForm', {
+      category_name: {
+        rules: [ValidationRules.required],
+        asyncRule: (val, signal, form) => new Promise((resolve) => {
+          setTimeout(() => {
+            const currentId = form.querySelector('[name="category_id"]')?.value;
+            fetch("/api/category/").then(r => r.json()).then(data => {
+              const exists = (data.categories || []).some(c => {
+                if (currentId && c.id == currentId) return false;
+                return c.name?.toLowerCase() === val.toLowerCase();
+              });
+              resolve(exists ? "Category name already exists" : true);
+            });
+          }, 300);
+        })
+      }
+    });
+  });
+
+  // ============================================
+  // LOAD DATA API
+  // ============================================
+  function loadCategories() {
+    // Silent load for UX preference (or minimal table loading)
+    fetch("/api/category/")
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'error') {
+          return DialogManager.toast({ type: 'error', message: data.message || 'Error loading data' });
+        }
+        renderTable(data.categories || []);
+      })
+      .catch(err => {
+        console.error(err);
+        DialogManager.toast({ type: 'error', message: 'Failed to load categories.' });
+      });
+  }
+
+  function renderTable(categories) {
+    const tbody = document.getElementById("categoryTableBody");
+    tbody.innerHTML = "";
+
+    if (categories.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No categories found</td></tr>';
+    } else {
+      categories.forEach(c => {
+        tbody.appendChild(createRow(c));
+      });
+    }
+  }
+
+  function createRow(c) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="text-end pe-3">
+        <input type="hidden" name="category_id[]" value="${c.id}">
+        ${c.id}
+      </td>
+      <td>
+        <input type="text" class="form-control" name="testname[]" value="${c.category_name}" onblur="checkDuplicate(this)">
+        <div class="invalid-feedback"></div>
+      </td>
+      <td>
+        <select class="form-select ${c.status === 'ENABLE' ? 'status-enabled' : 'status-disabled'}" name="status[]"
+          onchange="this.className = 'form-select ' + (this.value === 'ENABLE' ? 'status-enabled' : 'status-disabled');">
+          <option value="ENABLE" ${c.status === 'ENABLE' ? 'selected' : ''}>Enable</option>
+          <option value="DISABLE" ${c.status === 'DISABLE' ? 'selected' : ''}>Disable</option>
+        </select>
+      </td>
+
+    `;
+    return row;
+  }
+
+  // ============================================
+  // VALIDATION
+  // ============================================
+  function markError(input, msg) {
+    input.classList.add('is-invalid');
+    const fb = input.parentNode.querySelector('.invalid-feedback');
+    if (fb) { fb.textContent = msg; fb.style.display = 'block'; }
+  }
+
+  function clearError(input) {
+    input.classList.remove('is-invalid');
+    const fb = input.parentNode.querySelector('.invalid-feedback');
+    if (fb) { fb.style.display = 'none'; }
+  }
+
+  function checkDuplicate(input) {
+    const val = input.value.trim();
+    if (!val) {
+      return markError(input, 'Category name required');
+    }
+
+    const valLower = val.toLowerCase();
+    let found = false;
+
+    const allInputs = document.querySelectorAll('input[name="testname[]"]');
+    allInputs.forEach(el => {
+      if (el !== input && el.value.trim().toLowerCase() === valLower) {
+        found = true;
+      }
+    });
+
+    if (found) {
+      markError(input, 'Duplicate Name');
+      return false;
+    } else {
+      clearError(input);
+      return true;
+    }
+  }
+
+  // ============================================
+  // SAVE
+  // ============================================
+  document.getElementById('categoryForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Validate
+    let hasError = false;
+    const inputs = document.querySelectorAll('input[name="testname[]"]');
+    inputs.forEach(input => {
+      if (!checkDuplicate(input)) hasError = true;
+    });
+
+    if (hasError) {
+      return DialogManager.toast({ type: 'error', message: 'Please fix validation errors.' });
+    }
+
+    DialogManager.loading("Saving...", "Updating categories");
+
+    // Construct JSON as backend expects
+    const ids = Array.from(document.querySelectorAll('input[name="category_id[]"]')).map(el => el.value);
+    const names = Array.from(inputs).map(el => el.value);
+    const statuses = Array.from(document.querySelectorAll('select[name="status[]"]')).map(el => el.value);
+
+    const payload = {
+      category_ids: ids,
+      testnames: names,
+      statuses: statuses
+    };
+
+    fetch("/api/category/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": '{{ csrf_token }}'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(r => r.json())
+      .then(data => {
+        DialogManager.closeLoading();
+        if (data.status === 'success') {
+          DialogManager.toast({ type: 'success', message: data.message });
+          loadCategories(); // Refresh data
+        } else {
+          DialogManager.toast({ type: 'error', message: data.message || 'Error updating categories' });
+        }
+      })
+      .catch(err => {
+        DialogManager.closeLoading();
+        console.error(err);
+        DialogManager.toast({ type: 'error', message: 'Network Error' });
+      });
+  });
+
+</script>
+{% endblock %}

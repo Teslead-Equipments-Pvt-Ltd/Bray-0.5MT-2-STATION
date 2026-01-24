@@ -1,0 +1,306 @@
+/* Base2 Custom Styles - Bootstrap Enhanced */
+
+/* Base Styles */
+html,
+body {
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f8fc;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: rgb(248, 243, 243);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+/* Logo */
+.logo-img {
+    width: 70px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* Menu Buttons */
+.menu-button {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 1rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    text-align: left;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.menu-button:hover {
+    background-color: #F1F1F1;
+    color: #15A34A;
+    box-shadow: 0 2px 0 0 rgba(21, 163, 74, 0.7);
+}
+
+.menu-button.active {
+    background-color: #F1F1F1;
+    color: #15A34A;
+    box-shadow: 0 2px 0 0 rgba(21, 163, 74, 0.7);
+}
+
+.menu-button .icon-img {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Dropdown */
+.dropdown-content {
+    display: none;
+    flex-direction: column;
+    background-color: rgb(252, 241, 241);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: -10px;
+    gap: 10px;
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    width: 100%;
+    font-size: 14px;
+    color: rgb(51, 47, 47);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item.active {
+    background: linear-gradient(to right, rgba(44, 22, 22, 0.5), rgba(230, 219, 219, 0.5));
+    color: white;
+}
+
+.dropdown-item i {
+    font-size: 0.8rem;
+    margin-right: 6px;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 20px 10px;
+    text-align: center;
+}
+
+.powered-by {
+    font-size: 0.75rem;
+    color: rgb(32, 24, 24);
+    margin-bottom: 15px;
+}
+
+.logout {
+    background-color: white;
+    color: red;
+    font-weight: bold;
+    border: 2px solid #ffffff;
+    border-radius: 3px;
+    padding: 8px 0;
+    width: 70%;
+    cursor: pointer;
+    box-shadow: 5px 2px 5px 2px gray;
+    letter-spacing: 1px;
+    transition: transform 0.2s ease;
+}
+
+.logout:hover {
+    transform: scale(1.03);
+}
+
+/* Main Panel */
+.main-panel {
+    margin-left: 250px;
+    padding: 30px;
+    min-height: 100vh;
+    background: linear-gradient(62.76deg, #F1F1F1 20.16%, #F3F5F5 67.61%, #E9D2D2 100%);
+}
+
+/* Header */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(31, 29, 29);
+}
+
+.admin-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.user-icon {
+    font-size: 20px;
+    color: #333;
+}
+
+.admin-text {
+    font-weight: 500;
+    color: #333;
+}
+
+.datetime-box {
+    color: rgb(2, 2, 2);
+    padding: 6px 40px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.header-divider {
+    border: none;
+    height: 2px;
+    background-color: #bbbaba;
+    margin: 5px 0 15px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Password Toggle */
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 1rem;
+    z-index: 10;
+}
+
+/* Modal Customization */
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-h {
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+    font-weight: bold;
+    margin: 0;
+}
+
+.password-rules {
+    margin: 5px 0 0 0;
+    padding-left: 15px;
+    font-size: 0.85rem;
+}
+
+.password-rules li {
+    margin-bottom: 5px;
+}
+
+/* Form Styles */
+.form-label {
+    color: #15A34A;
+    font-size: 14px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-control {
+    border: 1px solid #15A34A;
+    border-radius: 5px;
+}
+
+.form-control:focus {
+    border-color: #15A34A;
+    box-shadow: 0 0 0 0.2rem rgba(21, 163, 74, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main-panel {
+        margin-left: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main-panel {
+        margin-left: 200px;
+        padding: 20px;
+    }
+
+    .header-title {
+        font-size: 18px;
+    }
+
+    .menu-button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .main-panel {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .datetime-box {
+        padding: 6px 20px;
+        font-size: 12px;
+    }
+}

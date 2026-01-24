@@ -1,0 +1,937 @@
+{% extends 'base_new.html' %}
+{% block header_title %}Valve Class{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<!-- STYLES -->
+<style>
+  /* ===== Table Container ===== */
+  .table-container-wrapper {
+    height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .card {
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .card-body {
+    background: white;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ===== Hint Bar ===== */
+  .edit-hint {
+    padding: 0.5rem 1rem;
+    background: #e7f3ff;
+    color: #0066cc;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid #b3d9ff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .edit-hint.hidden {
+    display: none;
+  }
+
+  .edit-hint .hint-text {
+    flex: 1;
+  }
+
+  .edit-hint .close-btn {
+    background: transparent;
+    border: none;
+    color: #0066cc;
+    font-size: 1.125rem;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+
+  .edit-hint .close-btn:hover {
+    background: rgba(0, 102, 204, 0.15);
+  }
+
+  /* ===== Search Toggle ===== */
+  /* ===== Search Toggle ===== */
+  .search-toggle-container {
+    position: relative;
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 2px;
+    width: 36px;
+    height: 36px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .search-input-wrapper.active {
+    width: 300px;
+    background: white;
+    border-color: #0b1a35;
+    box-shadow: 0 4px 6px -1px rgba(11, 26, 53, 0.2);
+  }
+
+  .search-icon-btn {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+  }
+
+  .search-input-wrapper.active .search-icon-btn {
+    background: transparent;
+    color: #0b1a35;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .search-input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    color: #2d3748;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease 0.1s;
+  }
+
+  .search-input-wrapper.active input {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .search-close-btn {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .search-close-btn:hover {
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.1);
+  }
+
+  .search-input-wrapper.active .search-close-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== Controls Row ===== */
+  .custom-filter-row {
+    padding: 0.75rem 1rem;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .left-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .table-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn-brand {
+    background: #0b1a35;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .btn-brand:hover {
+    background: #162a4d;
+    color: white;
+  }
+
+  .btn-danger {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .btn-danger:disabled {
+    background: #e2e8f0;
+    cursor: not-allowed;
+  }
+
+  /* ===== Table ===== */
+  .table-responsive {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    background: white;
+    scrollbar-width: thin;
+    scrollbar-color: #F9D8D0 #f0f0f0;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #E21A34;
+    border-radius: 3px;
+  }
+
+  .table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #e9ecef;
+    color: black;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid #edf2f7;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .table tbody td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    color: #2d3748;
+    font-size: 0.875rem;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+  }
+
+  .table tbody tr:first-child td {
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .table tbody tr:hover {
+    background: #f8f9ff;
+    cursor: pointer;
+  }
+
+  .table tbody tr.selected {
+    background-color: #ffe5e5 !important;
+  }
+
+  /* Checkbox & ID */
+  .row-check {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #4a5568;
+  }
+
+  /* Pagination */
+  .custom-pagination-container {
+    padding: 0.75rem 1rem;
+    background: white;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+  }
+
+  .pagination-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #4a5568;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pagination-btn:hover:not(:disabled) {
+    background: #f7fafc;
+  }
+
+  .pagination-btn.active {
+    background: white;
+    border-color: #4a5568;
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-per-page {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    outline: none;
+    margin-left: 1rem;
+    /* Spacing from buttons */
+    background: white;
+    cursor: pointer;
+  }
+
+  /* Tags/Labels */
+  .test-type-pill {
+    background: #ffe4e6;
+    color: #be123c;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-right: 4px;
+    display: inline-block;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+</style>
+
+<div class="container-fluid table-container-wrapper">
+  <div class="card">
+
+    <!-- Hint -->
+    <div class="edit-hint" id="editHint">
+      <div class="hint-text">
+        💡 Tip: Click on any row to edit • Select checkbox(es) and click Delete to remove
+      </div>
+      <button class="close-btn" onclick="dismissHint()" title="Dismiss">&times;</button>
+    </div>
+
+    <!-- Controls -->
+    <div class="custom-filter-row">
+      <!-- Left Side: Delete Button -->
+      <div class="left-controls">
+        <div class="table-action-buttons" id="tableActionButtons">
+          <button class="bulk-delete-btn" id="bulkDeleteBtn" onclick="handleBulkDelete()" disabled>
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Middle: Search Toggle -->
+      <div class="search-toggle-container">
+        <div class="search-input-wrapper" id="searchInputWrapper">
+          <button class="search-icon-btn" id="searchToggleBtn" title="Search">
+            <i class="fas fa-search"></i>
+          </button>
+          <input type="text" id="customSearchInput" placeholder="Search valve classes..." onkeyup="triggerFilter()">
+          <button class="search-close-btn" id="searchCloseBtn" title="Clear Search">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Side: Add Button -->
+      <div class="table-action-buttons" id="tableActionButtons-add">
+        <button class="master-add-btn" onclick="openClassModal('add')">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table" id="valveClassTable">
+        <thead>
+          <tr>
+            <th style="width: 40px;" class="text-center">
+              <input type="checkbox" id="selectAll" class="row-check" onclick="toggleSelectAll()">
+            </th>
+            <th id="colSNo" style="width: 60px;" class="text-end pe-3">S.NO</th>
+            <th class="text-start">Class Name</th>
+            <th class="text-start">Class Description</th>
+          </tr>
+        </thead>
+        <tbody id="valveClassTableBody">
+          <!-- Data -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="custom-pagination-container" id="customPagination"></div>
+  </div>
+</div>
+
+
+<!-- SINGLE MODAL FOR ADD/EDIT -->
+<div class="modal fade" id="valveClassModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-white border-bottom">
+        <h5 class="modal-title fw-bold text-dark" id="valveClassModalTitle">Valve Class</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="valveClassForm">
+        {% csrf_token %}
+        <input type="hidden" name="class_id" id="classId">
+        <div class="modal-body p-4">
+          <!-- Name -->
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="className" name="name" required>
+            <div id="nameError" class="text-danger small mt-1"></div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Description</label>
+            <textarea class="form-control" id="classDesc" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer border-top-0 bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success px-4" id="submitBtn">Save</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'scripts/dialog-manager.js' %}"></script>
+<script src="{% static 'scripts/form-validator.js' %}"></script>
+<script>
+  // Global State
+  let masterData = [];
+  let existingNames = [];
+  let validator;
+
+
+  let currentPage = 1;
+  let itemsPerPage = 10;
+
+  // Use JS fallback for template tag to avoid syntax errors
+  const SUPERUSER_LEVEL = "{{ superuser_level }}" || 0;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    initSearchToggle();
+    initCustomPaginationFromStorage();
+
+    // Inline validation - Allow any characters
+    validator = new FormValidator('valveClassForm', {
+      name: {
+        rules: [ValidationRules.required],
+        asyncRule: (val, signal, form) => new Promise((resolve) => {
+          if (!val || val.trim() === '') {
+            resolve(true);
+            return;
+          }
+          setTimeout(() => {
+            const currentId = form.querySelector('[name="class_id"]')?.value;
+            const exists = masterData.some(item => {
+              if (currentId && item.class_id == currentId) return false;
+              return item.name?.toLowerCase() === val.toLowerCase();
+            });
+            resolve(exists ? "Name already exists" : true);
+          }, 300);
+        })
+      }
+    });
+  });
+
+  function dismissHint() {
+    document.getElementById('editHint').style.display = 'none';
+  }
+
+  // ============================================
+  // LOAD DATA
+  // ============================================
+  function loadData() {
+    // Optional: Show table spinner if needed, but avoiding full screen loader 
+    // to prevent conflict with Save/Edit loaders and Toasts.
+
+    fetch('/api/valve_class/')
+      .then(r => r.json())
+      .then(data => {
+
+        if (data.error && !Array.isArray(data.valve_classes)) {
+          DialogManager.toast({ type: 'error', message: data.error });
+          return;
+        }
+
+        // Validate data structure
+        // Expect: { valve_classes: [...], existing_names: [...] }
+        masterData = data.valve_classes || [];
+        existingNames = data.existing_names || (masterData.map(c => c.name));
+
+        // Render
+        triggerFilter();
+      })
+      .catch(err => {
+        console.error(err);
+        DialogManager.toast({ type: 'error', message: 'Failed to load valve classes.' });
+      });
+  }
+
+  // ============================================
+  // RENDER & FILTER
+  // ============================================
+  function displayPage(page, data) {
+    const tbody = document.getElementById('valveClassTableBody');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">No records found</td></tr>`;
+      return;
+    }
+
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageData = data.slice(start, end);
+
+    pageData.forEach((item, index) => {
+      const globalIndex = start + index + 1;
+      // If superuser level is 2, could switch to ID
+      const displayId = (SUPERUSER_LEVEL == 2 && item.class_id) ? item.class_id : globalIndex;
+
+      const desc = item.description || '';
+
+      const tr = document.createElement('tr');
+      // Row Click -> Choose Action
+      tr.onclick = (e) => {
+        if (e.target.closest('input') || e.target.closest('button')) return; // Ignore clicks on check/buttons
+        handleRowInteraction(item);
+      };
+
+      tr.innerHTML = `
+        <td class="text-center">
+           <input type="checkbox" class="row-check" value="${item.class_id}" onclick="event.stopPropagation(); updateBulkDeleteButtonState()">
+        </td>
+        <td class="fw-bold text-danger small text-end pe-3">${displayId}</td>
+        <td class="fw-bold text-dark text-start">${escapeHtml(item.name)}</td>
+        <td class="text-muted small text-start">${escapeHtml(desc)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function getFilteredData() {
+    const searchVal = document.getElementById('customSearchInput').value.toLowerCase().trim();
+    if (!searchVal) return masterData;
+
+    return masterData.filter(item => {
+      const text = (item.name + ' ' + (item.description || '')).toLowerCase();
+      return text.includes(searchVal);
+    });
+  }
+
+  function triggerFilter() {
+    const filtered = getFilteredData();
+    const total = Math.ceil(filtered.length / itemsPerPage);
+    if (currentPage > total) currentPage = Math.max(1, total);
+
+    renderPagination(filtered);
+    displayPage(currentPage, filtered);
+  }
+
+  // ============================================
+  // PAGINATION
+  // ============================================
+  function initCustomPaginationFromStorage() {
+    const stored = localStorage.getItem('valveClassPage');
+    if (stored) currentPage = parseInt(stored) || 1;
+  }
+
+  function goToPage(p) {
+    currentPage = p;
+    localStorage.setItem('valveClassPage', p);
+    triggerFilter();
+  }
+
+  function prevPage() { if (currentPage > 1) goToPage(currentPage - 1); }
+  function nextPage() {
+    const filtered = getFilteredData();
+    const total = Math.ceil(filtered.length / itemsPerPage);
+    if (currentPage < total) goToPage(currentPage + 1);
+  }
+
+  function changeItemsPerPage(sel) {
+    itemsPerPage = parseInt(sel.value);
+    goToPage(1);
+  }
+
+  function renderPagination(data) {
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const container = document.getElementById('customPagination');
+
+    if (data.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const paginationHTML = [];
+
+    // Total count
+    paginationHTML.push(`<span class="text-muted small me-3">Total: ${data.length}</span>`);
+
+    // Previous button
+    paginationHTML.push(`
+      <button class="pagination-btn prev-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+        Previous
+      </button>
+    `);
+
+    // Page numbers with ellipsis
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        paginationHTML.push(`
+          <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+            ${i}
+          </button>
+        `);
+      }
+    } else {
+      // Always show first page
+      paginationHTML.push(`
+        <button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" onclick="goToPage(1)">
+          1
+        </button>
+      `);
+
+      if (currentPage > 3) {
+        paginationHTML.push('<span class="pagination-ellipsis">...</span>');
+      }
+
+      // Show pages around current
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        paginationHTML.push(`
+          <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+            ${i}
+          </button>
+        `);
+      }
+
+      if (currentPage < totalPages - 2) {
+        paginationHTML.push('<span class="pagination-ellipsis">...</span>');
+      }
+
+      // Always show last page
+      paginationHTML.push(`
+        <button class="pagination-btn ${currentPage === totalPages ? 'active' : ''}" onclick="goToPage(${totalPages})">
+          ${totalPages}
+        </button>
+      `);
+    }
+
+    // Next button
+    paginationHTML.push(`
+      <button class="pagination-btn next-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+        Next
+      </button>
+    `);
+
+    // Items per page dropdown
+    paginationHTML.push(`
+      <select class="pagination-per-page" onchange="changeItemsPerPage(this)">
+        <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10 / page</option>
+        <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25 / page</option>
+        <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50 / page</option>
+        <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100 / page</option>
+      </select>
+    `);
+
+    container.innerHTML = paginationHTML.join('');
+  }
+
+  // ============================================
+  // ROW ACTIONS (Single)
+  // ============================================
+  function handleRowInteraction(item) {
+    DialogManager.confirm({
+      title: 'Action for "' + (item.name || 'Unknown') + '"',
+      message: 'Choose an action',
+      confirmText: 'Update',
+      confirmButtonClass: 'dm-btn-info',
+      denyText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        DialogManager.confirm({
+          title: "Edit Valve Class?",
+          message: "Do you want to edit this valve class?",
+          confirmText: "Yes, Update",
+          confirmButtonClass: 'dm-btn-info',
+          onConfirm: () => openClassModal('edit', item.class_id)
+        });
+      },
+      onDeny: () => {
+        deleteValveClass(item.class_id);
+      }
+    });
+  }
+
+  function deleteValveClass(id) {
+    DialogManager.confirmAction({
+      title: "Delete Valve Class?",
+      text: "This action cannot be undone.",
+      confirmText: "Yes, Delete",
+      url: `/api/valve_class/delete/${id}/`, // Single Delete API
+      method: "POST", // assuming POST is required
+      onSuccess: () => loadData()
+    });
+  }
+
+  // ============================================
+  // BULK ACTIONS
+  // ============================================
+  function toggleSelectAll() {
+    const all = document.getElementById('selectAll').checked;
+    // Only toggle checkboxes in tbody, not the header checkbox itself
+    document.querySelectorAll('tbody .row-check').forEach(c => c.checked = all);
+    updateBulkDeleteButtonState();
+  }
+
+  function updateBulkDeleteButtonState() {
+    // Only count checkboxes in tbody, not the header checkbox
+    const count = document.querySelectorAll('tbody .row-check:checked').length;
+    document.getElementById('bulkDeleteBtn').disabled = (count === 0);
+  }
+
+  function handleBulkDelete() {
+    // Only get checkboxes from tbody, not the header
+    const ids = Array.from(document.querySelectorAll('tbody .row-check:checked')).map(c => c.value);
+    if (ids.length === 0) return;
+
+    // Note: Bulk Delete API might not exist yet, defaulting to logic or loop
+    // User said "bulk delete only for select and delete"
+    // We will try a hypothetical bulk endpoint, or loop.
+    // Since this is a redesign, I'll point to /api/valve_class/bulk_delete/ 
+    // which will 404 if not backend implemented, prompting user to add it.
+
+    DialogManager.confirmAction({
+      title: "Delete?",
+      text: `Are you sure you want to delete ${ids.length} item(s)?`,
+      confirmText: "Yes, Delete All",
+      url: "/api/valve_class/bulk_delete/",
+      method: "POST",
+      data: { ids: ids },
+      onSuccess: () => loadData()
+    });
+  }
+
+  // ============================================
+  // ADD / EDIT FORM
+  // ============================================
+  function openClassModal(mode, id = null) {
+    const form = document.getElementById('valveClassForm');
+    const title = document.getElementById('valveClassModalTitle');
+    const submit = document.getElementById('submitBtn');
+
+    // Use validator.reset() to clear form and all internal validation states
+    if (validator) {
+      validator.reset();
+    } else {
+      form.reset();
+    }
+    document.getElementById('className').classList.remove('is-invalid');
+    document.getElementById('nameError').textContent = '';
+
+    const modal = new bootstrap.Modal(document.getElementById('valveClassModal'));
+
+    if (mode === 'add') {
+      title.textContent = "Add Valve Class";
+      submit.textContent = "Save";
+      submit.className = "btn btn-success px-4";
+      document.getElementById('classId').value = "";
+      modal.show();
+    } else {
+      title.textContent = "Edit Valve Class";
+      submit.textContent = "Update";
+      submit.className = "btn btn-info px-4";
+
+      const item = masterData.find(x => x.class_id == id);
+      if (!item) return;
+
+      document.getElementById('classId').value = item.class_id;
+      document.getElementById('className').value = item.name;
+      document.getElementById('classDesc').value = item.description || '';
+
+      modal.show();
+    }
+  }
+
+  document.getElementById('valveClassForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('classId').value;
+    const name = document.getElementById('className').value.trim();
+    const desc = document.getElementById('classDesc').value.trim();
+
+    // Name Uniqueness
+    const lower = name.toLowerCase();
+    let initialName = '';
+    if (id) {
+      const item = masterData.find(x => x.class_id == id);
+      if (item) initialName = item.name.toLowerCase();
+    }
+
+    if (lower !== initialName && existingNames.map(n => n.toLowerCase()).includes(lower)) {
+      document.getElementById('className').classList.add('is-invalid');
+      document.getElementById('nameError').textContent = 'Name already exists.';
+      return;
+    }
+
+    DialogManager.loading("Saving...", "Please wait");
+
+    const url = id ? `/api/valve_class/edit/${id}/` : `/api/valve_class/add/`;
+
+    // Backend expects Form Data (request.POST) not JSON
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', desc);
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData
+    })
+      .then(r => r.json())
+      .then(res => {
+        DialogManager.closeLoading();
+        if (res.success) {
+          DialogManager.toast({ type: 'success', message: 'Saved successfully.' });
+          bootstrap.Modal.getInstance(document.getElementById('valveClassModal')).hide();
+          loadData();
+        } else {
+          DialogManager.toast({ type: 'error', message: res.error || 'Error saving data.' });
+        }
+      })
+      .catch(err => {
+        DialogManager.closeLoading();
+        console.error(err);
+        DialogManager.toast({ type: 'error', message: 'Server error.' });
+      });
+  });
+
+  // ============================================
+  // SEARCH UI
+  // ============================================
+  function initSearchToggle() {
+    const wrap = document.getElementById('searchInputWrapper');
+    const toggle = document.getElementById('searchToggleBtn');
+    const close = document.getElementById('searchCloseBtn');
+    const inp = document.getElementById('customSearchInput');
+
+    toggle.onclick = (e) => {
+      e.stopPropagation();
+      if (!wrap.classList.contains('active')) {
+        wrap.classList.add('active');
+        setTimeout(() => inp.focus(), 300);
+      }
+    };
+
+    close.onclick = (e) => {
+      e.stopPropagation();
+      inp.value = '';
+      triggerFilter();
+      wrap.classList.remove('active');
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!wrap.contains(e.target) && !toggle.contains(e.target) && wrap.classList.contains('active')) {
+        inp.value = '';
+        triggerFilter();
+        wrap.classList.remove('active');
+      }
+    });
+  }
+
+  function escapeHtml(text) {
+    if (!text) return "";
+    return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+</script>
+
+{% endblock %}

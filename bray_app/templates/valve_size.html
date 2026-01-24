@@ -1,0 +1,1137 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% block header_title %}Valve Size{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/valve_size.css' %}">
+
+<style>
+  /* ===== Container & Scroll ===== */
+  .table-container-wrapper {
+    height: calc(100vh - 155px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .card {
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* ===== Hint Bar ===== */
+  .edit-hint {
+    padding: 0.5rem 1rem;
+    background: #e7f3ff;
+    color: #0066cc;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid #b3d9ff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .edit-hint .close-btn {
+    background: transparent;
+    border: none;
+    color: #0066cc;
+    font-size: 1.125rem;
+    cursor: pointer;
+    margin-left: auto;
+    line-height: 1;
+  }
+
+  /* ===== Custom Filter Row (Search Toggle + Actions) ===== */
+  .custom-filter-row {
+    padding: 0.75rem 1rem;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .left-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Search Toggle Styles */
+  .search-toggle-container {
+    position: relative;
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 2px;
+    width: 36px;
+    height: 36px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .search-input-wrapper.active {
+    width: 300px;
+    background: white;
+    border-color: #0b1a35;
+    box-shadow: 0 4px 6px -1px rgba(11, 26, 53, 0.2);
+  }
+
+  .search-icon-btn {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+  }
+
+  .search-input-wrapper.active .search-icon-btn {
+    background: transparent;
+    color: #0b1a35;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .search-input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    color: #2d3748;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease 0.1s;
+  }
+
+  .search-input-wrapper.active input {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .search-close-btn {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .search-close-btn:hover {
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.1);
+  }
+
+  .search-input-wrapper.active .search-close-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .table-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* ===== Table Styling ===== */
+  .table-responsive {
+    flex: 1;
+    overflow: auto;
+    background: white;
+  }
+
+  /* Scrollbar Styling */
+  .table-responsive::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #E21A34;
+    border-radius: 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #c9162e;
+  }
+
+  .table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #e9ecef;
+    color: black;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid #edf2f7;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .table tbody td {
+    padding: 0.5rem;
+    vertical-align: middle;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+  }
+
+  .table tbody tr:first-child td {
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f8fafc;
+    cursor: pointer;
+  }
+
+  /* Checkbox styling */
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #0b1a35;
+  }
+
+  /* ===== Pagination & Footer ===== */
+  .custom-pagination-wrapper {
+    background: white;
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pagination-btn:hover:not(:disabled):not(.active) {
+    border-color: #4a5568;
+    color: #4a5568;
+  }
+
+  .pagination-btn.active {
+    background: white;
+    border-color: #4a5568;
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination-btn.prev-btn,
+  .pagination-btn.next-btn {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+
+  /* Pressure Rating Table Styles in Modal */
+  #valveModal .table-responsive table td {
+    min-width: 150px;
+    white-space: nowrap;
+  }
+
+  #valveModal .table-responsive table td input {
+    min-width: 150px;
+  }
+
+  #valveModal .table-responsive table th {
+    min-width: 150px;
+    white-space: nowrap;
+  }
+
+  #valveModal .table-responsive table td:first-child,
+  #valveModal .table-responsive table th:first-child {
+    min-width: 60px;
+    width: 60px;
+  }
+
+  #valveModal .table-responsive table td:nth-child(2),
+  #valveModal .table-responsive table th:nth-child(2) {
+    min-width: 120px;
+  }
+
+  .pagination-btn.next-btn {
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  .pagination-ellipsis {
+    color: #6c757d;
+    padding: 0 0.5rem;
+  }
+
+  .pagination-per-page {
+    margin-left: 1rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+  }
+
+  /* ===== Modal Table Styling (No Gradient) ===== */
+  .modal .table thead th {
+    background: #f8f9fa !important;
+    color: #333 !important;
+    box-shadow: none !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    font-weight: 600;
+  }
+
+  .modal .table td {
+    vertical-align: middle;
+  }
+
+  .action-col {
+    width: 60px;
+    text-align: center;
+  }
+</style>
+
+<div class="container-fluid table-container-wrapper">
+  <div class="card">
+
+    <!-- Hint Bar -->
+    <div class="edit-hint" id="editHint">
+      <div>💡 Tip: Click on any row to edit • Select checkbox(es) and click Delete to remove</div>
+      <button class="close-btn" onclick="document.getElementById('editHint').style.display='none'">&times;</button>
+    </div>
+
+    <!-- Filter Row -->
+    <div class="custom-filter-row">
+      <!-- Left Side: Delete Button -->
+      <div class="left-controls">
+        <div class="table-action-buttons" id="tableActionButtons">
+          <button class="bulk-delete-btn" id="bulkDeleteBtn" onclick="handleBulkDelete()" disabled>
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Middle: Search Toggle -->
+      <!-- <div class="search-toggle-container">
+
+      </div> -->
+
+      <!-- Right Side: Add Button -->
+      <div class="table-action-buttons" id="tableActionButtons-add">
+        <div class="search-input-wrapper" id="searchInputWrapper">
+          <button class="search-icon-btn" id="searchToggleBtn" title="Search">
+            <i class="fas fa-search"></i>
+          </button>
+          <input type="text" id="customSearchInput" placeholder="Search valve sizes...">
+          <button class="search-close-btn" id="searchCloseBtn" title="Clear Search">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <button class="master-add-btn" onclick="openAddForm()">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Table Area -->
+    <div class="table-responsive">
+      <table class="table no-datatables" id="valveTable">
+        <thead>
+          <tr>
+            <th style="width: 40px;"><input type="checkbox" id="selectAll"></th>
+            <th class="sortable text-end pe-3" data-column="SIZE_ID" style="width: 60px;">{% if superuser_level == 2 %}SIZE ID{% else %}S.No{% endif %} <i class="fas fa-sort"></i></th>
+            <th class="sortable text-start" data-column="SIZE_NAME">SIZE NAME <i class="fas fa-sort"></i></th>
+            <th class="sortable text-start" data-column="SIZE_DESC">SIZE DESC <i class="fas fa-sort"></i></th>
+          </tr>
+        </thead>
+        <tbody id="vsTablebody">
+          <tr>
+            <td colspan="4" class=" py-4 text-center">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer (Only Pagination) -->
+    <div class="custom-pagination-wrapper" id="customPagination"></div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="valveModal" tabindex="-1" aria-labelledby="valveModalLabel" aria-hidden="true"
+  data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="post" id="valveForm" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="size_id" id="size_id_hidden">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="valveModalLabel"></h5>
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+          <!-- Valve Info -->
+          <div class="row mb-3" id="valve-value">
+            <div class="col-md-4">
+              <label>Valve Size Name <span class="text-danger">*</span></label>
+              <input id="valve_name" name="name" type="text" class="form-control" value="" required />
+
+            </div>
+            <div class="col-md-4">
+              <label>Valve Size Description</label>
+              <input type="text" class="form-control" value="" name="description" id="desc">
+            </div>
+          </div>
+
+          <!-- Standards Table -->
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered text-center align-middle">
+              <thead>
+                <tr id="category-header-row">
+                  <th class="action-col">
+                    <button type="button" class="btn btn-sm btn-brand" onclick="addRow()">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </th>
+                  <th>Standard <span class="text-danger">*</span></th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- ValveType Table -->
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered text-center align-middle">
+              <thead id="val-type-header-row">
+                <tr>
+                  <th class="action-col">
+                    <button type="button" class="btn btn-sm btn-brand" onclick="addRow2()">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </th>
+                  <th>Valve Type <span class="text-danger">*</span></th>
+                  <th>Open Degree</th>
+                  <th>Close Degree</th>
+                  <th>Loading & Unloading Degree</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody2" style="overflow-y: auto;"></tbody>
+            </table>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="saveBtn" type="submit" class="btn btn-success">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- <script src="{% static 'scripts/dialog-manager.js' %}"></script> -->
+<script src="{% static 'scripts/form-validator.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  let allValves = [];
+  let filteredData = [];
+  let searchQuery = '';
+  let currentPage = 1;
+  let itemsPerPage = 10;
+  let durationColumnNames = [];
+
+  let valveValidator;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Restore Pagination State
+    const savedPage = localStorage.getItem('valveSizePage');
+    const savedPPI = localStorage.getItem('valveSizePPI');
+    if (savedPage) currentPage = parseInt(savedPage);
+    if (savedPPI) itemsPerPage = parseInt(savedPPI);
+
+    loadValvesize();
+    initSearchToggle();
+    get_all_standards();
+    get_all_vlaves();
+    get_enable_categoryies();
+
+    // Validation - Allow any characters
+    valveValidator = new FormValidator('valveForm', {
+      name: {
+        rules: [ValidationRules.required],
+        asyncRule: (val, signal, form) => new Promise((resolve) => {
+          setTimeout(() => {
+            const currentId = form.querySelector('[name="valve_id"]')?.value || form.querySelector('[name="size_id"]')?.value;
+            const exists = allValves.some(item => {
+              if (currentId && (item.SIZE_ID == currentId || item.size_id == currentId)) return false;
+              return item.SIZE_NAME?.toLowerCase() === val.toLowerCase() || item.name?.toLowerCase() === val.toLowerCase();
+            });
+            resolve(exists ? "Size name already exists" : true);
+          }, 300);
+        })
+      }
+    });
+
+    // Sort Listeners - REMOVED
+
+    // Checkbox Listeners (Delegated)
+    document.getElementById('selectAll').addEventListener('change', function (e) {
+      const checked = e.target.checked;
+      document.querySelectorAll('.row-check').forEach(c => c.checked = checked);
+      updateBulkDelete();
+    });
+
+    document.getElementById('vsTablebody').addEventListener('change', function (e) {
+      if (e.target.classList.contains('row-check')) {
+        const total = document.querySelectorAll('.row-check').length;
+        const checked = document.querySelectorAll('.row-check:checked').length;
+        document.getElementById('selectAll').checked = total === checked && total > 0;
+        updateBulkDelete();
+      }
+    });
+
+    // Form Submit Listener
+    document.getElementById('valveForm').addEventListener('submit', handleFormSubmit);
+  });
+
+  function initSearchToggle() {
+    const wrapper = document.getElementById('searchInputWrapper');
+    const toggleBtn = document.getElementById('searchToggleBtn');
+    const closeBtn = document.getElementById('searchCloseBtn');
+    const input = document.getElementById('customSearchInput');
+
+    toggleBtn.addEventListener('click', () => { wrapper.classList.add('active'); input.focus(); });
+    closeBtn.addEventListener('click', () => {
+      input.value = ''; searchQuery = ''; wrapper.classList.remove('active');
+      currentPage = 1; renderTable();
+    });
+    input.addEventListener('keyup', (e) => {
+      searchQuery = e.target.value.trim();
+      currentPage = 1; renderTable();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!wrapper.contains(e.target) && !toggleBtn.contains(e.target) && wrapper.classList.contains('active')) {
+        input.value = '';
+        searchQuery = '';
+        wrapper.classList.remove('active');
+        currentPage = 1;
+        renderTable();
+      }
+    });
+  }
+
+  function updateBulkDelete() {
+    const count = document.querySelectorAll('.row-check:checked').length;
+    document.getElementById('bulkDeleteBtn').disabled = count === 0;
+  }
+
+  function handleBulkDelete() {
+    const selected = Array.from(document.querySelectorAll('.row-check:checked')).map(c => c.value);
+    if (selected.length === 0) return;
+
+    DialogManager.confirmAction({
+      title: `Delete ${selected.length} items?`,
+      text: "This cannot be undone.",
+      confirmText: 'Yes, Delete',
+      url: '/api/valvesize/bulk_delete/',
+      method: "POST",
+      data: { ids: selected },
+      onSuccess: () => {
+        loadValvesize();
+        document.getElementById('selectAll').checked = false;
+        updateBulkDelete();
+      }
+    });
+  }
+
+  function handleRowInteraction(id, name) {
+    DialogManager.confirm({
+      title: `Action for "${name}"`,
+      message: "Choose an action",
+      confirmText: "Update",
+      confirmButtonClass: 'dm-btn-info',
+      denyText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: () => {
+        // Confirmation for Edit
+        DialogManager.confirm({
+          title: "Edit Valve Size?",
+          message: `Are you sure you want to edit "${name}"?`,
+          confirmText: "Yes, Update",
+          confirmButtonClass: 'dm-btn-info',
+          onConfirm: () => openEditModal(id)
+        });
+      },
+      onDeny: () => delete_valve(id)
+    });
+  }
+
+  // ==================== LIST VIEW LOGIC ====================
+
+  function loadValvesize() {
+    fetch("/api/valvesize/")
+      .then(r => r.json())
+      .then(data => {
+        allValves = data.valve_list || [];
+        renderTable();
+      })
+      .catch(err => {
+        console.error("Error fetching valves:", err);
+        document.getElementById("vsTablebody").innerHTML = `<tr><td colspan="4" class="text-end text-danger">Error loading data</td></tr>`;
+      });
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("vsTablebody");
+
+    // 1. Filter
+    filteredData = allValves.filter(item => {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return [item.SIZE_NAME, item.SIZE_DESC].join(' ').toLowerCase().includes(q);
+    });
+
+    // 2. Sort - REMOVED
+
+    // 3. Paginate
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+    if (currentPage < 1) currentPage = 1;
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageData = filteredData.slice(start, end);
+
+    // 4. Render
+    tbody.innerHTML = '';
+    document.getElementById('selectAll').checked = false;
+    updateBulkDelete();
+
+    if (pageData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">No valve sizes found</td></tr>`;
+    } else {
+      pageData.forEach((valve, idx) => {
+        // Row Click opens Action Choice (ignore checkbox click)
+        const tr = document.createElement('tr');
+        tr.onclick = (e) => {
+          if (e.target.tagName !== 'INPUT') handleRowInteraction(valve.SIZE_ID, valve.SIZE_NAME);
+        };
+
+        tr.innerHTML = `
+              <td onclick="event.stopPropagation()"><input type="checkbox" class="row-check" value="${valve.SIZE_ID}"></td>
+              <td class="text-end pe-3">${start + idx + 1}</td>
+              <td class="text-start">${valve.SIZE_NAME}</td>
+              <td class="text-start">${valve.SIZE_DESC || ''}</td>
+          `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    const wrapper = document.getElementById('customPagination');
+    if (filteredData.length === 0) { wrapper.innerHTML = ''; return; }
+
+    const paginationHTML = [];
+
+    // Total count
+    paginationHTML.push(`<span class="text-muted small me-3">Total: ${filteredData.length}</span>`);
+
+    // Previous button
+    paginationHTML.push(`<button class="pagination-btn prev-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">Previous</button>`);
+
+    // Page numbers with ellipsis
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        paginationHTML.push(`<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`);
+      }
+    } else {
+      // Always show first page
+      paginationHTML.push(`<button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" onclick="changePage(1)">1</button>`);
+
+      if (currentPage > 3) {
+        paginationHTML.push('<span class="pagination-ellipsis">...</span>');
+      }
+
+      // Show pages around current
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        paginationHTML.push(`<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`);
+      }
+
+      if (currentPage < totalPages - 2) {
+        paginationHTML.push('<span class="pagination-ellipsis">...</span>');
+      }
+
+      // Always show last page
+      paginationHTML.push(`<button class="pagination-btn ${currentPage === totalPages ? 'active' : ''}" onclick="changePage(${totalPages})">${totalPages}</button>`);
+    }
+
+    // Next button
+    paginationHTML.push(`<button class="pagination-btn next-btn" ${currentPage >= totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next</button>`);
+
+    // Items per page dropdown
+    paginationHTML.push(`
+      <select class="pagination-per-page" onchange="changeItemsPerPage(this.value)">
+        <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10 / page</option>
+        <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25 / page</option>
+        <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50 / page</option>
+        <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100 / page</option>
+      </select>
+    `);
+
+    wrapper.innerHTML = paginationHTML.join('');
+  }
+
+  window.changePage = function (p) {
+    if (p < 1) return;
+    currentPage = p;
+    localStorage.setItem('valveSizePage', currentPage);
+    renderTable();
+  }
+  window.changeItemsPerPage = function (val) {
+    itemsPerPage = parseInt(val);
+    localStorage.setItem('valveSizePPI', itemsPerPage);
+    currentPage = 1;
+    localStorage.setItem('valveSizePage', 1);
+    renderTable();
+  }
+
+  // ==================== ORIGINAL MODAL LOGIC ====================
+  // (Preserved functions from original file)
+
+  function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+  }
+
+  function get_all_standards(select = null, selectedid = null) {
+    fetch('/api/standards/')
+      .then(response => response.json())
+      .then(data => {
+        const standardList = data.standards;
+        const populateMap = (sel) => {
+          sel.innerHTML = '<option value="">Select</option>';
+          standardList.forEach(std => {
+            const option = document.createElement('option');
+            option.value = std.standard_id;
+            option.textContent = std.name;
+            sel.appendChild(option);
+          });
+          if (selectedid && sel === select) sel.value = selectedid;
+        };
+        if (select && select.tagName === 'SELECT') {
+          populateMap(select);
+        }
+      });
+  }
+
+  function get_all_vlaves(select = null, selectedId = null) {
+    fetch('/api/get_valve_type/')
+      .then(r => r.json())
+      .then(data => {
+        const typeList = data.valve_type_list;
+        const populate = (sel) => {
+          sel.innerHTML = '<option value="">Select</option>';
+          typeList.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.TYPE_ID;
+            opt.textContent = t.TYPE_NAME;
+            sel.appendChild(opt);
+          });
+          if (selectedId && sel === select) sel.value = selectedId;
+        };
+        if (select && select.tagName === 'SELECT') populate(select);
+      });
+  }
+
+  function get_enable_categoryies() {
+    fetch('/api/enabled_categories')
+      .then(r => r.json())
+      .then(data => {
+        const list = data.enabled_categories_list;
+        const headerRow = document.getElementById('category-header-row');
+        while (headerRow.children.length > 2) headerRow.removeChild(headerRow.lastChild);
+        durationColumnNames = [];
+        list.forEach(ctg => {
+          const th = document.createElement('th');
+          th.innerHTML = `${ctg.CATEGORY_NAME}<br><small>(sec)</small>`;
+          headerRow.appendChild(th);
+          durationColumnNames.push(ctg.DURATION_COLUMN_NAME);
+        });
+      });
+  }
+
+  function validateInteger(input) {
+    const value = input.value.trim();
+    if (!value) { input.classList.add("is-invalid"); return false; }
+    if (!/^[0-9]+$/.test(value)) { input.classList.add("is-invalid"); return false; }
+    input.classList.remove("is-invalid"); return true;
+  }
+
+  function validatePositive(input) {
+    const value = input.value.trim();
+    const showError = (msg) => {
+      input.classList.add('is-invalid');
+      let fb = input.parentNode.querySelector('.invalid-feedback');
+      if (!fb) {
+        fb = document.createElement('div');
+        fb.className = 'invalid-feedback';
+        input.parentNode.appendChild(fb);
+      }
+      fb.style.display = 'block';
+      fb.innerText = msg;
+    };
+
+    if (value === "") { showError("Required"); return false; }
+    if (!/^\d*\.?\d+$/.test(value)) { showError("Numbers only"); return false; }
+    const num = parseFloat(value);
+
+    input.classList.remove('is-invalid');
+    const fb = input.parentNode.querySelector('.invalid-feedback');
+    if (fb) fb.remove();
+    return true;
+  }
+
+  function validateForm() {
+    const nameInput = document.getElementById("valve_name");
+    let name = nameInput.value.trim();
+
+    if (!name) {
+      return false;
+    }
+
+    // Auto-append inch suffix if not present
+    if (!name.endsWith('"')) {
+      name += '"';
+      nameInput.value = name;
+    }
+
+    // Validate Tables
+    const u1 = validateStandards();
+    const u2 = validateValvetype();
+
+    if (!u1 || !u2) {
+      DialogManager.toast({ type: "warning", message: "Please fix duplicate entries in the table." });
+      return false;
+    }
+
+    // Validate Numeric Inputs (Prevent Submission of Garbage)
+    let validValues = true;
+    document.querySelectorAll('#tableBody input, #tableBody2 input').forEach(inp => {
+      if (inp.getAttribute('oninput') && inp.getAttribute('oninput').includes('validatePositive')) {
+        if (!validatePositive(inp)) validValues = false;
+      }
+    });
+
+    if (!validValues) {
+      DialogManager.toast({ type: "warning", message: "Please correct invalid values (positive numbers only)." });
+      return false;
+    }
+
+    return true;
+  }
+
+  function checkDuplicates(selector, msg) {
+    const items = Array.from(document.querySelectorAll(selector));
+    const counts = {};
+    let valid = true;
+
+    items.forEach(i => {
+      i.classList.remove('is-invalid');
+      const err = i.parentNode.querySelector('.invalid-feedback');
+      if (err) err.remove();
+      const v = i.value;
+      if (v && v !== "Select" && v !== "Loading...") counts[v] = (counts[v] || 0) + 1;
+    });
+
+    items.forEach(i => {
+      const v = i.value;
+      if (!v || v === "Select" || v === "Loading...") {
+        valid = false;
+        i.classList.add('is-invalid');
+        const d = document.createElement('div');
+        d.className = 'invalid-feedback';
+        d.style.display = 'block';
+        d.innerText = "Required";
+        i.parentNode.appendChild(d);
+      } else if (counts[v] > 1) {
+        valid = false;
+        i.classList.add('is-invalid');
+        const d = document.createElement('div');
+        d.className = 'invalid-feedback';
+        d.style.display = 'block';
+        d.innerText = msg;
+        i.parentNode.appendChild(d);
+      }
+    });
+    return valid;
+  }
+
+  // Row Management
+  function addRow(category = null) {
+    const tableBody = document.getElementById('tableBody');
+    const headerRow = document.getElementById('category-header-row');
+    const categoryCount = headerRow.children.length - 2;
+    const tr = document.createElement("tr");
+
+    // Hidden original_id field for tracking existing records
+    let html = `<td><button type="button" class="btn btn-sm text-danger" onclick="removeRow(this)"><i class="bi bi-trash"></i></button></td>`;
+    html += `<td style="display:none;"><input name="original_id" class="duration-id" value="${category?.id || ''}" readonly></td>`;
+    html += `<td><select class="form-select form-select-sm standard-select" name="standard[]" onchange="validateStandards(this)" required><option>Loading...</option></select></td>`;
+
+    let values = [];
+    if (category) {
+      values = Object.keys(category).filter(k => k.startsWith("COL") && k.endsWith("_DUR")).sort().map(k => category[k]);
+    }
+
+    for (let i = 0; i < categoryCount; i++) {
+      const v = values[i] !== undefined ? values[i] : "";
+      html += `<td><input type="text" name="category_value[]" class="form-control text-end" oninput="validatePositive(this)" value="${v}" required></td>`;
+    }
+    tr.innerHTML = html;
+    tableBody.appendChild(tr);
+
+    const sel = tr.querySelector('.standard-select');
+    get_all_standards(sel, category?.standard_id);
+    if (category && category.standard_id) sel.value = category.standard_id;
+  }
+
+  function addRow2(rowData = null) {
+    const tableBody = document.getElementById('tableBody2');
+    const tr = document.createElement("tr");
+    // Hidden original_valve_id field for tracking existing records
+    tr.innerHTML = `
+        <td><button type="button" class="btn btn-sm text-danger" onclick="removeRow2(this)"><i class="bi bi-trash"></i></button></td>
+        <td style="display:none;"><input name="original_valve_id" class="original-id" value="${rowData?.id || ''}" readonly></td>
+        <td><select name="valve_type[]" class="form-select form-select-sm valve-type-select" onchange="validateValvetype(this)" required><option>Select</option></select></td>
+        <td><input type="text" name="open_degree[]" class="form-control form-control-sm text-end" oninput="validatePositive(this)" value="${rowData ? rowData.open_degree : ''}" required></td>
+        <td><input type="text" name="close_degree[]" class="form-control form-control-sm text-end" oninput="validatePositive(this)" value="${rowData ? rowData.close_degree : ''}" required></td>
+        <td><input type="text" name="loading_unloading_degree[]" class="form-control form-control-sm text-end" oninput="validatePositive(this)" value="${rowData ? rowData.loading_unloading_degree : ''}" required></td>
+     `;
+    tableBody.appendChild(tr);
+    const sel = tr.querySelector('.valve-type-select');
+    get_all_vlaves(sel, rowData?.valve_type_id);
+    if (rowData && rowData.valve_type_id) sel.value = rowData.valve_type_id;
+  }
+
+  window.removeRow = function (btn) { if (btn.closest('tbody').rows.length > 1) btn.closest('tr').remove(); else alert("At least one row needed."); }
+  window.removeRow2 = function (btn) { if (btn.closest('tbody').rows.length > 1) btn.closest('tr').remove(); else alert("At least one row needed."); }
+
+  // Modal Open Handlers
+  window.openAddForm = async function () {
+    await get_enable_categoryies();
+    document.getElementById("valveModalLabel").innerText = "ADD Valve Size";
+    document.getElementById("saveBtn").innerText = "Save";
+    document.getElementById("size_id_hidden").value = "";
+    document.getElementById("valve_name").value = "";
+    document.getElementById("desc").value = "";
+    document.getElementById("tableBody").innerHTML = '';
+    document.getElementById("tableBody2").innerHTML = '';
+    valveValidator.reset();
+    new bootstrap.Modal(document.getElementById("valveModal")).show();
+    addRow(); addRow2();
+  }
+
+  window.openEditModal = function (id) {
+    const modalEl = document.getElementById("valveModal");
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+    document.getElementById("valveModalLabel").innerText = "Edit Valve Size";
+    document.getElementById("saveBtn").innerText = "Update";
+    document.getElementById("saveBtn").className = "btn btn-info";
+    document.getElementById("tableBody").innerHTML = '';
+    document.getElementById("tableBody2").innerHTML = '';
+    valveValidator.reset();
+
+    fetch(`/api/valvesize/edit/${id}/`).then(r => r.json()).then(data => {
+      const v = data.edit_valve;
+      document.getElementById("size_id_hidden").value = id;
+      document.getElementById("valve_name").value = v.name;
+      document.getElementById("desc").value = v.description;
+      (data.degree_data || []).forEach(r => addRow2(r));
+      (data.duration_data || []).forEach(r => addRow(r));
+    });
+  }
+
+  // Unified Submission Logic
+  async function handleFormSubmit(event) {
+    if (event) event.preventDefault();
+
+    const saveBtn = document.getElementById("saveBtn");
+    if (saveBtn.disabled) return;
+
+    // 1. Structural & Table Validation
+    if (!validateForm()) return;
+
+    // 2. Field Validation (Async Name Check)
+    const isValid = await valveValidator.validateAll();
+    if (!isValid) return;
+
+    // 3. Prepare Payload
+    const id = document.getElementById("size_id_hidden").value;
+    const valve_name = document.getElementById("valve_name").value;
+    const valve_des = document.getElementById("desc").value;
+
+    const durationResult = [];
+    document.querySelectorAll("#tableBody tr").forEach(row => {
+      const ogi_id = row.querySelector("input[name='original_id']")?.value || '';
+      const std = row.querySelector("select[name='standard[]']").value;
+      const vals = Array.from(row.querySelectorAll("input[name='category_value[]']")).map(i => i.value);
+      let obj = { standard_id: std };
+      if (id) obj.ogi_id = ogi_id;
+      durationColumnNames.forEach((c, i) => obj[c] = vals[i] || null);
+      durationResult.push(obj);
+    });
+
+    const degreeResult = [];
+    document.querySelectorAll("#tableBody2 tr").forEach(row => {
+      const ogi_type_id = row.querySelector("input[name='original_valve_id']")?.value || '';
+      const type = row.querySelector("select[name='valve_type[]']").value;
+      const open = row.querySelector("input[name='open_degree[]']").value;
+      const close = row.querySelector("input[name='close_degree[]']").value;
+      const load = row.querySelector("input[name='loading_unloading_degree[]']").value;
+      let obj = { type_id: type, open_degree: open, close_degree: close, loading_unloading_degree: load };
+      if (id) obj.ogi_type_id = ogi_type_id;
+      degreeResult.push(obj);
+    });
+
+    const payload = { valve_name, valve_des, duration_rows: durationResult, degree_rows: degreeResult };
+
+    // 4. API Request
+    const url = id ? `/api/valvesize/update/${id}/` : '/api/valvesize/add/';
+    const originalText = saveBtn.innerText;
+    saveBtn.disabled = true;
+    saveBtn.innerText = "Processing...";
+    DialogManager.loading("Processing...", "Please wait");
+
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
+        body: JSON.stringify(payload)
+      });
+      const res = await resp.json();
+      DialogManager.closeLoading();
+
+      if (res.status === "success" || res.ok || res.success) {
+        DialogManager.toast({ type: "success", message: res.message || "Operation successful" });
+        bootstrap.Modal.getInstance(document.getElementById("valveModal")).hide();
+        loadValvesize();
+      } else {
+        DialogManager.toast({ type: "error", message: res.message || "Error occurred" });
+      }
+    } catch (err) {
+      DialogManager.closeLoading();
+      DialogManager.toast({ type: "error", message: "Network connection error" });
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerText = originalText;
+    }
+  }
+
+  window.delete_valve = function (id) {
+    DialogManager.confirmAction({
+      title: "Delete?",
+      text: "Are you sure you want to delete this valve size?",
+      confirmText: "Yes, Delete",
+      url: `/api/valvesize/delete/${id}/`,
+      method: "POST",
+      headers: { "X-CSRFToken": getCSRFToken() },
+      onSuccess: (d) => {
+        loadValvesize();
+      }
+    });
+  }
+
+  // Validation helpers
+  window.validateValvetype = function (sel) { return checkDuplicates("#tableBody2 select[name='valve_type[]']", "Duplicate Valve Type"); }
+  window.validateStandards = function (sel) { return checkDuplicates("#tableBody select[name='standard[]']", "Duplicate Standard"); }
+
+</script>
+{% endblock %}

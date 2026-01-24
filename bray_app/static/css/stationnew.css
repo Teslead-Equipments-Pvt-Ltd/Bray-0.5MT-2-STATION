@@ -1,0 +1,715 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* ============================================ */
+/* RESET & BASE */
+/* ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Roboto", sans-serif;
+    background-color: #FFFFFF;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ============================================ */
+/* UTILITIES */
+/* ============================================ */
+.hidden {
+    display: none !important;
+}
+
+/* ============================================ */
+/* NAVBAR */
+/* ============================================ */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: #fff;
+    border-bottom: 2px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar img {
+    height: 50px;
+}
+
+.center-text {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+.navbar select {
+    padding: 10px 16px;
+    border: none;
+    background-color: #D9D9D9;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.navbar select:hover {
+    background-color: #c9c9c9;
+}
+
+.navbar select option {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* ============================================ */
+/* MAIN LAYOUT GRID */
+/* ============================================ */
+.fullcontainer,
+.fullcontainer2 {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.left-side {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.right-side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 90px;
+    height: fit-content;
+}
+
+/* ============================================ */
+/* SECTION STYLING */
+/* ============================================ */
+.section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.section h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.section hr {
+    height: 3px;
+    background: #FF0000;
+    border: none;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* ============================================ */
+/* GRID LAYOUTS */
+/* ============================================ */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* ============================================ */
+/* FORM CONTROLS */
+/* ============================================ */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    padding: 10px 12px;
+    background-color: #D9D9D9;
+    border: 1px solid #c0c0c0;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #666;
+    background-color: #e6e6e6;
+}
+
+/* Valve Serial Number Special Layout */
+.valve-serial-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.input-with-tick {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.valve-serial-input {
+    padding-right: 40px !important;
+    width: 100%;
+}
+
+.green-tick-inside {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+    border: 2px solid white;
+    animation: tickAppear 0.3s ease-out;
+}
+
+.green-tick-inside::before {
+    content: '✓';
+    font-size: 13px;
+}
+
+@keyframes tickAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) scale(0.5);
+    }
+
+    50% {
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+}
+
+.get-assembly-btn,
+.save-local-db-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.get-assembly-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+}
+
+.get-assembly-btn:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.save-local-db-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+.save-local-db-btn:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ============================================ */
+/* ITEMS TABLE */
+/* ============================================ */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.items-table thead th {
+    padding: 12px;
+    font-weight: 700;
+    background-color: #FF0000;
+    color: white;
+    text-align: left;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.items-table tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.items-table tbody tr:hover {
+    background-color: #f8f8f8;
+}
+
+.items-table tbody td {
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.items-table tbody td:first-child {
+    font-weight: 700;
+    color: #555;
+}
+
+.items-table tbody td input {
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background-color: #D9D9D9;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.items-table tbody td input:focus {
+    outline: none;
+    background-color: #e6e6e6;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================ */
+/* BUTTONS */
+/* ============================================ */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-orange {
+    background: linear-gradient(135deg, #FF9D00, #ff8800);
+    color: white;
+    width: 100%;
+}
+
+.btn-orange:hover {
+    background: linear-gradient(135deg, #ff8800, #e67700);
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-group .btn {
+    width: 100%;
+}
+
+.btn-green {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.btn-green:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34);
+}
+
+.btn-blue {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.btn-blue:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+}
+
+.btn-red {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.btn-red:hover {
+    background: linear-gradient(135deg, #c82333, #bd2130);
+}
+
+/* ============================================ */
+/* PRESSURE TABLE */
+/* ============================================ */
+.pressure-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.pressure-table thead th {
+    padding: 10px;
+    font-weight: 700;
+    background-color: white;
+    color: #FF0000;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 2px solid #FF0000;
+}
+
+.pressure-table tbody td {
+    padding: 8px;
+    font-size: 13px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.pressure-table tbody td input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    background-color: #D9D9D9;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.pressure-table tbody td input:focus {
+    outline: none;
+    border-color: #666;
+    background-color: #e6e6e6;
+}
+
+.pressure-table button {
+    border: none;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.pressure-table button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.pressure-table button.disabled-state {
+    background-color: #dc3545 !important;
+}
+
+.pressure-table button:disabled {
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+/* ============================================ */
+/* DEGREE TABLE */
+/* ============================================ */
+.degree-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.degree-table thead th {
+    padding: 10px;
+    font-weight: 700;
+    background-color: #555;
+    color: white;
+    text-align: center;
+    font-size: 13px;
+}
+
+.degree-table tbody td {
+    padding: 8px;
+    font-size: 13px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* ============================================ */
+/* RESPONSIVE DESIGN */
+/* ============================================ */
+
+/* Tablet & Below (< 1100px) - Collapse to Single Column */
+@media (max-width: 1100px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .right-side {
+        position: static;
+        order: -1;
+        /* Move buttons to top */
+    }
+
+    .grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile (< 700px) - Stack Everything */
+@media (max-width: 700px) {
+    .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .navbar img {
+        height: 40px;
+    }
+
+    .center-text {
+        font-size: 18px;
+    }
+
+    .layout-grid {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .section {
+        padding: 16px;
+    }
+
+    .section h4 {
+        font-size: 18px;
+    }
+
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Convert Items Table to Card Layout */
+    .items-table thead {
+        display: none;
+    }
+
+    .items-table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fafafa;
+    }
+
+    .items-table tbody td {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 8px;
+        padding: 8px 0;
+        border: none;
+    }
+
+    .items-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #555;
+    }
+
+    .items-table tbody td input {
+        grid-column: 2;
+    }
+
+    /* Button Groups Stack */
+    .btn-group {
+        gap: 8px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    /* Valve Serial Wrapper */
+    .valve-serial-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-with-tick {
+        min-width: auto;
+    }
+
+    .get-assembly-btn,
+    .save-local-db-btn {
+        width: 100%;
+    }
+}
+
+/* Extra Small (< 400px) */
+@media (max-width: 400px) {
+    .section {
+        padding: 12px;
+    }
+
+    .navbar {
+        padding: 12px;
+    }
+
+    .center-text {
+        font-size: 16px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+/* ============================================ */
+/* PRESSURE TABLE & DEGREE TABLE (Station 2) */
+/* ============================================ */
+.pressuretable2 {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pressuretable2 thead th {
+    padding: 10px;
+    font-weight: 700;
+    background-color: white;
+    color: #FF0000;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 2px solid #FF0000;
+}
+
+.pressuretable2 tbody td {
+    padding: 8px;
+    font-size: 13px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.pressuretable2 tbody td input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    background-color: #D9D9D9;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.pressuretable2 button {
+    border: none;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.pressuretable2 button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.pressuretable2 button.disabled-state {
+    background-color: #dc3545 !important;
+}
+
+.pressuretable2 button:disabled {
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+.degreetable2 {
+    width: 100%;
+}
+
+.degreetable2 table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.degreetable2 thead th {
+    padding: 10px;
+    font-weight: 700;
+    background-color: #555;
+    color: white;
+    text-align: center;
+    font-size: 13px;
+}
+
+.degreetable2 tbody td {
+    padding: 8px;
+    font-size: 13px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}

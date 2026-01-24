@@ -1,0 +1,93 @@
+# --- Python cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual environments ---
+venv/
+.env/
+env/
+.venv/
+
+
+# --- Distribution / packaging ---
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- PyInstaller ---
+*.manifest
+*.spec
+
+# --- Unit test / coverage ---
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints/
+
+# --- Django ---
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# --- Flask ---
+instance/
+.webassets-cache
+
+# --- MyPy / Type checking ---
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# --- Pycharm / VSCode ---
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+.vscode/*
+
+# --- OS files ---
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Logs ---
+*.log
+
+# --- Misc ---
+*.tmp
+*.temp
+*.swp
+*.swo
+
+.env*

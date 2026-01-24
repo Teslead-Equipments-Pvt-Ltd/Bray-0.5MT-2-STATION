@@ -1,0 +1,535 @@
+{% extends 'base.html' %}
+{% block header_title %}
+USER ENABLE / DISABLE
+{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<!-- Display Messages -->
+{% if messages %}
+<div class="container mt-3">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<style>
+  .custom-header {
+    background-color: #FFFFFF;
+    color: rgb(27, 26, 26);
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .dataTables_wrapper .dataTables_filter input {
+    border-radius: 4px;
+    padding: 10px;
+  }
+
+  .table thead th {
+    background-color: #e9ecef;
+    color: rgb(15, 14, 14);
+    vertical-align: middle;
+  }
+
+  .btn-add {
+    background-color: #040D52;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    float: right;
+  }
+
+  .btn-add:hover {
+    background-color: #007c9c;
+  }
+
+  .icon-btn {
+    border: none;
+    background: none;
+    padding: 2px 5px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .icon-btn.edit {
+    color: #040D52;
+  }
+
+  .icon-btn.delete {
+    color: red;
+  }
+
+  div.dataTables_wrapper div.dataTables_length select {
+    width: auto;
+    display: inline-block;
+  }
+
+  div.dataTables_length label {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    font-size: 14px;
+  }
+
+  div.dataTables_length label select {
+    width: 90px !important;
+    padding: 2px 2px !important;
+    border-radius: 4px;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    margin-top: 10px !important;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
+  .dataTables_wrapper .bottom {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .dataTables_length,
+  .dataTables_paginate {
+    display: inline-block !important;
+    margin: 0 !important;
+  }
+
+  .dataTables_paginate {
+    margin-left: auto !important;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #040D52 !important;
+    color: white !important;
+    border: 1px solid #040D52 !important;
+    border-radius: 4px !important;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #040D52 !important;
+    color: white !important;
+    border: 1px solid #040D52 !important;
+  }
+
+  /* Bootstrap pagination styling - only current page gets brand color */
+  .dataTables_wrapper .dataTables_paginate .page-link[aria-current="page"] {
+    background: #040D52 !important;
+    color: white !important;
+    border: 1px solid #040D52 !important;
+    border-radius: 4px !important;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .page-link[aria-current="page"]:hover {
+    background: #040D52 !important;
+    color: white !important;
+    border: 1px solid #040D52 !important;
+  }
+
+  /* Ensure other page links have default styling */
+  .dataTables_wrapper .dataTables_paginate .page-link:not([aria-current="page"]) {
+    background: transparent !important;
+    color: #040D52 !important;
+    border: 1px solid #dee2e6 !important;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .page-link:not([aria-current="page"]):hover {
+    background: #e9ecef !important;
+    color: #040D52 !important;
+    border: 1px solid #dee2e6 !important;
+  }
+
+  .table tbody tr {
+    background-color: transparent !important;
+  }
+
+  .table tbody tr:nth-child(odd) {
+    background-color: transparent !important;
+  }
+
+  .table tbody tr:nth-child(even) {
+    background-color: transparent !important;
+  }
+
+  .table {
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  .table th:first-child,
+  .table td:first-child {
+    border-left: none !important;
+  }
+
+  .table th:last-child,
+  .table td:last-child {
+    border-right: none !important;
+  }
+
+  .table th,
+  .table td {
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  .is-invalid {
+    border-color: red !important;
+    background-color: #fff0f0;
+  }
+</style>
+
+<div class="card shadow-sm mt-4" style="margin-left: 45px; margin-right: 30px;border-radius: 10px;">
+  <div class="custom-header d-flex justify-content-between align-items-center">
+    <span>Alarm View</span>
+    <div class="d-flex align-items-center gap-3">
+      <div class="search-box">
+        <input type="text" id="alarmSearch" class="form-control" placeholder="Search alarms..." style="width: 250px;">
+      </div>
+      <button class="btn-add btn-sm" data-bs-toggle="modal" data-bs-target="#alarmModal" onclick="openAddForm()">
+        <i class="fas fa-plus"></i> ADD
+      </button>
+    </div>
+  </div>
+
+  <div class="p-3">
+    <table id="alarmTable" class="table table-bordered" style="border-radius: 3px;">
+      <thead>
+        <tr>
+          <th class="text-end pe-3" style="width: 60px;">Code</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th style="width: 550px;">Operations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for alarm in alarms %}
+        <tr>
+          <td class="text-end pe-3">{{ alarm.code }}</td>
+          <td>{{ alarm.name }}</td>
+          <td>
+            <span class="badge {% if alarm.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+              {{ alarm.status|title|default:"Active" }}
+            </span>
+          </td>
+          <td>
+            <!-- Edit Button -->
+            <button class="icon-btn edit" data-bs-toggle="modal" data-bs-target="#editAlarmModal{{ alarm.id }}"
+              title="Edit">
+              <i class="fas fa-pen-to-square"></i>
+            </button>
+
+            <!-- Delete Form -->
+            <form method="post" action="{% url 'alarm_delete' alarm.id %}" style="display:inline;" class="delete-form">
+              {% csrf_token %}
+              <button class="icon-btn delete" type="submit" title="Delete">
+                <i class="fas fa-trash-can"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+
+        <!-- Edit Modal per alarm -->
+        <div class="modal fade" id="editAlarmModal{{ alarm.id }}" tabindex="-1" aria-hidden="false">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <form method="post" action="{% url 'alarm_add_or_edit' %}">
+                {% csrf_token %}
+                <input type="hidden" name="alarm_id" value="{{ alarm.id }}">
+                <div class="modal-header" style="background-color: #007c9c;color: white;">
+                  <h5 class="modal-title">Edit Alarm</h5>
+                  <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="edit_code_{{ alarm.id }}"
+                      style="font-size: 14px; color: #040D52; font-weight: 500;">Code</label>
+                    <input type="text" class="form-control" id="edit_code_{{ alarm.id }}" name="code"
+                      value="{{ alarm.code }}" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="edit_name_{{ alarm.id }}"
+                      style="font-size: 14px; color: #040D52; font-weight: 500;">Name</label>
+                    <input type="text" class="form-control" id="edit_name_{{ alarm.id }}" name="name"
+                      value="{{ alarm.name }}" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="edit_status_{{ alarm.id }}"
+                      style="font-size: 14px; color: #040D52; font-weight: 500;">Status</label>
+                    <select id="edit_status_{{ alarm.id }}" name="status" class="form-control" required>
+                      <option value="">Select Status</option>
+                      <option value="active" {% if alarm.status=='active' %}selected{% endif %}>Active</option>
+                      <option value="inactive" {% if alarm.status=='inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-brand">Save</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Alarm Modal -->
+<div class="modal fade" id="alarmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #040D52;">
+        <h5 class="modal-title text-white">Add Alarm</h5>
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="alarmAddForm" method="post" action="{% url 'alarm_add_or_edit' %}"
+          onsubmit="return (typeof validateAlarmForm === 'function') ? validateAlarmForm() : false">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="addCode" style="font-size: 14px; color: #040D52; font-weight: 500;">Code</label>
+            <input type="text" id="addCode" name="code" class="form-control" placeholder="Enter alarm code"
+              autocomplete="off" required>
+            <div id="add_alarm_code_error" class="text-danger small mt-1"></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="addName" style="font-size: 14px; color: #040D52; font-weight: 500;">Name</label>
+            <input type="text" id="addName" name="name" class="form-control" placeholder="Enter alarm name" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="addStatus" style="font-size: 14px; color: #040D52; font-weight: 500;">Status</label>
+            <select id="addStatus" name="status" class="form-control" required>
+              <option value="">Select Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" form="alarmAddForm" class="btn btn-brand" style="background-color: #040D52;">Save</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS includes -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'scripts/bootstrap/bootstrap.bundle.js' %}"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#alarmTable').DataTable({
+      "dom": 'rt<"bottom"l p><"clear">',
+      "language": {
+        "lengthMenu": "_MENU_",
+        "info": "Showing _START_ to _END_ of _TOTAL_",
+        "infoEmpty": "Showing 0 to 0 of 0",
+        "infoFiltered": "(filtered from _MAX_ total)"
+      }
+    });
+
+    // Custom search functionality for header search box
+    $('#alarmSearch').on('keyup', function () {
+      $('#alarmTable').DataTable().search($(this).val()).draw();
+    });
+  });
+
+  // Delete confirmation
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.delete-form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "This action cannot be undone.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      });
+    });
+  });
+
+  function openAddForm() {
+    $('#alarmAddForm')[0].reset();
+    $('#alarmModalLabel').text("Add Alarm");
+  }
+</script>
+
+<!-- JavaScript for alarm validation -->
+<script>
+  // All existing alarm codes (from backend)
+  window.existingAlarmCodes = {{ existing_codes | safe }};
+  console.log('Existing alarm codes:', window.existingAlarmCodes);
+
+  function checkDuplicateAlarmCode(input, errorDivId) {
+    console.log('checkDuplicateAlarmCode called with:', input.value, errorDivId);
+    const value = input.value.trim();
+    const errorDiv = document.getElementById(errorDivId);
+
+    if (!errorDiv) {
+      console.error('Error div not found:', errorDivId);
+      return false;
+    }
+
+    input.classList.remove("is-invalid");
+    errorDiv.textContent = "";
+
+    if (!value) {
+      console.log('Empty value detected');
+      input.classList.add("is-invalid");
+      errorDiv.textContent = "Alarm code cannot be empty.";
+      return false;
+    }
+
+    // Check if existingAlarmCodes is available and is an array
+    if (window.existingAlarmCodes && Array.isArray(window.existingAlarmCodes)) {
+      console.log('Existing codes:', window.existingAlarmCodes);
+      console.log('Current value:', value);
+      console.log('Is duplicate?', window.existingAlarmCodes.includes(value));
+
+      if (window.existingAlarmCodes.includes(value)) {
+        console.log('Duplicate code detected');
+        input.classList.add("is-invalid");
+        errorDiv.textContent = "This alarm code already exists.";
+        return false;
+      }
+    } else {
+      console.warn('existingAlarmCodes not available or not an array:', window.existingAlarmCodes);
+    }
+
+    console.log('Validation passed');
+    return true;
+  }
+
+  // Form validation function for inline onsubmit
+  function validateAlarmForm() {
+    console.log('validateAlarmForm called');
+    const codeInput = document.getElementById('addCode');
+    const nameInput = document.getElementById('addName');
+    const statusSelect = document.getElementById('addStatus');
+
+    if (!codeInput || !nameInput || !statusSelect) {
+      console.error('Form elements not found');
+      return false;
+    }
+
+    // Check code validation
+    const codeValid = checkDuplicateAlarmCode(codeInput, 'add_alarm_code_error');
+    console.log('Code validation result:', codeValid);
+
+    // Check required fields
+    const nameValid = nameInput.value.trim() !== '';
+    const statusValid = statusSelect.value.trim() !== '';
+
+    if (!nameValid) {
+      console.log('Name not entered');
+      nameInput.classList.add('is-invalid');
+    } else {
+      nameInput.classList.remove('is-invalid');
+    }
+
+    if (!statusValid) {
+      console.log('Status not selected');
+      statusSelect.classList.add('is-invalid');
+    } else {
+      statusSelect.classList.remove('is-invalid');
+    }
+
+    const overallValid = codeValid && nameValid && statusValid;
+    console.log('Overall form validation result:', overallValid);
+
+    if (!overallValid) {
+      console.log('Form validation failed, preventing submission');
+    }
+
+    return overallValid;
+  }
+
+  // Make validation functions globally accessible
+  window.checkDuplicateAlarmCode = checkDuplicateAlarmCode;
+  window.validateAlarmForm = validateAlarmForm;
+
+  // Attach event listeners for real-time validation
+  document.addEventListener("DOMContentLoaded", function () {
+    const codeInput = document.getElementById('addCode');
+
+    if (codeInput) {
+      codeInput.addEventListener('input', function () {
+        console.log('Alarm code input event triggered');
+        checkDuplicateAlarmCode(this, 'add_alarm_code_error');
+      });
+
+      codeInput.addEventListener('blur', function () {
+        console.log('Alarm code blur event triggered');
+        checkDuplicateAlarmCode(this, 'add_alarm_code_error');
+      });
+    }
+
+    // Add click handler for ADD button to clear form
+    const addBtn = document.querySelector('[data-bs-target="#alarmModal"]');
+    if (addBtn) {
+      addBtn.addEventListener('click', function () {
+        console.log('ADD button clicked, clearing form');
+        setTimeout(() => {
+          const codeInput = document.getElementById('addCode');
+          const errorDiv = document.getElementById('add_alarm_code_error');
+          const nameInput = document.getElementById('addName');
+          const statusSelect = document.getElementById('addStatus');
+
+          if (codeInput) {
+            codeInput.value = "";
+            codeInput.classList.remove('is-invalid');
+          }
+          if (errorDiv) {
+            errorDiv.textContent = "";
+          }
+          if (nameInput) {
+            nameInput.value = "";
+            nameInput.classList.remove('is-invalid');
+          }
+          if (statusSelect) {
+            statusSelect.value = "";
+            statusSelect.classList.remove('is-invalid');
+          }
+          console.log('Alarm form cleared');
+        }, 100);
+      });
+    }
+  });
+</script>
+
+{% endblock %}

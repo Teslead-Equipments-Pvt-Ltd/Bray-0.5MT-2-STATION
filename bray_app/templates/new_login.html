@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teslead Connect - Login</title>
+  {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'images/Teslead-Connect-Logo.png' %}">
+  <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/new_login.css' %}">
+</head>
+<body>
+  {% csrf_token %}
+
+  <div class="login-wrapper">
+    <!-- Username Step -->
+    <section id="username-section" class="auth-section">
+      <div class="left-panel">
+        <img src="{% static 'images/Teslead-smartsync.png' %}" alt="Teslead SmartSync X" class="hero-image">
+      </div>
+      <div class="right-panel">
+        <img src="{% static 'images/Teslead-Logo-White.png' %}" alt="Teslead Logo" class="brand-mark">
+        <div class="auth-card">
+          <div class="accent-top"></div>
+          <img src="{% static 'images/Teslead-Logo.png' %}" alt="Teslead Logo" class="card-logo">
+          <h1 class="heading">Sign In</h1>
+          <p class="subheading">Use your account to login</p>
+
+          <div class="form-group mt-4">
+            <label for="username" class="form-label" id="username-label">Enter Username</label>
+            <input type="text" class="form-control input-field" id="username" placeholder="Your username">
+            <small id="errormsg" class="error-text"></small>
+          </div>
+
+          <div class="action-row">
+            <button class="primary-btn mt-4" onclick="new_usercheck()">Next</button>
+          </div>
+
+          <div class="powered-text">
+            <span class="blue-text">Powered By</span>
+            <span class="text-white d-block">Teslead Equipments Private Limited</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Password Step -->
+    <section id="password-section" class="auth-section d-none">
+      <div class="left-panel">
+        <img src="{% static 'images/Teslead-smartsync.png' %}" alt="Teslead SmartSync X" class="hero-image">
+      </div>
+      <div class="right-panel">
+        <img src="{% static 'images/Teslead-Logo-White.png' %}" alt="Teslead Logo" class="brand-mark">
+        <div class="auth-card">
+          <div class="accent-top"></div>
+          <img src="{% static 'images/Teslead-Logo.png' %}" alt="Teslead Logo" class="card-logo">
+          <h1 class="heading" id="pwdname">Sign In</h1>
+          <p class="subheading">Use your account to login</p>
+
+          <div class="form-group mt-4">
+            <label for="password_field" class="form-label">Enter Password</label>
+            <input type="password" class="form-control input-field" id="password_field" placeholder="Your password">
+            <div class="form-check mt-2">
+              <input type="checkbox" class="form-check-input" id="checkbox1">
+              <label class="form-check-label" for="checkbox1" id="showpassword">Show Password</label>
+            </div>
+            <small id="errormsg1" class="error-text"></small>
+          </div>
+
+          <div class="d-flex gap-3 flex-column flex-sm-row mt-4 justify-content-between justify-content-sm-end">
+            <button class="secondary-btn flex-fill" onclick="backbtn()">Back</button>
+            <button class="primary-btn flex-fill" id="nextbtn" onclick="new_passwordcheck()">Next</button>
+          </div>
+
+          <div class="powered-text">
+            <span class="blue-text">Powered By</span>
+            <span class="text-white d-block">Teslead Equipments Private Limited</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Welcome Step -->
+    <section id="welcome-section" class="auth-section d-none">
+      <div class="left-panel">
+        <img src="{% static 'images/Teslead-smartsync.png' %}" alt="Teslead SmartSync X" class="hero-image">
+      </div>
+      <div class="right-panel">
+        <img src="{% static 'images/Teslead-Logo-White.png' %}" alt="Teslead Logo" class="brand-mark">
+        <div class="auth-card welcome-card">
+          <div class="accent-top"></div>
+          <h1 id="welcomename" class="heading text-center mt-4">Welcome</h1>
+          <p class="subheading text-center">Welcome Back!</p>
+          <p class="loading-text text-center">Loading...</p>
+          <div class="powered-text text-center">
+            <span class="blue-text">Powered By</span>
+            <span class="text-white d-block">Teslead Equipments Private Limited</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Decorative Triangle -->
+  <!-- <div id="triangle" class="triangle-container d-none d-lg-block">
+    <svg id="Layer_1" data-name="Layer 1" version="1.1" viewBox="0 0 2000 2000">
+      <polygon class="cls-1" points="928 781 1021 951 784.5 1371.97 1618 1371.97 1530.32 1544 509 1539 928 781"></polygon>
+      <polygon class="cls-3" points="1618 1371.97 784.5 1371.97 874.93 1211 1346 1211 923.1 456 1110.06 456 1618 1371.97"></polygon>
+      <g id="Layer_2" data-name="Layer 2">
+        <polygon class="cls-2" points="418 1372.74 509 1539 928 781 1162.32 1211 1346 1211 923.1 456 418 1372.74"></polygon>
+      </g>
+    </svg>
+  </div> -->
+
+  
+
+  <script src="{% static 'scripts/bootstrap/bootstrap.bundle.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  let username2 = "";
+  let actualUsername = "";
+
+  function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+  }
+
+  function toggleSection(showId) {
+    ['username-section', 'password-section', 'welcome-section'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.toggle('d-none', id !== showId);
+      }
+    });
+  }
+
+  // -------------------------
+  // 1. USERNAME/EMPLOYEE CODE CHECK (API)
+  // -------------------------
+  function new_usercheck() {
+    const usernameInput = document.getElementById("username");
+    const errormsg = document.getElementById("errormsg");
+    const inputValue = usernameInput.value.trim();
+
+    if (!inputValue) {
+      errormsg.textContent = "Field should not be empty";
+      errormsg.style.color = "var(--danger)";
+      usernameInput.classList.add("input-error");
+      return;
+    }
+
+    // Clear previous errors
+    errormsg.textContent = "";
+    usernameInput.classList.remove("input-error");
+
+    // First, try to check if it's a username (for superusers)
+    fetch("/api/auth/check-username/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),
+      },
+      body: JSON.stringify({ username: inputValue })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          // Found as username - check superuser level
+          if (data.superuser === 3 || data.superuser === 2 || data.superuser === 1) {
+            // Superuser - proceed with username
+            username2 = inputValue;
+            actualUsername = data.username;
+            proceedToPassword();
+          } else if (data.superuser === 0) {
+            // Regular employee tried to use username - show error
+            errormsg.textContent = "Enter employee code";
+            errormsg.style.color = "var(--danger)";
+            usernameInput.classList.add("input-error");
+            
+            // Update label and placeholder to indicate employee code
+            document.getElementById("username-label").textContent = "Enter Employee Code";
+            usernameInput.placeholder = "Your employee code";
+          }
+        } else {
+          // Not found as username, try as employee code
+          checkAsEmployeeCode(inputValue);
+        }
+      })
+      .catch(() => {
+        // Error with username check, try as employee code
+        checkAsEmployeeCode(inputValue);
+      });
+  }
+
+  function checkAsEmployeeCode(inputValue) {
+    const usernameInput = document.getElementById("username");
+    const errormsg = document.getElementById("errormsg");
+
+    fetch("/api/auth/check-employee-code/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),
+      },
+      body: JSON.stringify({ employee_code: inputValue })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          // Found as employee code
+          if (data.superuser === 0) {
+            // Regular employee with valid employee code
+            username2 = inputValue; // Store employee code as login identifier
+            actualUsername = data.username; // Store actual username for display
+            proceedToPassword();
+          } else {
+            // Superuser tried to use employee code - redirect to use username
+            errormsg.textContent = "Please enter your username instead";
+            errormsg.style.color = "var(--danger)";
+            usernameInput.classList.add("input-error");
+            
+            // Update label and placeholder back to username
+            document.getElementById("username-label").textContent = "Enter Username";
+            usernameInput.placeholder = "Your username";
+          }
+        } else {
+          // Not found as employee code either
+          errormsg.textContent = "Invalid username or employee code";
+          errormsg.style.color = "var(--danger)";
+          usernameInput.classList.add("input-error");
+        }
+      })
+      .catch(() => {
+        errormsg.textContent = "Error. Try again.";
+        errormsg.style.color = "var(--danger)";
+      });
+  }
+
+  function proceedToPassword() {
+    toggleSection('password-section');
+    document.getElementById("pwdname").textContent = `Hi ${actualUsername.toUpperCase()}`;
+    document.getElementById("password_field").focus();
+  }
+
+  // -------------------------
+  // 2. PASSWORD CHECK + LOGIN (API)
+  // -------------------------
+  function new_passwordcheck() {
+    const passwordInput = document.getElementById("password_field");
+    const errormsg1 = document.getElementById("errormsg1");
+    const password = passwordInput.value.trim();
+
+    if (!password) {
+      errormsg1.textContent = "Field should not be empty";
+      errormsg1.style.color = "var(--danger)";
+      passwordInput.classList.add("input-error");
+      return;
+    }
+
+    errormsg1.style.color = "var(--muted)";
+    errormsg1.textContent = "Validating...";
+
+    fetch("/api/auth/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),
+      },
+      body: JSON.stringify({
+        login_identifier: username2, // This could be username or employee code
+        password: password
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+
+          try {
+            // Store user role based on superuser level
+            let role = "user";
+            if (data.superuser_level === 3) role = "super_admin";
+            else if (data.superuser_level === 2) role = "admin";
+            else if (data.superuser_level === 1) role = "manager";
+            
+            localStorage.setItem("role", role);
+            localStorage.setItem("username", actualUsername);
+            localStorage.setItem("superuser_level", data.superuser_level);
+          } catch (_) {}
+
+          errormsg1.textContent = "";
+          passwordInput.classList.remove("input-error");
+
+          toggleSection("welcome-section");
+          document.getElementById("welcomename").textContent = `Hi ${actualUsername.toUpperCase()}`;
+
+          setTimeout(() => {
+            window.location.href = "/dashboard/";
+          }, 2000);
+
+        } else {
+          errormsg1.textContent = data.message;
+          errormsg1.style.color = "var(--danger)";
+          passwordInput.classList.add("input-error");
+        }
+      })
+      .catch(() => {
+        errormsg1.textContent = "Error. Try again.";
+        errormsg1.style.color = "var(--danger)";
+      });
+  }
+
+  function backbtn() {
+    toggleSection("username-section");
+    document.getElementById("password_field").value = "";
+    document.getElementById("errormsg1").textContent = "";
+  }
+
+  // Show password toggle
+  const checkbox1 = document.getElementById("checkbox1");
+  const password_field = document.getElementById("password_field");
+  const showpassword = document.getElementById("showpassword");
+
+  if (checkbox1 && password_field && showpassword) {
+    checkbox1.addEventListener("change", () => {
+      const show = checkbox1.checked;
+      password_field.type = show ? "text" : "password";
+      showpassword.textContent = show ? "Hide Password" : "Show Password";
+    });
+  }
+
+  // Username field sanitization
+  const usernameInputField = document.getElementById("username");
+  if (usernameInputField) {
+    usernameInputField.addEventListener("input", function () {
+      const cleaned = this.value.replace(/[^a-zA-Z0-9-_ ]/g, "");
+      if (this.value !== cleaned) this.value = cleaned;
+    });
+  }
+
+  // Enter key shortcuts
+  setTimeout(() => {
+    const usernameField = document.getElementById("username");
+    const passwordField = document.getElementById("password_field");
+
+    if (usernameField) {
+      usernameField.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          new_usercheck();
+        }
+      });
+    }
+
+    if (passwordField) {
+      passwordField.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          new_passwordcheck();
+        }
+      });
+    }
+  }, 100);
+</script>
+</body>
+</html>

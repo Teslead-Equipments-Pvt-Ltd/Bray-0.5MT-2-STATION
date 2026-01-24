@@ -1,0 +1,530 @@
+{% extends 'base_new.html' %}
+{% block header_title %}
+VALVE TYPE
+{% endblock %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/valvetype.css' %}">
+
+{% block content %}
+
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Valve Type</h4>
+      <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#valveModal"><i class="fas fa-plus"></i>Add</button>
+    </div>
+
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="valveTable" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>{% if superuser_level == 2 %}TYPE ID{% else %}S.No{% endif %}</th>
+              <th>TYPE NAME</th>
+              <th>DESCRIPTION</th>
+              <th>ASSOCIATED TEST TYPES</th>
+              <th>OPERATIONS</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for valve in valve_types %}
+            <tr>
+              <td>{% if superuser_level == 2 %}{{ valve.code }}{% else %}{{ forloop.counter }}{% endif %}</td>
+              <td>{{ valve.name }}</td>
+              <td>{{ valve.description }}</td>
+              <td>
+                {% if valve.associated_test_types %}
+                {% for test_type_name in valve.associated_test_types %}
+                <span class="badge bg-primary me-1">{{ test_type_name }}</span>
+                {% endfor %}
+                {% else %}
+                <span class="text-muted">No test types selected</span>
+                {% endif %}
+              </td>
+
+              <td>
+                <!-- Edit Button -->
+                <button class="icon-btn edit" data-bs-toggle="modal" data-bs-target="#editValveModal{{ valve.id }}">
+                  <i class="fas fa-pen-to-square"></i>
+                </button>
+              
+                <!-- Delete Form -->
+                <form method="post" action="{% url 'valve_type_delete' valve.id %}" style="display:inline;"
+                  class="delete-form">
+                  {% csrf_token %}
+                  <button class="icon-btn delete" type="submit"><i class="fas fa-trash-can"></i></button>
+                </form>
+
+                
+
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editValveModal{{ valve.id }}" tabindex="-1"
+                  aria-labelledby="editValveModalLabel{{ valve.id }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="editValveModalLabel{{ valve.id }}">Edit Valve Type </h5>
+                        <a href="/valve_type/"><button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal" aria-label="Close"></button></a>
+                      </div>
+
+                      <form class="editform" data-valve-id="{{ valve.id }}" method="post"
+                        action="{% url 'valve_type' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="edit">
+                        <input type="hidden" name="valve_id" value="{{ valve.id }}">
+                        <div class="modal-body">
+                      <!-- Edit Modal Input -->
+                          
+                        <div class="mb-3"><label class="form-label">Valve Type Name</label>
+                          <input type="text" id="edit_name_{{ valve.id }}"name="name"value="{{ valve.name }}"data-original="{{ valve.name|escapejs }}"class="form-control form-control-sm" required>
+                          <div id="edit_name_error_{{ valve.id }}" class="text-danger small mt-1"></div>
+                        </div>
+
+
+
+<script>
+
+
+document.querySelectorAll('.delete-form').forEach(function (form) {
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // Stop the form from submitting immediately
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This action cannot be undone.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit(); // Proceed only if confirmed
+      }
+    });
+  });
+});
+
+// Require at least one Test Type selection for both Add and Edit forms
+               
+const addForm = document.getElementById("valveForm");
+if (addForm) {
+  addForm.addEventListener("submit", function (e) {
+    const checked = addForm.querySelectorAll('input[name="test_types"]:checked').length;
+    const errorDiv = document.getElementById("test_types_error");
+    if (checked === 0) {
+      e.preventDefault();
+      if (errorDiv) errorDiv.textContent = "Please select at least one test type.";
+    } else if (errorDiv) {
+      errorDiv.textContent = "";
+    }
+  });
+}
+
+document.querySelectorAll("form.editform").forEach(form => {
+  form.addEventListener("submit", function (e) {
+    const checked = form.querySelectorAll('input[name="test_types"]:checked').length;
+    const valveId = form.dataset.valveId;
+    const errorDiv = document.getElementById(`edit_test_types_error_${valveId}`);
+    if (checked === 0) {
+      e.preventDefault();
+      if (errorDiv) errorDiv.textContent = "Please select at least one test type.";
+    } else if (errorDiv) {
+      errorDiv.textContent = "";
+    }
+  });
+});
+
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  document.activeElement.blur();
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+  // ✅ Load existing names from backend safely
+  window.existingValveNames = {{ existing_names|safe }};
+
+  // ✅ Validation function for editing
+  function validateEditValveName(input, original, valveId) {
+    const value = input.value.trim().toLowerCase();
+    const originalLower = original.trim().toLowerCase();
+    const errorDiv = document.getElementById(`edit_name_error_${valveId}`);
+    let isValid = true;
+
+    // Clear previous errors
+    errorDiv.textContent = "";
+
+    if (!value) {
+      errorDiv.textContent = "Valve Type Name cannot be empty.";
+      isValid = false;
+    } else if (
+      value !== originalLower &&
+      window.existingValveNames.map(name => name.toLowerCase()).includes(value)
+    ) {
+      errorDiv.textContent = "This Valve Type Name already exists.";
+      isValid = false;
+    }
+
+    // Toggle Bootstrap invalid class
+    input.classList.toggle("is-invalid", !isValid);
+    return isValid;
+  }
+
+  // ✅ Attach validation listeners to all edit forms
+  document.querySelectorAll("form.editform").forEach(form => {
+    const valveId = form.dataset.valveId;
+    const input = document.getElementById(`edit_name_${valveId}`);
+    const original = input.dataset.original || "";
+
+    // Real-time validation while typing
+    input.addEventListener("input", () => {
+      validateEditValveName(input, original, valveId);
+    });
+
+    // Final check before submitting
+    form.addEventListener("submit", e => {
+      if (!validateEditValveName(input, original, valveId)) {
+        e.preventDefault();
+        e.stopPropagation();
+        input.focus();
+      }
+    });
+  });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                          <div class="mb-3">
+                            <label class="form-label">Valve Type Desc</label>
+                            <input type="text" name="description" class="form-control" value="{{ valve.description }}">
+                          </div>
+
+                          <!-- Test Type Selection for Edit -->
+                          <div class="mb-3">
+                            <label class="form-label">Select Test Types</label>
+                            <div class="row">
+                              {% for test_type in test_types %}
+                              <div class="col-md-6 col-lg-4 mb-2">
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" name="test_types"
+                                    value="{{ test_type.id }}" id="edit_test_type_{{ test_type.id }}_{{ valve.id }}" 
+                                    {% if test_type.id in valve.selected_test_type_ids %}checked{% endif %}>
+                                  <label class="form-check-label"
+                                    for="edit_test_type_{{ test_type.id }}_{{ valve.id }}">
+                                    {{ test_type.name }}
+                                  </label>
+                                </div>
+                              </div>
+                              {% endfor %}
+                            </div>
+                            <div id="edit_test_types_error_{{ valve.id }}" class="text-danger small mt-1"></div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="submit" class="btn btn-brand">Save</button>
+                          <a href="/valve_type/"><button type="button" class="btn btn-outline-secondary"
+                              data-bs-dismiss="modal">Cancel</button></a>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Edit Modal -->
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Valve Modal -->
+<div class="modal fade" id="valveModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #0b1a35;color: white;">
+        <h5 class="modal-title" id="valveModalLabel">Add Valve Type</h5>
+        <a href="/valve_type/"> <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+            aria-label="Close"></button></a>
+      </div>
+      <form id="valveForm" method="post" action="{% url 'valve_type' %}">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="add">
+        <div class="modal-body">
+       
+
+          <div class="mb-3">
+            <label class="form-label">Valve Type Name</label>
+            <input type="text" id="add_name" name="name" class="form-control" placeholder="" required
+              oninput="checkDuplicateValveName(this, 'add_valve_name_error')" />
+            <div id="add_valve_name_error" class="text-danger small mt-1"></div>
+          </div>
+
+          <script>
+            // Make sure to normalize all existing names
+            const existingNames = {{ existing_names| safe }}.map(name => name.toLowerCase());
+
+            function checkDuplicateValveName(input, errorDivId) {
+              const value = input.value.trim();
+              const normalizedValue = value.toLowerCase();
+              const errorDiv = document.getElementById(errorDivId);
+
+              let isValid = true;
+              errorDiv.textContent = "";
+              input.classList.remove("is-invalid");
+
+              if (!value) {
+                errorDiv.textContent = "Valve Type Name cannot be empty.";
+                isValid = false;
+              } else if (existingNames.includes(normalizedValue)) {
+                errorDiv.textContent = "This Valve Type Name already exists.";
+                isValid = false;
+              }
+
+              if (!isValid) {
+                input.classList.add("is-invalid");
+              }
+
+              return isValid;
+            }
+
+            // Final check on submit
+            document.addEventListener("DOMContentLoaded", function () {
+              const form = document.getElementById("valveForm");
+              const nameInput = document.getElementById("add_name");
+
+              if (form && nameInput) {
+                form.addEventListener("submit", function (e) {
+                  if (!checkDuplicateValveName(nameInput, "add_valve_name_error")) {
+                    e.preventDefault();
+                    nameInput.focus();
+                  }
+                });
+              }
+            });
+          </script>
+
+
+
+
+
+
+
+
+
+
+
+          <div class="mb-3">
+            <label class="form-label">Valve Type Desc</label>
+            <input type="text" name="description" class="form-control">
+          </div>
+
+          <!-- Test Type Selection -->
+          <div class="mb-3">
+            <label class="form-label">Select Test Types</label>
+            <div class="row">
+              {% for test_type in test_types %}
+              <div class="col-md-6 col-lg-4 mb-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="test_types" value="{{ test_type.id }}"
+                    id="test_type_{{ test_type.id }}">
+                  <label class="form-check-label" for="test_type_{{ test_type.id }}">
+                    {{ test_type.name }}
+                  </label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div id="test_types_error" class="text-danger small mt-1"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-brand">Save</button>
+          <a href="/valve_type/"><button type="button" class="btn btn-outline-secondary"
+              data-bs-dismiss="modal">Cancel</button></a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.delete-form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); // Stop the form from submitting immediately
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "This action cannot be undone.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, delete it!',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit(); // Proceed only if confirmed
+          }
+        });
+      });
+    });
+  });
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    document.activeElement.blur();
+    modal.setAttribute('aria-hidden', 'true');
+  }
+</script>
+<script>
+  const existingNames = {{ existing_names| safe }};  // Should be a JS array like ["Valve A", "Valve B"]
+
+  function checkDuplicateValveName(input) {
+    const value = input.value.trim().toLowerCase();
+    const errorDiv = document.getElementById('valve_name_error');
+
+    // Use existingNames, not existingCodes
+    const isDuplicate = existingNames.map(name => name.toLowerCase()).includes(value);
+
+    if (isDuplicate) {
+      input.classList.add('is-invalid');
+      errorDiv.textContent = "This Valvetype name already exists.";
+    } else {
+      input.classList.remove('is-invalid');
+      errorDiv.textContent = "";
+    }
+  }
+</script>
+
+<script>
+  const addValveModal = document.getElementById('addValveModal');
+
+  addValveModal.addEventListener('show.bs.modal', function () {
+    const nameInput = document.getElementById('name');
+    const errorDiv = document.getElementById('valve_name_error');
+
+    // Reset error state
+    nameInput.classList.remove('is-invalid');
+    errorDiv.textContent = "";
+    nameInput.value = "";
+  });
+</script>
+<script>
+  const editValveModal = document.getElementById('editValveModal');
+
+  if (editValveModal) {
+    editValveModal.addEventListener('show.bs.modal', function () {
+      const input = document.getElementById('edit_name');
+      const errorDiv = document.getElementById('edit_valve_name_error');
+      if (input && errorDiv) {
+        input.classList.remove('is-invalid');
+        errorDiv.textContent = "";
+      }
+    });
+  }
+</script>
+
+<script>
+  // Handle pre-checking test types in edit modals
+  document.addEventListener('DOMContentLoaded', function () {
+    const valveTestTypes = {{ valve_test_types| safe
+  }};
+  console.log('🔍 Valve test types data loaded:', valveTestTypes);
+
+  // Build valve warnings map from table data
+ 
+
+  // Function to check test types for a specific valve
+  function checkTestTypesForValve(valveId) {
+    const selectedTestTypes = valveTestTypes[valveId] || [];
+    console.log('🎯 Checking test types for valve', valveId, ':', selectedTestTypes);
+
+    selectedTestTypes.forEach(function (testTypeId) {
+      const checkboxId = 'edit_test_type_' + testTypeId + '_' + valveId;
+      const checkbox = document.getElementById(checkboxId);
+      console.log('🔍 Looking for checkbox:', checkboxId);
+
+      if (checkbox) {
+        checkbox.checked = true;
+        console.log('✅ PERMANENTLY CHECKED checkbox for valve', valveId, 'test type', testTypeId);
+      } else {
+        console.log('❌ Checkbox not found for valve', valveId, 'test type', testTypeId);
+      }
+    });
+  }
+
+  // Check all test types immediately
+  console.log('🚀 Initial check of all test types...');
+  Object.keys(valveTestTypes).forEach(function (valveId) {
+    checkTestTypesForValve(valveId);
+  });
+
+  // Check when modals are shown
+  document.querySelectorAll('[id^="editValveModal"]').forEach(function (modalElement) {
+    modalElement.addEventListener('show.bs.modal', function (event) {
+      const modalId = this.id;
+      const valveId = modalId.replace('editValveModal', '');
+      console.log('🔍 Modal opened for valve ID:', valveId);
+      checkTestTypesForValve(valveId);
+
+      // Show warning if all test types are disabled
+      if (valveWarnings[valveId]) {
+        Swal.fire({
+          title: '⚠️ Warning',
+          html: '<b>All associated test types for this valve are currently disabled.</b><br><br>' +
+            'Please enable at least one test type in <b>Test Type</b> to use this valve type.',
+          icon: 'warning',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#061530'
+        });
+      }
+    });
+  });
+
+  // Multiple delayed checks to ensure persistence
+  setTimeout(function () {
+    console.log('🔄 First delayed check...');
+    Object.keys(valveTestTypes).forEach(function (valveId) {
+      checkTestTypesForValve(valveId);
+    });
+  }, 100);
+
+  setTimeout(function () {
+    console.log('🔄 Second delayed check...');
+    Object.keys(valveTestTypes).forEach(function (valveId) {
+      checkTestTypesForValve(valveId);
+    });
+  }, 1000);
+
+  setTimeout(function () {
+    console.log('🔄 Final delayed check...');
+    Object.keys(valveTestTypes).forEach(function (valveId) {
+      checkTestTypesForValve(valveId);
+    });
+  }, 2000);
+});
+</script>
