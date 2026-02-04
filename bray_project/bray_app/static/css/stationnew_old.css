@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto", sans-serif;
+    background-color: #FFFFFF;
+}
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;   
+    font-size: 22px;
+    font-weight: bold;
+}
+.navbar img{
+    height: 50px;
+}
+.navbar select{
+    padding: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border: none;
+    background-color: #D9D9D9;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 700;
+}
+.navbar select option{
+    font-size: 16px;
+    font-weight: bold;
+}
+.testingparameters h4{
+    margin: 20px;
+    font-size: 20px;
+}
+.testingparameters hr{
+    width: 70%;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    height: 2px;
+    background-color: #FF0000;
+}
+.testingcontainer{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin: 10px;
+    margin-left: 20px;
+}
+.form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.form label{
+    font-size: 14px;
+    font-weight: bold;
+}
+.form select{
+    padding: 5px;
+    background-color: #D9D9D9;
+    border: none;
+    height: 40px;
+    width: 200px;
+    /* width: 70%; */
+}
+.valvedetail h4{
+    margin: 20px;
+    font-size: 20px;
+    margin-top: 30px;
+}
+.valvedetail hr{
+    width: 70%;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    height: 2px;
+    background-color: #FF0000;
+}
+.valvedetailform{
+    margin-left: 20px;
+    display: flex;
+    gap: 30px;
+}
+.valveform{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 200px;
+}
+.valveform label{
+    font-size: 14px;
+    font-weight: bold;
+    width: 100%;
+    display: block;
+    margin-bottom: 5px;
+}
+.valvedetailform .valveform input, .valvedetailform .valveform select{
+    padding: 8px;
+    background-color: #D9D9D9;
+    border: none;
+    width: 250px;
+    box-sizing: border-box;
+}
+table{
+    margin-top: 30px;
+    margin-left: 20px;
+    width: 70%;
+}
+table thead th{
+    padding: 8px;
+    font-weight: bold;
+    background-color: #FF0000;
+    color: white;
+    border: none;
+    box-sizing: border-box;
+}
+table tbody td{
+    font-size: 15px;
+    padding: 6px;
+    font-weight: bold;
+}
+table tbody td input{
+    width: 250px;
+    padding: 6px;
+    margin-left: 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #D9D9D9;
+}
+.loadbutton{
+    width: 130px;
+    padding: 8px;
+    background-color: #FF9D00;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    position: absolute;
+    margin-top: -36.2%;
+    margin-left: 73%;
+    cursor: pointer;
+    height: 35px;
+}
+.allbtn{
+    
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    margin-left: 90.5%;
+    margin-top: -38.5%;
+    gap:5px;
+   
+}
+.allbtn button{
+    padding: 6px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    border: none;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+.pressuretable{
+    width: 27%;
+    margin-left: 73%;
+    margin-top: 4%;
+}
+.pressuretable thead th{
+    background-color: white;
+    color: #FF0000;
+}
+.pressuretable tbody td{
+    font-size: 14px;
+}
+.pressuretable input{
+    width: 80px;
+}
+.pressuretable button{
+    border: none;
+    cursor: pointer;
+    background-color: green;
+    color: white;
+    border-radius: 5px;
+    padding: 2px;
+    box-shadow: 2px 2px 1px 2px rgb(83, 95, 66);
+}
+.hidden{
+    display: none;
+}
+.pressuretable button.disabled-state {
+    background-color: red !important;
+}
+.pressuretable button:not(.disabled-state) {
+    background-color: green !important;
+} 

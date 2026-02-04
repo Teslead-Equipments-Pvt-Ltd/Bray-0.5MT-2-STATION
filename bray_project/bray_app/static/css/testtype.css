@@ -1,0 +1,26 @@
+ :root{
+  --card-header: rgba(75, 4, 255, 0.724);
+   --text-light: #ffffff;
+   --card-body:  rgba(84, 57, 151, 0.202);
+  --text-dark-base: #ffffff;
+  }
+   .card-header{
+    background-color:var(--card-header) ;
+    color: var(--text-light);
+
+  }
+
+  .card-body{
+    background-color:var(--card-body)
+
+  }
+  .table-responsive table th:first-child {
+    width: 10%;
+  }
+  .table-responsive table th:third-child,fourth-child,fifth-child {
+    width: 35%;
+  }
+  .testtype_save{
+    background-color: #0b1a35;
+      color: white;
+  }

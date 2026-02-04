@@ -1,0 +1,2902 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/stationnew.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>stationnew</title>
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="fullcontainer1">
+        <div class="navbar">
+            <img src="{% static 'images/braylogo.webp' %}" alt="braylogo">
+            <div class="center-text">VALVE TESTING FORM - STATION 1</div>
+            <select id="selectstation">
+                <option value=1>Station 1</option>
+                <option value=2>Station 2</option>
+            </select>
+        </div>
+
+        <div class="testingparameters testingparameter_s1">
+            <h4>Testing Parameters</h4>
+            <hr>
+            <div class="testingcontainer">
+
+                <div class="form">
+                    <label>Standard</label>
+                    <select id="standard_s1" name="standard_s1">
+                        <option>-- Select valve_standards --</option>
+                        {% for standard in valve_standards %}
+                        <option value="{{ standard }}">{{ standard }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form">
+                    <label>Size</label>
+                    <select id="size_s1" name="size_s1">
+                        <option>-- Select Valve Size --</option>
+                        {% for valvesize in valve_sizes %}
+                        <option value="{{ valvesize }}">{{ valvesize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Class</label>
+                    <select id="class_s1" name="class_s1">
+                        <option>-- Select Valve Class --</option>
+                        {% for valveclass in valve_classes %}
+                        <option value="{{valveclass}}">{{valveclass}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Body Material</label>
+                    <select id="body_material_s1" name="body_material_s1">
+                        <option>-- Select Shell Material --</option>
+                        {% for bodymaterial in shell_materials %}
+                        <option value="{{bodymaterial}}">{{bodymaterial}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Type</label>
+                    <select id="type_s1" name="type_s1">
+                        <option>-- Select Valve Type --</option>
+                        {% for valvetype in valve_types %}
+                        <option value="{{valvetype}}">{{valvetype}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Pressure Unit</label>
+                    <select id="pressureunit_s1" name="pressureunit_s1">
+                        <option>-- Select Pressure Unit --</option>
+                        <option value="PSI">PSI</option>
+                        <option value="BAR">BAR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="valvedetail">
+            <h4>Valve Details</h4>
+            <hr>
+
+            <div class="valvedetailform">
+                <div class="valveform">
+                    <label>Valve Serial Number</label>
+                    <div class="valve-serial-wrapper">
+                        <div class="input-with-tick">
+                            <input type="text" id="VALVE_SER_NO" name="VALVE_SER_NO" class="valve-serial-input">
+                            <span id="green_tick_s1" class="green-tick-inside" style="display: none;"></span>
+                        </div>
+                        <button id="get_assembly_btn_s1" type="button" onclick="getAssemblyId('s1')"
+                            class="get-assembly-btn" style="display: none;">Get Assembly ID</button>
+                        <button id="save_local_db_btn_s1" type="button" onclick="saveToLocalDB('s1')"
+                            class="save-local-db-btn" style="display: none;">Save in Local DB</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="valvedetailform">
+                <div class="valveform">
+                    <label>Customer</label>
+                    <input type="text" id="customer_s1" name="Customer">
+                </div>
+                <div class="valveform">
+                    <label>Report No</label>
+                    <input type="text" id="reportno_s1" name="Report No">
+                </div>
+                <div class="valveform">
+                    <label>Customer PO</label>
+                    <input type="text" id="customer_po_s1" name="Customer PO">
+                </div>
+                <div class="valveform">
+                    <label>Bray Part No</label>
+                    <input type="text" id="braypartno_s1" name="Bray Part No">
+                </div>
+            </div><br>
+
+            <div class="valvedetailform">
+                <div class="valveform">
+                    <label>Bray Order</label>
+                    <input type="text" id="bray_order_s1" name="Bray Order">
+                </div>
+                <div class="valveform">
+                    <label>Stem Orient</label>
+                    <select id="stem_s1" name="Stem Orient">
+                        <option value="">-- Select Stem Orient --</option>
+                        <option value="Vertical">Vertical</option>
+                        <option value="Horizontal">Horizontal</option>
+                    </select>
+                </div>
+
+                <div class="valveform">
+                    <label>Assembled By</label>
+                    <select id="assembledby_s1" name="Assembled By">
+                        <option value="">-- Select Assembled By --</option>
+                        {% for assembledby in tested_by %}
+                        <option>{{assembledby}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="valveform">
+                    <label>Tested By</label>
+                    <select id="testedby_s1" name="Tested By">
+                        <option value="">-- Select Tested By --</option>
+                        {% for testedby in tested_by %}
+                        <option>{{testedby}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- table container -->
+
+            <table>
+                <thead>
+                    <th>Item</th>
+                    <th>Part Number</th>
+                    <th>Heat Code</th>
+                    <th>Material</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Body 1 / Upper</td>
+                        <td><input type="text" id="body_partno_s1" name="Body Part No"></td>
+                        <td><input type="text" id="body_heatcode_s1" name="Body Heat No"></td>
+                        <td><input type="text" id="body_material_no_s1" name="Body Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Bottom Plate / Plug</td>
+                        <td><input type="text" id="bottom_partno_s1" name="Bottom Part No"></td>
+                        <td><input type="text" id="bottom_heatcode_s1" name="Bottom Heat No"></td>
+                        <td><input type="text" id="bottom_material_s1" name="Bottom Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Disc</td>
+                        <td><input type="text" id="dics_partno_s1" name="Disc Part No"></td>
+                        <td><input type="text" id="disc_heatcode_s1" name="Disc  Heat No"></td>
+                        <td><input type="text" id="disc_material_s1" name="Disc Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Seat Retainer</td>
+                        <td><input type="text" id="seat_partno_s1" name="Seat Part No"></td>
+                        <td><input type="text" id="seat_heatcode_s1" name="Seat Heat No"></td>
+                        <td><input type="text" id="seat_material_s1" name="Seat Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Stem 1 / Upper</td>
+                        <td><input type="text" id="stem_partno_s1" name="Stem Part No"></td>
+                        <td><input type="text" id="stem_heatcode_s1" name="Stem Heat No"></td>
+                        <td><input type="text" id="stem_material_s1" name="Stem Material"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- right side container -->
+        <button class="loadbutton" onclick="load_station1()">Load</button>
+        <!-- save and cancel button -->
+        <div class="allbtn">
+            <button class="savebtn" style="background-color: #18A71E;" onclick="save_station1()">Save</button>
+            <button class="continuebtn" style="background-color: #040D52;"
+                onclick="continue_station1()">Continue</button>
+            <button class="clearbtn" style="background-color: #FF0000;" onclick="clear_station1()">Clear</button>
+            <button class="cancelbtn" style="background-color: #FF0000;" onclick="cancel_station1()">Cancel</button>
+        </div>
+
+        <table class="pressuretable hidden">
+            <thead>
+                <tr>
+                    <th>Test Type</th>
+                    <th>Pressure</th>
+                    <th>Duration (Sec)</th>
+                </tr>
+            </thead>
+            <tbody id="pressureTableBody">
+            </tbody>
+        </table>
+        <div class="degreetable hidden">
+            <table border="1">
+                <thead>
+                    <th>Open Degree</th>
+                    <th>Close Degree</th>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- station 2 -->
+
+    <div class="fullcontainer2 hidden">
+        <div class="navbar">
+            <img src="{% static 'images/braylogo.webp' %}" alt="braylogo">
+            <div class="center-text">VALVE TESTING FORM - STATION 2</div>
+            <select id="selectstation2">
+                <option value=2>Station 2</option>
+                <option value=1>Station 1</option>
+            </select>
+        </div>
+
+        <div class="testingparameters2 testingparameter_s2">
+            <h4>Testing Parameters</h4>
+            <hr>
+            <div class="testingcontainer">
+
+                <div class="form">
+                    <label>Standard</label>
+                    <select id="standard_s2" name="standard_s2">
+                        <option>-- Select valve_standards --</option>
+                        {% for standard in valve_standards %}
+                        <option value="{{ standard }}">{{ standard }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form">
+                    <label>Size</label>
+                    <select id="size_s2" name="size_s2">
+                        <option>-- Select Valve Size --</option>
+                        {% for valvesize in valve_sizes %}
+                        <option value="{{ valvesize }}">{{ valvesize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Class</label>
+                    <select id="class_s2" name="class_s2">
+                        <option>-- Select Valve Class --</option>
+                        {% for valveclass in valve_classes %}
+                        <option value="{{valveclass}}">{{valveclass}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Body Material</label>
+                    <select id="body_material_s2" name="body_material_s2">
+                        <option>-- Select Shell Material --</option>
+                        {% for bodymaterial in shell_materials %}
+                        <option value="{{bodymaterial}}">{{bodymaterial}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Type</label>
+                    <select id="type_s2" name="type_s2">
+                        <option>-- Select Valve Type --</option>
+                        {% for valvetype in valve_types %}
+                        <option value="{{valvetype}}">{{valvetype}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form">
+                    <label>Pressure Unit</label>
+                    <select id="pressureunit_s2" name="pressureunit_s2">
+                        <option>-- Select Pressure Unit --</option>
+                        <option value="PSI">PSI</option>
+                        <option value="BAR">BAR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="valvedetail2">
+            <h4>Valve Details</h4>
+            <hr>
+
+            <div class="valvedetailform2">
+                <div class="valveform">
+                    <label>Valve Serial Number</label>
+                    <div class="valve-serial-wrapper">
+                        <div class="input-with-tick">
+                            <input type="text" id="VALVE_SER_NO_s2" name="VALVE_SER_NO_s2" class="valve-serial-input">
+                            <span id="green_tick_s2" class="green-tick-inside" style="display: none;"></span>
+                        </div>
+                        <button id="get_assembly_btn_s2" type="button" onclick="getAssemblyId('s2')"
+                            class="get-assembly-btn" style="display: none;">Get Assembly ID</button>
+                        <button id="save_local_db_btn_s2" type="button" onclick="saveToLocalDB('s2')"
+                            class="save-local-db-btn" style="display: none;">Save in Local DB</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="valvedetailform2">
+                <div class="valveform">
+                    <label>Customer</label>
+                    <input type="text" id="customer_s2" name="Customer">
+                </div>
+                <div class="valveform">
+                    <label>Report No</label>
+                    <input type="text" id="reportno_s2" name="Report No">
+                </div>
+                <div class="valveform">
+                    <label>Customer PO</label>
+                    <input type="text" id="customer_po_s2" name="Customer PO">
+                </div>
+                <div class="valveform">
+                    <label>Bray Part No</label>
+                    <input type="text" id="braypartno_s2" name="Bray Part No">
+                </div>
+            </div><br>
+
+            <div class="valvedetailform2">
+                <div class="valveform">
+                    <label>Bray Order</label>
+                    <input type="text" id="bray_order_s2" name="Bray Order">
+                </div>
+                <div class="valveform">
+                    <label>Stem Orient</label>
+                    <select id="stem_s2" name="Stem Orient">
+                        <option value="">-- Select Stem Orient --</option>
+                        <option value="Vertical">Vertical</option>
+                        <option value="Horizontal">Horizontal</option>
+                    </select>
+                </div>
+
+                <div class="valveform">
+                    <label>Assembled By</label>
+                    <select id="assembledby_s2" name="Assembled By">
+                        <option value="">-- Select Assembled By --</option>
+                        {% for assembledby in tested_by %}
+                        <option>{{assembledby}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="valveform">
+                    <label>Tested By</label>
+                    <select id="testedby_s2" name="Tested By">
+                        <option value="">-- Select Tested By --</option>
+                        {% for testedby in tested_by %}
+                        <option>{{testedby}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- table container -->
+
+            <table>
+                <thead>
+                    <th>Item</th>
+                    <th>Part Number</th>
+                    <th>Heat Code</th>
+                    <th>Material</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Body 1 / Upper</td>
+                        <td><input type="text" id="body_partno_s2" name="Body Part No"></td>
+                        <td><input type="text" id="body_heatcode_s2" name="Body Heat No"></td>
+                        <td><input type="text" id="body_material_no_s2" name="Body Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Bottom Plate / Plug</td>
+                        <td><input type="text" id="bottom_partno_s2" name="Bottom Part No"></td>
+                        <td><input type="text" id="bottom_heatcode_s2" name="Bottom Heat No"></td>
+                        <td><input type="text" id="bottom_material_s2" name="Bottom Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Disc</td>
+                        <td><input type="text" id="dics_partno_s2" name="Disc Part No"></td>
+                        <td><input type="text" id="disc_heatcode_s2" name="Disc  Heat No"></td>
+                        <td><input type="text" id="disc_material_s2" name="Disc Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Seat Retainer</td>
+                        <td><input type="text" id="seat_partno_s2" name="Seat Part No"></td>
+                        <td><input type="text" id="seat_heatcode_s2" name="Seat Heat No"></td>
+                        <td><input type="text" id="seat_material_s2" name="Seat Material No"></td>
+                    </tr>
+                    <tr>
+                        <td>Stem 1 / Upper</td>
+                        <td><input type="text" id="stem_partno_s2" name="Stem Part No"></td>
+                        <td><input type="text" id="stem_heatcode_s2" name="Stem Heat No"></td>
+                        <td><input type="text" id="stem_material_s2" name="Stem Material"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- right side container -->
+        <button class="loadbutton" onclick="load_station2()">Load</button>
+        <!-- save and cancel button -->
+        <div class="allbtn">
+            <button class="savebtn" style="background-color: #18A71E;" onclick="save_station2()">Save</button>
+            <button class="continuebtn" style="background-color: #040D52;"
+                onclick="continue_station2()">Continue</button>
+            <button class="clearbtn" style="background-color: #FF0000;" onclick="clear_station2()">Clear</button>
+            <button class="cancelbtn" style="background-color: #FF0000;" onclick="cancel_station2()">Cancel</button>
+        </div>
+
+        <table class="pressuretable2 hidden">
+            <thead>
+                <tr>
+                    <th>Test Type</th>
+                    <th>Pressure</th>
+                    <th>Duration (Sec)</th>
+                </tr>
+            </thead>
+            <tbody id="pressureTableBody2">
+            </tbody>
+        </table>
+
+        <div class="degreetable2 hidden">
+            <table border="1">
+                <thead>
+                    <th>Open Degree</th>
+                    <th>Close Degree</th>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+
+        function switchStation(station) {
+            const container1 = document.getElementsByClassName('fullcontainer1')[0];
+            const container2 = document.getElementsByClassName('fullcontainer2')[0];
+
+            if (station == 1) {
+                container1.style.display = "block";
+                container2.style.display = "none";
+            } else {
+                container1.style.display = "none";
+                container2.style.display = "block";
+            }
+            // Save selected station
+            localStorage.setItem('selectedStation', station);
+
+            document.getElementById('selectstation').value = station;
+            document.getElementById('selectstation2').value = station;
+        }
+
+        document.getElementById('selectstation').addEventListener('change', function () {
+            switchStation(this.value);
+        });
+
+        document.getElementById('selectstation2').addEventListener('change', function () {
+            switchStation(this.value);
+        });
+
+        // Function to restore disabled fields after page load
+        function restoreDisabledFields() {
+            // Only restore disabled fields if we're in sync mode and load buttons were disabled
+            if (test_mode === 1 && localStorage.getItem('load_buttons_disabled') === 'true') {
+                // Disable all form fields in both stations
+                document.getElementById('standard_s1').disabled = true;
+                document.getElementById('size_s1').disabled = true;
+                document.getElementById('class_s1').disabled = true;
+                document.getElementById('body_material_s1').disabled = true;
+                document.getElementById('type_s1').disabled = true;
+                document.getElementById('pressureunit_s1').disabled = true;
+
+                document.getElementById('standard_s2').disabled = true;
+                document.getElementById('size_s2').disabled = true;
+                document.getElementById('class_s2').disabled = true;
+                document.getElementById('body_material_s2').disabled = true;
+                document.getElementById('type_s2').disabled = true;
+                document.getElementById('pressureunit_s2').disabled = true;
+
+                // Disable both load buttons
+                document.querySelector('.fullcontainer1 .loadbutton').disabled = true;
+                document.querySelector('.fullcontainer2 .loadbutton').disabled = true;
+            }
+        }
+
+        // Function to restore pressure table data from localStorage
+        function restorePressureTableData() {
+            // Restore station 1 pressure table data
+            const savedPressureData1 = localStorage.getItem('station1_pressure_data');
+            if (savedPressureData1 && loadbutton_status1) {
+                try {
+                    const data = JSON.parse(savedPressureData1);
+                    all_testnames = data.testnames || [];
+                    all_pressure = data.pressure || [];
+                    all_duration = data.duration || [];
+                    all_testid = data.testid || [];
+                    open_degree_s1 = data.open_degree;
+                    close_degree_s1 = data.close_degree;
+
+                    if (all_testnames.length > 0) {
+                        restorePressureTable1();
+                    }
+                } catch (e) {
+                    console.error('Error restoring station 1 pressure data:', e);
+                }
+            }
+
+            // Restore station 2 pressure table data
+            const savedPressureData2 = localStorage.getItem('station2_pressure_data');
+            if (savedPressureData2 && loadbutton_status2) {
+                try {
+                    const data = JSON.parse(savedPressureData2);
+                    all_testnames2 = data.testnames || [];
+                    all_pressure2 = data.pressure || [];
+                    all_duration2 = data.duration || [];
+                    all_testid2 = data.testid || [];
+                    open_degree_s2 = data.open_degree;
+                    close_degree_s2 = data.close_degree;
+
+                    if (all_testnames2.length > 0) {
+                        restorePressureTable2();
+                    }
+                } catch (e) {
+                    console.error('Error restoring station 2 pressure data:', e);
+                }
+            }
+        }
+
+        function restorePressureTable1() {
+            document.getElementsByClassName("pressuretable")[0].style.display = "block";
+            document.getElementsByClassName("degreetable")[0].style.display = "block";
+
+            const tbody = document.getElementById("pressureTableBody");
+            tbody.innerHTML = "";
+
+            const tbody1 = document.querySelector(".degreetable table tbody");
+            tbody1.innerHTML = `
+                <tr>
+                    <td>${open_degree_s1}</td>
+                    <td>${close_degree_s1}</td>
+                </tr>
+            `;
+
+            for (let i = 0; i < all_testnames.length; i++) {
+                // In sync mode, disable buttons if this is not the primary station
+                const isPrimary = localStorage.getItem('sync_primary_station') === '1';
+                const buttonDisabled = (test_mode === 1 && !isPrimary) ? 'disabled' : '';
+
+                let row = `
+                    <tr>
+                        <td>${all_testnames[i]}</td>
+                        <td><input type="text" value="${all_pressure[i] ?? ''}" disabled></td>
+                        <td><input type="text" value="${all_duration[i] ?? ''}" disabled></td>
+                        <td><button onclick="enable_disable(this)" data-testname="${all_testnames[i]}" data-testid="${all_testid[i]}" ${buttonDisabled}>Enabled</button></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            }
+            restore_disabled_buttons();
+        }
+
+        function restorePressureTable2() {
+            document.getElementsByClassName("pressuretable2")[0].style.display = "block";
+            document.getElementsByClassName("degreetable2")[0].style.display = "block";
+
+            const tbody = document.getElementById("pressureTableBody2");
+            tbody.innerHTML = "";
+
+            const tbody1 = document.querySelector(".degreetable2 table tbody");
+            tbody1.innerHTML = `
+                <tr>
+                    <td>${open_degree_s2}</td>
+                    <td>${close_degree_s2}</td>
+                </tr>
+            `;
+
+            for (let i = 0; i < all_testnames2.length; i++) {
+                // In sync mode, disable buttons if this is not the primary station
+                const isPrimary = localStorage.getItem('sync_primary_station') === '2';
+                const buttonDisabled = (test_mode === 1 && !isPrimary) ? 'disabled' : '';
+
+                let row = `
+                    <tr>
+                        <td>${all_testnames2[i]}</td>
+                        <td><input type="text" value="${all_pressure2[i] ?? ''}" disabled></td>
+                        <td><input type="text" value="${all_duration2[i] ?? ''}" disabled></td>
+                        <td><button onclick="enable_disable2(this)" data-testname="${all_testnames2[i]}" data-testid="${all_testid2[i]}" ${buttonDisabled}>Enabled</button></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            }
+            restore_disabled_buttons2();
+        }
+
+        // Initialize valve serial number event listeners
+        function initializeValveSerialEventListeners() {
+            // Station 1 valve serial number input
+            const valveSerialS1 = document.getElementById('VALVE_SER_NO');
+            if (valveSerialS1) {
+                valveSerialS1.addEventListener('input', function () {
+                    // Debounce the API call
+                    clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(() => {
+                        checkAssemblyId('s1');
+                    }, 500);
+                });
+
+                valveSerialS1.addEventListener('blur', function () {
+                    checkAssemblyId('s1');
+                });
+            }
+
+            // Station 2 valve serial number input
+            const valveSerialS2 = document.getElementById('VALVE_SER_NO_s2');
+            if (valveSerialS2) {
+                valveSerialS2.addEventListener('input', function () {
+                    // Debounce the API call
+                    clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(() => {
+                        checkAssemblyId('s2');
+                    }, 500);
+                });
+
+                valveSerialS2.addEventListener('blur', function () {
+                    checkAssemblyId('s2');
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let saved = localStorage.getItem('selectedStation');
+
+            if (saved) {
+                switchStation(saved);
+            }
+            get_sync_status();
+
+            // Restore button states immediately
+            restoreButtonStates();
+
+            // Wait for sync status to load before restoring form data
+            setTimeout(() => {
+                loadFromLocalStorage1();
+                loadFromLocalStorage2();
+                restoreDisabledFields();
+                restorePressureTableData();
+            }, 200);
+
+            // Initialize valve serial number event listeners
+            initializeValveSerialEventListeners();
+        });
+
+        // sync or non sync status //
+        var test_mode = null
+
+        function get_sync_status() {
+            fetch('/api/newform/get_syncstatus/', {
+
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    test_mode = data.syncstatus
+                })
+                .catch(error => {
+                    console.error('Error getting sync status:', error);
+                    // Default to non-sync mode if we can't get the status
+                    test_mode = 0;
+                })
+        }
+
+        // Helper functions to enable/disable form fields
+        function enableFormFields(station) {
+            if (station === 1 || station === 'both') {
+                document.getElementById('standard_s1').disabled = false;
+                document.getElementById('size_s1').disabled = false;
+                document.getElementById('class_s1').disabled = false;
+                document.getElementById('body_material_s1').disabled = false;
+                document.getElementById('type_s1').disabled = false;
+                document.getElementById('pressureunit_s1').disabled = false;
+            }
+            if (station === 2 || station === 'both') {
+                document.getElementById('standard_s2').disabled = false;
+                document.getElementById('size_s2').disabled = false;
+                document.getElementById('class_s2').disabled = false;
+                document.getElementById('body_material_s2').disabled = false;
+                document.getElementById('type_s2').disabled = false;
+                document.getElementById('pressureunit_s2').disabled = false;
+            }
+        }
+
+        function disableFormFields(station) {
+            if (station === 1 || station === 'both') {
+                document.getElementById('standard_s1').disabled = true;
+                document.getElementById('size_s1').disabled = true;
+                document.getElementById('class_s1').disabled = true;
+                document.getElementById('body_material_s1').disabled = true;
+                document.getElementById('type_s1').disabled = true;
+                document.getElementById('pressureunit_s1').disabled = true;
+            }
+            if (station === 2 || station === 'both') {
+                document.getElementById('standard_s2').disabled = true;
+                document.getElementById('size_s2').disabled = true;
+                document.getElementById('class_s2').disabled = true;
+                document.getElementById('body_material_s2').disabled = true;
+                document.getElementById('type_s2').disabled = true;
+                document.getElementById('pressureunit_s2').disabled = true;
+            }
+        }
+
+        // Initialize button state variables - will be properly set by restoreButtonStates()
+        var loadbutton_status1 = false;
+        var station1_saved = false;
+
+        // Function to restore button states from localStorage
+        function restoreButtonStates() {
+            // Restore load button states
+            loadbutton_status1 = localStorage.getItem('loadbutton_status1') === 'true';
+            loadbutton_status2 = localStorage.getItem('loadbutton_status2') === 'true';
+
+            // Restore save button states
+            station1_saved = localStorage.getItem('station1_saved') === 'true';
+            station2_saved = localStorage.getItem('station2_saved') === 'true';
+
+            console.log('Restored button states:', {
+                loadbutton_status1,
+                loadbutton_status2,
+                station1_saved,
+                station2_saved
+            });
+        }
+
+        let all_testnames = [];
+        let all_pressure = [];
+        let all_duration = [];
+        let all_testid = [];
+        let open_degree_s1 = null
+        let close_degree_s1 = null
+
+        // load button for station 1 //
+        function load_station1() {
+            var standard = document.getElementById('standard_s1').value;
+            var size = document.getElementById('size_s1').value;
+            var classname = document.getElementById('class_s1').value;
+            var body_material = document.getElementById('body_material_s1').value;
+            var valve_type = document.getElementById('type_s1').value;
+            var pressureunit = document.getElementById('pressureunit_s1').value;
+
+
+            if (!standard || standard === "-- Select valve_standards --") {
+                Swal.fire("Please select Standard");
+                return;
+            }
+            if (!size || size === "-- Select Valve Size --") {
+                Swal.fire("Please select Size");
+                return;
+            }
+            if (!classname || classname === "-- Select Valve Class --") {
+                Swal.fire("Please select Class");
+                return;
+            }
+            if (!body_material || body_material === "-- Select Shell Material --") {
+                Swal.fire("Please select Body Material");
+                return;
+            }
+            if (!valve_type || valve_type === "-- Select Valve Type --") {
+                Swal.fire("Please select valveType");
+                return;
+            }
+            if (!pressureunit || pressureunit === "-- Select Pressure Unit --") {
+                Swal.fire("Please select Pressure Unit");
+                return;
+            }
+            // In sync mode, auto-populate station 2 form fields with station 1 values
+            if (test_mode === 1) {
+                // Auto-populate station 2 form fields
+                document.getElementById('standard_s2').value = standard;
+                document.getElementById('size_s2').value = size;
+                document.getElementById('class_s2').value = classname;
+                document.getElementById('body_material_s2').value = body_material;
+                document.getElementById('type_s2').value = valve_type;
+                document.getElementById('pressureunit_s2').value = pressureunit;
+
+                // Disable the fields in station 2 form
+                document.getElementById('standard_s2').disabled = true;
+                document.getElementById('size_s2').disabled = true;
+                document.getElementById('class_s2').disabled = true;
+                document.getElementById('body_material_s2').disabled = true;
+                document.getElementById('type_s2').disabled = true;
+                document.getElementById('pressureunit_s2').disabled = true;
+
+                // Disable station 1 fields and load button after loading
+                document.getElementById('standard_s1').disabled = true;
+                document.getElementById('size_s1').disabled = true;
+                document.getElementById('class_s1').disabled = true;
+                document.getElementById('body_material_s1').disabled = true;
+                document.getElementById('type_s1').disabled = true;
+                document.getElementById('pressureunit_s1').disabled = true;
+
+                // Disable both load buttons
+                document.querySelector('.fullcontainer1 .loadbutton').disabled = true;
+                document.querySelector('.fullcontainer2 .loadbutton').disabled = true;
+
+                // Save the disabled state to localStorage
+                localStorage.setItem('station1_fields_disabled', 'true');
+                localStorage.setItem('load_buttons_disabled', 'true');
+            }
+
+            fetch('/api/newform/get_pressure_duration/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    standard: standard,
+                    size: size,
+                    class: classname,
+                    body_material: body_material,
+                    type: valve_type,
+                    pressure_unit: pressureunit,
+                    station: "station1"
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON');
+                    }
+                    return response.json();
+                })
+                .then(res => {
+
+                    const pd = res.pressure_duration;
+                    // If pressure OR duration is null, undefined, empty → show error
+                    if (!pd || pd.pressure == null || pd.duration == null) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                            icon: 'error'
+                        });
+                        document.getElementsByClassName('pressuretable')[0].style.display = "none";
+                        // Enable load button so user can try again
+                        document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                        // Enable form fields so user can select different combination
+                        if (test_mode === 1) {
+                            // In sync mode, enable both stations' load buttons and form fields
+                            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                            enableFormFields('both');
+                        } else {
+                            // In non-sync mode, only enable station 1 form fields
+                            enableFormFields(1);
+                        }
+                        return;
+                    }
+
+                    // If pressure OR duration array is empty → show error
+                    if (!pd.pressure.length || !pd.duration.length) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                            icon: 'error'
+                        });
+                        document.getElementsByClassName('pressuretable')[0].style.display = "none";
+                        // Enable load button so user can try again
+                        document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                        // Enable form fields so user can select different combination
+                        if (test_mode === 1) {
+                            // In sync mode, enable both stations' load buttons and form fields
+                            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                            enableFormFields('both');
+                        } else {
+                            // In non-sync mode, only enable station 1 form fields
+                            enableFormFields(1);
+                        }
+                        return;
+                    }
+
+                    // Check ANY null values inside arrays
+                    if (pd.pressure.some(v => v === null) || pd.duration.some(v => v === null)) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                            icon: 'error'
+                        });
+                        document.getElementsByClassName('pressuretable')[0].style.display = "none";
+                        // Enable load button so user can try again
+                        document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                        // Enable form fields so user can select different combination
+                        if (test_mode === 1) {
+                            // In sync mode, enable both stations' load buttons and form fields
+                            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                            enableFormFields('both');
+                        } else {
+                            // In non-sync mode, only enable station 1 form fields
+                            enableFormFields(1);
+                        }
+                        return;
+                    }
+                    document.getElementsByClassName("pressuretable")[0].style.display = "block";
+                    document.getElementsByClassName("degreetable")[0].style.display = "block";
+
+
+                    const tbody = document.getElementById("pressureTableBody");
+                    tbody.innerHTML = "";  // clear old rows
+
+                    const tbody1 = document.querySelector(".degreetable table tbody");
+                    tbody1.innerHTML = `
+                <tr>
+                    <td>${pd.degree[0]}</td>
+                    <td>${pd.degree[1]}</td>
+                </tr>
+            `;
+                    open_degree_s1 = pd.degree[0]
+                    close_degree_s1 = pd.degree[1]
+
+                    all_testnames = [];
+                    all_pressure = [];
+                    all_duration = [];
+                    all_testid = [];
+                    // Convert 3 arrays → one list of rows
+                    for (let i = 0; i < pd.test_name.length; i++) {
+                        all_testnames.push(pd.test_name[i]);
+                        all_pressure.push(pd.pressure[i]);
+                        all_duration.push(pd.duration[i]);
+                        all_testid.push(pd.testid[i]);
+
+                        let row = `
+                    <tr>
+                        <td>${pd.test_name[i]}</td>
+                        <td><input type="text" value="${pd.pressure[i] ?? ''}" disabled></td>
+                        <td><input type="text" value="${pd.duration[i] ?? ''}" disabled></td>
+                        <td><button onclick="enable_disable(this)"data-testname="${pd.test_name[i]}" data-testid="${pd.testid[i]}">Enabled</button></td>
+                    </tr>
+                `;
+                        tbody.innerHTML += row;
+
+                    }
+                    loadbutton_status1 = true;
+                    localStorage.setItem('loadbutton_status1', 'true');
+                    console.log('Load Station 1 - Set loadbutton_status1 to true');
+
+                    // Save pressure table data to localStorage
+                    const pressureData1 = {
+                        testnames: all_testnames,
+                        pressure: all_pressure,
+                        duration: all_duration,
+                        testid: all_testid,
+                        open_degree: open_degree_s1,
+                        close_degree: close_degree_s1
+                    };
+                    localStorage.setItem('station1_pressure_data', JSON.stringify(pressureData1));
+
+                    // In sync mode, sync station 2 data with station 1 data after API response
+                    if (test_mode === 1) {
+                        console.log('Sync mode: Syncing Station 1 data to Station 2');
+                        // Sync station 2 data with station 1 data
+                        all_testnames2 = [...all_testnames];
+                        all_pressure2 = [...all_pressure];
+                        all_duration2 = [...all_duration];
+                        all_testid2 = [...all_testid];
+                        open_degree_s2 = open_degree_s1;
+                        close_degree_s2 = close_degree_s1;
+
+                        // Set station 2 load button status
+                        loadbutton_status2 = true;
+                        localStorage.setItem('loadbutton_status2', 'true');
+
+                        // Save station 2 pressure table data to localStorage
+                        const pressureData2 = {
+                            testnames: all_testnames2,
+                            pressure: all_pressure2,
+                            duration: all_duration2,
+                            testid: all_testid2,
+                            open_degree: open_degree_s2,
+                            close_degree: close_degree_s2
+                        };
+                        localStorage.setItem('station2_pressure_data', JSON.stringify(pressureData2));
+
+                        // Mark station 1 as primary and sync the pressure table for station 2
+                        localStorage.setItem('sync_primary_station', '1');
+                        syncPressureTableToStation2();
+                    }
+
+                    // Disable load button after successful data loading
+                    document.querySelector('.fullcontainer1 .loadbutton').disabled = true;
+                    // Disable form fields after successful data loading
+                    if (test_mode === 1) {
+                        // In sync mode, disable both stations' load buttons and form fields
+                        document.querySelector('.fullcontainer2 .loadbutton').disabled = true;
+                        disableFormFields('both');
+                    } else {
+                        // In non-sync mode, only disable station 1 form fields
+                        disableFormFields(1);
+                    }
+
+                    restore_disabled_buttons();
+                })
+                .catch(error => {
+                    console.error('Error in load_station1:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                        icon: 'error'
+                    });
+                    // Hide pressure table on error
+                    document.getElementsByClassName('pressuretable')[0].style.display = "none";
+                    document.getElementsByClassName('degreetable')[0].style.display = "none";
+                    // Enable load button so user can try again
+                    document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                    // Enable form fields so user can select different combination
+                    if (test_mode === 1) {
+                        // In sync mode, enable both stations' load buttons and form fields
+                        document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                        enableFormFields('both');
+                    } else {
+                        // In non-sync mode, only enable station 1 form fields
+                        enableFormFields(1);
+                    }
+                });
+
+        }
+
+
+        function loadFromLocalStorage1() {
+            const saved = localStorage.getItem("station1_form");
+            if (!saved) return;
+
+            const formData = JSON.parse(saved);
+            const fields = document.querySelectorAll(".fullcontainer1 input, .fullcontainer1 select");
+
+            fields.forEach(f => {
+                if (f.name && formData[f.name] !== undefined) {
+                    f.value = formData[f.name];
+                }
+            });
+        }
+
+        // Enable and Disable button //
+        let disabled_btn = [];
+        let disabled_testid = [];
+
+        function enable_disable(btn) {
+            let testname = btn.dataset.testname;
+            let test_id = btn.dataset.testid;
+            let buttonname = btn.textContent.trim();
+
+            if (buttonname === "Disabled") {
+                btn.textContent = "Enabled";
+                btn.classList.remove('disabled-state');
+
+                disabled_btn = disabled_btn.filter(name => name !== testname);
+                disabled_testid = disabled_testid.filter(id => id !== test_id);
+            }
+            else {
+                btn.textContent = "Disabled";
+                btn.classList.add('disabled-state');
+
+                if (!disabled_btn.includes(testname)) disabled_btn.push(testname);
+                if (!disabled_testid.includes(test_id)) disabled_testid.push(test_id);
+            }
+
+            // In sync mode, also update station 2 button
+            if (test_mode === 1) {
+                disabled_btn2 = [...disabled_btn];
+                disabled_testid2 = [...disabled_testid];
+                syncButtonStateToStation2(test_id, buttonname === "Enabled" ? "Disabled" : "Enabled");
+            }
+
+            // ✅ NEW — Save arrays to localStorage
+            localStorage.setItem("disabled_btn", JSON.stringify(disabled_btn));
+            localStorage.setItem("disabled_testid", JSON.stringify(disabled_testid));
+        }
+
+        // save station 1 //
+
+        function save_station1() {
+            // In sync mode, don't require load button to be clicked
+            let loadbutton_clicked = loadbutton_status1
+            if (!loadbutton_clicked && test_mode !== 1) {
+                Swal.fire("Please click load button before saving");
+                return;
+            }
+            serialnumber = document.getElementById('VALVE_SER_NO').value;
+            if (!serialnumber) {
+                Swal.fire("Serial Number is Required")
+                return;
+            }
+
+            // Check if serial number has been saved (green tick visible OR buttons hidden)
+            const greenTick = document.getElementById('green_tick_s1');
+            const saveButton = document.getElementById('save_local_db_btn_s1');
+            const getButton = document.getElementById('get_assembly_btn_s1');
+
+            // Allow save if: green tick is visible OR both buttons are hidden (meaning serial was saved)
+            const isGreenTickVisible = greenTick && greenTick.style.display !== 'none';
+            const areButtonsHidden = (!saveButton || saveButton.style.display === 'none') &&
+                (!getButton || getButton.style.display === 'none');
+
+            if (!isGreenTickVisible && !areButtonsHidden) {
+                Swal.fire({
+                    title: 'Save in Local DB Required',
+                    text: 'Please click "Save in Local DB" or "Fetch & Save" button before saving the form.',
+                    icon: 'warning'
+                });
+                return;
+            }
+
+            // In sync mode, if no pressure data is loaded, require load first
+            if (test_mode === 1 && all_testnames.length === 0 && all_testnames2.length === 0) {
+                Swal.fire("Please click load button first to get pressure and duration data");
+                return;
+            }
+
+
+            let dynamicFields = [];
+
+            // Select forms from testing parameters and valve details
+            document.querySelectorAll(
+                ".testingparameter_s1 .form input, .testingparameter_s1 .form select, \
+.valvedetailform .valveform input, .valvedetailform .valveform select, \
+.valvedetail table input, .valvedetail table select"
+            ).forEach(field => {
+                if (field.name) {
+                    dynamicFields.push({
+                        name: field.name,
+                        value: field.value
+                    });
+                }
+            });
+
+            valvetype = document.getElementById('type_s1').innerHTML;
+
+            // In sync mode, use whichever station has data (prioritize station 1 if saving from station 1)
+            let testnames_to_use, pressure_to_use, duration_to_use, testid_to_use, disabled_to_use;
+
+            if (test_mode === 1) {
+                // In sync mode, use station 1 data if available, otherwise station 2 data
+                if (all_testnames.length > 0) {
+                    testnames_to_use = all_testnames;
+                    pressure_to_use = all_pressure;
+                    duration_to_use = all_duration;
+                    testid_to_use = all_testid;
+                    disabled_to_use = disabled_testid;
+                } else {
+                    testnames_to_use = all_testnames2;
+                    pressure_to_use = all_pressure2;
+                    duration_to_use = all_duration2;
+                    testid_to_use = all_testid2;
+                    disabled_to_use = disabled_testid2;
+                }
+            } else {
+                // Non-sync mode, use station 1 data
+                testnames_to_use = all_testnames;
+                pressure_to_use = all_pressure;
+                duration_to_use = all_duration;
+                testid_to_use = all_testid;
+                disabled_to_use = disabled_testid;
+            }
+
+            console.log("DEBUG: Calling save_station1 API, test_mode:", test_mode);
+            fetch('/api/newform/save_station1/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    fields: dynamicFields,
+                    valvetype: valvetype,
+                    station_id: 1,
+                    testname: testnames_to_use,
+                    test_pressure: pressure_to_use,
+                    test_duration: duration_to_use,
+                    test_id: testid_to_use,
+                    diabled_testid: disabled_to_use,
+                    open_degree_s1: open_degree_s1,
+                    close_degree_s1: close_degree_s1,
+                    test_mode: test_mode
+
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire("Data saved successfully");
+                        station1_saved = true;
+                        localStorage.setItem('station1_saved', 'true');
+                        console.log('Save Station 1 - Set station1_saved to true');
+                    } else {
+                        Swal.fire("Error saving data");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error in save_station1:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to save data. Please try again.',
+                        icon: 'error'
+                    });
+                })
+
+        }
+
+
+        function clear_station1() {
+            // Clear ALL localStorage
+            localStorage.clear();
+
+            // Reset JS arrays and saved status
+            disabled_btn = [];
+            disabled_testid = [];
+            station1_saved = false;
+            loadbutton_status1 = false;
+
+            document.querySelectorAll(".fullcontainer1 input").forEach(inp => {
+                inp.value = "";   // does NOT affect placeholder
+            });
+
+            document.querySelectorAll(".fullcontainer1 select").forEach(sel => {
+                sel.selectedIndex = 0;  // resets select but keeps placeholder option
+            });
+
+            // Re-enable station 2 fields if they were disabled
+            document.getElementById('standard_s2').disabled = false;
+            document.getElementById('size_s2').disabled = false;
+            document.getElementById('class_s2').disabled = false;
+            document.getElementById('body_material_s2').disabled = false;
+            document.getElementById('type_s2').disabled = false;
+            document.getElementById('pressureunit_s2').disabled = false;
+
+            // Re-enable station 1 fields if they were disabled
+            document.getElementById('standard_s1').disabled = false;
+            document.getElementById('size_s1').disabled = false;
+            document.getElementById('class_s1').disabled = false;
+            document.getElementById('body_material_s1').disabled = false;
+            document.getElementById('type_s1').disabled = false;
+            document.getElementById('pressureunit_s1').disabled = false;
+
+            // Re-enable both load buttons
+            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+
+            // Clear degreetable cells
+            document.querySelectorAll(".degreetable td").forEach(td => td.textContent = "");
+
+            // Reset buttons
+            document.querySelectorAll(".pressuretable button").forEach(btn => {
+                btn.textContent = "Enabled";
+                btn.classList.remove("disabled-state");
+            });
+
+            // Clear DB
+            fetch('/api/newform/clear_station1/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire("Data Cleared");
+                    } else {
+                        Swal.fire("Data Not Cleared");
+                    }
+                });
+        }
+
+
+        function cancel_station1() {
+            // Clear ALL localStorage immediately
+            localStorage.clear();
+
+            // Reset JS arrays and saved status
+            disabled_btn = [];
+            disabled_testid = [];
+            station1_saved = false;
+            loadbutton_status1 = false;
+
+            // Clear all input/select fields
+            document.querySelectorAll(".fullcontainer1 input, .fullcontainer1 select").forEach(f => f.value = "");
+
+            // Re-enable station 2 fields if they were disabled
+            document.getElementById('standard_s2').disabled = false;
+            document.getElementById('size_s2').disabled = false;
+            document.getElementById('class_s2').disabled = false;
+            document.getElementById('body_material_s2').disabled = false;
+            document.getElementById('type_s2').disabled = false;
+            document.getElementById('pressureunit_s2').disabled = false;
+
+            document.getElementById('standard_s1').disabled = false;
+            document.getElementById('size_s1').disabled = false;
+            document.getElementById('class_s1').disabled = false;
+            document.getElementById('body_material_s1').disabled = false;
+            document.getElementById('type_s1').disabled = false;
+            document.getElementById('pressureunit_s1').disabled = false;
+
+            // Re-enable both load buttons
+            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+
+            // Reset buttons
+            document.querySelectorAll(".pressuretable button").forEach(btn => {
+                btn.textContent = "Enabled";
+                btn.classList.remove("disabled-state");
+            });
+
+            fetch('/api/newform/cancel_station1/', {
+
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status == "success") {
+                        window.location.href = '/dashboard/'
+                    }
+                    else {
+                        Swal.fire("Data Not Cleared")
+                    }
+                })
+        }
+
+        function restore_disabled_buttons() {
+            let saved_ids = JSON.parse(localStorage.getItem("disabled_testid")) || [];
+
+            document.querySelectorAll(".pressuretable button").forEach(btn => {
+                let id = btn.dataset.testid;
+
+                if (saved_ids.includes(id)) {
+                    btn.textContent = "Disabled";
+                    btn.classList.add("disabled-state");
+                }
+            });
+
+            // Also restore arrays in case user disables again
+            disabled_btn = JSON.parse(localStorage.getItem("disabled_btn")) || [];
+            disabled_testid = saved_ids;
+        }
+
+
+        // save all inputs in local storage //
+
+        function saveToLocalStorage() {
+            const fields = document.querySelectorAll(".fullcontainer1 input, .fullcontainer1 select");
+            let formData = {};
+
+            fields.forEach(f => {
+                if (f.name) {
+                    formData[f.name] = f.value;
+                }
+            });
+
+            localStorage.setItem("station1_form", JSON.stringify(formData));
+        }
+
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem("station1_form");
+            if (!saved) return;
+
+            const formData = JSON.parse(saved);
+            const fields = document.querySelectorAll(".fullcontainer1 input, .fullcontainer1 select");
+
+            fields.forEach(f => {
+                if (f.name && formData[f.name] !== undefined) {
+                    f.value = formData[f.name];
+                }
+            });
+        }
+
+
+        function enableAutoSave() {
+            const fields = document.querySelectorAll(".fullcontainer1 input, .fullcontainer1 select");
+
+            fields.forEach(f => {
+                f.addEventListener("input", saveToLocalStorage);
+                f.addEventListener("change", saveToLocalStorage);
+            });
+        }
+
+
+        // Run on page load
+        loadFromLocalStorage();
+        enableAutoSave();
+
+
+
+        // ***************************** station 2 functionality **********************************************
+
+
+        // Initialize station2 button state variables - will be properly set by restoreButtonStates()
+        var loadbutton_status2 = false;
+        var station2_saved = false;
+
+        let all_testnames2 = [];
+        let all_pressure2 = [];
+        let all_duration2 = [];
+        let all_testid2 = [];
+        let open_degree_s2 = null;
+        let close_degree_s2 = null;
+
+
+        // load button for station 1 //
+        function load_station2() {
+            var standard = document.getElementById('standard_s2').value;
+            var size = document.getElementById('size_s2').value;
+            var classname = document.getElementById('class_s2').value;
+            var body_material = document.getElementById('body_material_s2').value;
+            var valve_type = document.getElementById('type_s2').value;
+            var pressureunit = document.getElementById('pressureunit_s2').value;
+
+
+            if (!standard || standard === "-- Select valve_standards --") {
+                Swal.fire("Please select Standard");
+                return;
+            }
+            if (!size || size === "-- Select Valve Size --") {
+                Swal.fire("Please select Size");
+                return;
+            }
+            if (!classname || classname === "-- Select Valve Class --") {
+                Swal.fire("Please select Class");
+                return;
+            }
+            if (!body_material || body_material === "-- Select Shell Material --") {
+                Swal.fire("Please select Body Material");
+                return;
+            }
+            if (!valve_type || valve_type === "-- Select Valve Type --") {
+                Swal.fire("Please select valveType");
+                return;
+            }
+            if (!pressureunit || pressureunit === "-- Select Pressure Unit --") {
+                Swal.fire("Please select Pressure Unit");
+                return;
+            }
+
+            // In sync mode, auto-populate station 1 form fields with station 2 values
+            if (test_mode === 1) {
+                // Auto-populate station 1 form fields
+                document.getElementById('standard_s1').value = standard;
+                document.getElementById('size_s1').value = size;
+                document.getElementById('class_s1').value = classname;
+                document.getElementById('body_material_s1').value = body_material;
+                document.getElementById('type_s1').value = valve_type;
+                document.getElementById('pressureunit_s1').value = pressureunit;
+
+                // Disable the fields in station 1 form
+                document.getElementById('standard_s1').disabled = true;
+                document.getElementById('size_s1').disabled = true;
+                document.getElementById('class_s1').disabled = true;
+                document.getElementById('body_material_s1').disabled = true;
+                document.getElementById('type_s1').disabled = true;
+                document.getElementById('pressureunit_s1').disabled = true;
+
+                // Disable station 2 fields and load button after loading
+                document.getElementById('standard_s2').disabled = true;
+                document.getElementById('size_s2').disabled = true;
+                document.getElementById('class_s2').disabled = true;
+                document.getElementById('body_material_s2').disabled = true;
+                document.getElementById('type_s2').disabled = true;
+                document.getElementById('pressureunit_s2').disabled = true;
+
+                // Disable both load buttons
+                document.querySelector('.fullcontainer1 .loadbutton').disabled = true;
+                document.querySelector('.fullcontainer2 .loadbutton').disabled = true;
+
+                // Save the disabled state to localStorage
+                localStorage.setItem('station2_fields_disabled', 'true');
+                localStorage.setItem('load_buttons_disabled', 'true');
+            }
+
+            fetch('/api/newform/get_pressure_duration/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    standard: standard,
+                    size: size,
+                    class: classname,
+                    body_material: body_material,
+                    type: valve_type,
+                    pressure_unit: pressureunit,
+                    station: "station2"
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON');
+                    }
+                    return response.json();
+                })
+                .then(res => {
+
+                    const pd = res.pressure_duration;
+                    // If pressure OR duration is null, undefined, empty → show error
+                    if (!pd || pd.pressure == null || pd.duration == null) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                            icon: 'error'
+                        });
+                        document.getElementsByClassName('pressuretable2')[0].style.display = "none";
+                        // Enable load button so user can try again
+                        document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                        // Enable form fields so user can select different combination
+                        if (test_mode === 1) {
+                            // In sync mode, enable both stations' load buttons and form fields
+                            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                            enableFormFields('both');
+                        } else {
+                            // In non-sync mode, only enable station 2 form fields
+                            enableFormFields(2);
+                        }
+                        return;
+                    }
+
+                    // If pressure OR duration array is empty → show error
+                    if (!pd.pressure.length || !pd.duration.length) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                            icon: 'error'
+                        });
+                        document.getElementsByClassName('pressuretable2')[0].style.display = "none";
+                        // Enable load button so user can try again
+                        document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                        // Enable form fields so user can select different combination
+                        if (test_mode === 1) {
+                            // In sync mode, enable both stations' load buttons and form fields
+                            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                            enableFormFields('both');
+                        } else {
+                            // In non-sync mode, only enable station 2 form fields
+                            enableFormFields(2);
+                        }
+                        return;
+                    }
+
+                    // Check ANY null values inside arrays
+                    if (pd.pressure.some(v => v === null) || pd.duration.some(v => v === null)) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                            icon: 'error'
+                        });
+                        document.getElementsByClassName('pressuretable2')[0].style.display = "none";
+                        // Enable load button so user can try again
+                        document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                        // Enable form fields so user can select different combination
+                        if (test_mode === 1) {
+                            // In sync mode, enable both stations' load buttons and form fields
+                            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                            enableFormFields('both');
+                        } else {
+                            // In non-sync mode, only enable station 2 form fields
+                            enableFormFields(2);
+                        }
+                        return;
+                    }
+
+                    document.getElementsByClassName("pressuretable2")[0].style.display = "block";
+                    document.getElementsByClassName("degreetable2")[0].style.display = "block";
+
+                    const tbody = document.getElementById("pressureTableBody2");
+                    tbody.innerHTML = "";  // clear old rows
+
+                    const tbody1 = document.querySelector(".degreetable2 table tbody");
+                    tbody1.innerHTML = `
+            <tr>
+                <td>${pd.degree[0]}</td>
+                <td>${pd.degree[1]}</td>
+            </tr>
+        `;
+                    open_degree_s2 = pd.degree[0]
+                    close_degree_s2 = pd.degree[1]
+
+                    all_testnames2 = [];
+                    all_pressure2 = [];
+                    all_duration2 = [];
+                    all_testid2 = [];
+                    // Convert 3 arrays → one list of rows
+                    for (let i = 0; i < pd.test_name.length; i++) {
+                        all_testnames2.push(pd.test_name[i]);
+                        all_pressure2.push(pd.pressure[i]);
+                        all_duration2.push(pd.duration[i]);
+                        all_testid2.push(pd.testid[i]);
+
+                        let row = `
+                <tr>
+                    <td>${pd.test_name[i]}</td>
+                    <td><input type="text" value="${pd.pressure[i] ?? ''}" disabled></td>
+                    <td><input type="text" value="${pd.duration[i] ?? ''}" disabled></td>
+                    <td><button onclick="enable_disable2(this)"data-testname="${pd.test_name[i]}" data-testid="${pd.testid[i]}">Enabled</button></td>
+                </tr>
+            `;
+                        tbody.innerHTML += row;
+                    }
+                    loadbutton_status2 = true;
+                    localStorage.setItem('loadbutton_status2', 'true');
+                    console.log('Load Station 2 - Set loadbutton_status2 to true');
+
+                    // Save pressure table data to localStorage
+                    const pressureData2 = {
+                        testnames: all_testnames2,
+                        pressure: all_pressure2,
+                        duration: all_duration2,
+                        testid: all_testid2,
+                        open_degree: open_degree_s2,
+                        close_degree: close_degree_s2
+                    };
+                    localStorage.setItem('station2_pressure_data', JSON.stringify(pressureData2));
+
+                    // In sync mode, sync station 1 data with station 2 data after API response
+                    if (test_mode === 1) {
+                        console.log('Sync mode: Syncing Station 2 data to Station 1');
+                        // Sync station 1 data with station 2 data
+                        all_testnames = [...all_testnames2];
+                        all_pressure = [...all_pressure2];
+                        all_duration = [...all_duration2];
+                        all_testid = [...all_testid2];
+                        open_degree_s1 = open_degree_s2;
+                        close_degree_s1 = close_degree_s2;
+
+                        // Set station 1 load button status
+                        loadbutton_status1 = true;
+                        localStorage.setItem('loadbutton_status1', 'true');
+
+                        // Save station 1 pressure table data to localStorage
+                        const pressureData1 = {
+                            testnames: all_testnames,
+                            pressure: all_pressure,
+                            duration: all_duration,
+                            testid: all_testid,
+                            open_degree: open_degree_s1,
+                            close_degree: close_degree_s1
+                        };
+                        localStorage.setItem('station1_pressure_data', JSON.stringify(pressureData1));
+
+                        // Mark station 2 as primary and sync the pressure table for station 1
+                        localStorage.setItem('sync_primary_station', '2');
+                        syncPressureTableToStation1();
+                    }
+
+                    // Disable load button after successful data loading
+                    document.querySelector('.fullcontainer2 .loadbutton').disabled = true;
+                    // Disable form fields after successful data loading
+                    if (test_mode === 1) {
+                        // In sync mode, disable both stations' load buttons and form fields
+                        document.querySelector('.fullcontainer1 .loadbutton').disabled = true;
+                        disableFormFields('both');
+                    } else {
+                        // In non-sync mode, only disable station 2 form fields
+                        disableFormFields(2);
+                    }
+
+                    restore_disabled_buttons2();
+                })
+                .catch(error => {
+                    console.error('Error in load_station2:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to load pressure and duration data. Please check your selection and try again.',
+                        icon: 'error'
+                    });
+                    // Hide pressure table on error
+                    document.getElementsByClassName('pressuretable2')[0].style.display = "none";
+                    document.getElementsByClassName('degreetable2')[0].style.display = "none";
+                    // Enable load button so user can try again
+                    document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+                    // Enable form fields so user can select different combination
+                    if (test_mode === 1) {
+                        // In sync mode, enable both stations' load buttons and form fields
+                        document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+                        enableFormFields('both');
+                    } else {
+                        // In non-sync mode, only enable station 2 form fields
+                        enableFormFields(2);
+                    }
+                });
+
+        }
+
+        function loadFromLocalStorage2() {
+            const saved = localStorage.getItem("station2_form");
+            if (!saved) return;
+
+            const formData = JSON.parse(saved);
+            const fields = document.querySelectorAll(".fullcontainer2 input, select");
+
+            fields.forEach(f => {
+                if (f.name && formData[f.name] !== undefined) {
+                    f.value = formData[f.name];
+                    // Restore disabled state if in sync mode
+                    if (test_mode === 1 && localStorage.getItem('station2_fields_disabled') === 'true') {
+                        f.disabled = true;
+                    }
+                }
+            });
+        }
+
+        // Enable and Disable button //
+        let disabled_btn2 = [];
+        let disabled_testid2 = [];
+
+        function enable_disable2(btn) {
+            let testname = btn.dataset.testname;
+            let test_id = btn.dataset.testid;
+            let buttonname = btn.textContent.trim();
+
+            if (buttonname === "Disabled") {
+                btn.textContent = "Enabled";
+                btn.classList.remove('disabled-state');
+
+                disabled_btn2 = disabled_btn2.filter(name => name !== testname);
+                disabled_testid2 = disabled_testid2.filter(id => id !== test_id);
+            }
+            else {
+                btn.textContent = "Disabled";
+                btn.classList.add('disabled-state');
+
+                if (!disabled_btn2.includes(testname)) disabled_btn2.push(testname);
+                if (!disabled_testid2.includes(test_id)) disabled_testid2.push(test_id);
+            }
+
+            // In sync mode, also update station 1 button
+            if (test_mode === 1) {
+                disabled_btn = [...disabled_btn2];
+                disabled_testid = [...disabled_testid2];
+                syncButtonStateToStation1(test_id, buttonname === "Enabled" ? "Disabled" : "Enabled");
+            }
+
+            // ✅ NEW — Save arrays to localStorage
+            localStorage.setItem("disabled_btn2", JSON.stringify(disabled_btn2));
+            localStorage.setItem("disabled_testid2", JSON.stringify(disabled_testid2));
+        }
+
+        // save station 1 //
+
+        function save_station2() {
+            // In sync mode, don't require load button to be clicked
+            let loadbutton_clicked = loadbutton_status2
+            if (!loadbutton_clicked && test_mode !== 1) {
+                Swal.fire("Please click load button before saving");
+                return;
+            }
+
+            serialnumber = document.getElementById('VALVE_SER_NO_s2').value;
+            if (!serialnumber) {
+                Swal.fire("Serial Number is Required")
+                return;
+            }
+
+            // Check if serial number has been saved (green tick visible OR buttons hidden)
+            const greenTick = document.getElementById('green_tick_s2');
+            const saveButton = document.getElementById('save_local_db_btn_s2');
+            const getButton = document.getElementById('get_assembly_btn_s2');
+
+            // Allow save if: green tick is visible OR both buttons are hidden (meaning serial was saved)
+            const isGreenTickVisible = greenTick && greenTick.style.display !== 'none';
+            const areButtonsHidden = (!saveButton || saveButton.style.display === 'none') &&
+                (!getButton || getButton.style.display === 'none');
+
+            if (!isGreenTickVisible && !areButtonsHidden) {
+                Swal.fire({
+                    title: 'Save in Local DB Required',
+                    text: 'Please click "Save in Local DB" or "Fetch & Save" button before saving the form.',
+                    icon: 'warning'
+                });
+                return;
+            }
+
+            // In sync mode, if no pressure data is loaded, require load first
+            if (test_mode === 1 && all_testnames.length === 0 && all_testnames2.length === 0) {
+                Swal.fire("Please click load button first to get pressure and duration data");
+                return;
+            }
+
+
+            let dynamicFields2 = [];
+
+            // Select forms from testing parameters and valve details
+            document.querySelectorAll(
+                ".testingparameter_s2 .form input, .testingparameter_s2 .form select, \
+.valvedetailform2 .valveform input, .valvedetailform2 .valveform select, \
+.valvedetail2 table input, .valvedetail2 table select"
+            ).forEach(field => {
+                if (field.name) {
+                    dynamicFields2.push({
+                        name: field.name,
+                        value: field.value
+                    });
+                }
+            });
+
+            valvetype = document.getElementById('type_s2').innerHTML;
+
+            // In sync mode, use whichever station has data (prioritize station 2 if saving from station 2)
+            let testnames_to_use, pressure_to_use, duration_to_use, testid_to_use, disabled_to_use;
+
+            if (test_mode === 1) {
+                // In sync mode, use station 2 data if available, otherwise station 1 data
+                if (all_testnames2.length > 0) {
+                    testnames_to_use = all_testnames2;
+                    pressure_to_use = all_pressure2;
+                    duration_to_use = all_duration2;
+                    testid_to_use = all_testid2;
+                    disabled_to_use = disabled_testid2;
+                } else {
+                    testnames_to_use = all_testnames;
+                    pressure_to_use = all_pressure;
+                    duration_to_use = all_duration;
+                    testid_to_use = all_testid;
+                    disabled_to_use = disabled_testid;
+                }
+            } else {
+                // Non-sync mode, use station 2 data
+                testnames_to_use = all_testnames2;
+                pressure_to_use = all_pressure2;
+                duration_to_use = all_duration2;
+                testid_to_use = all_testid2;
+                disabled_to_use = disabled_testid2;
+            }
+
+            console.log("DEBUG: Calling save_station2 API, test_mode:", test_mode);
+            fetch('/api/newform/save_station2/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    fields: dynamicFields2,
+                    valvetype: valvetype,
+                    station_id: 2,
+                    testname: testnames_to_use,
+                    test_pressure: pressure_to_use,
+                    test_duration: duration_to_use,
+                    test_id: testid_to_use,
+                    diabled_testid: disabled_to_use,
+                    open_degree_s2: open_degree_s2,
+                    close_degree_s2: close_degree_s2,
+                    test_mode: test_mode
+
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire("Data saved successfully");
+                        station2_saved = true;
+                        localStorage.setItem('station2_saved', 'true');
+                        console.log('Save Station 2 - Set station2_saved to true');
+                    } else {
+                        Swal.fire("Error saving data");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error in save_station2:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to save data. Please try again.',
+                        icon: 'error'
+                    });
+                })
+
+        }
+
+
+        function clear_station2() {
+            // Clear ALL localStorage
+            localStorage.clear();
+
+            // Reset JS arrays and saved status
+            disabled_btn2 = [];
+            disabled_testid2 = [];
+            station2_saved = false;
+            loadbutton_status2 = false;
+
+            document.querySelectorAll(".fullcontainer2 input").forEach(inp => {
+                inp.value = "";   // does NOT affect placeholder
+            });
+
+            document.querySelectorAll(".fullcontainer2 select").forEach(sel => {
+                sel.selectedIndex = 0;  // resets select but keeps placeholder option
+            });
+
+            // Re-enable station 2 fields if they were disabled
+            document.getElementById('standard_s2').disabled = false;
+            document.getElementById('size_s2').disabled = false;
+            document.getElementById('class_s2').disabled = false;
+            document.getElementById('body_material_s2').disabled = false;
+            document.getElementById('type_s2').disabled = false;
+            document.getElementById('pressureunit_s2').disabled = false;
+
+            // Re-enable station 1 fields if they were disabled
+            document.getElementById('standard_s1').disabled = false;
+            document.getElementById('size_s1').disabled = false;
+            document.getElementById('class_s1').disabled = false;
+            document.getElementById('body_material_s1').disabled = false;
+            document.getElementById('type_s1').disabled = false;
+            document.getElementById('pressureunit_s1').disabled = false;
+
+            // Re-enable both load buttons
+            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+
+            // Clear degreetable cells
+            document.querySelectorAll(".degreetable2 td").forEach(td => td.textContent = "");
+
+            // Reset buttons
+            document.querySelectorAll(".pressuretable2 button").forEach(btn => {
+                btn.textContent = "Enabled";
+                btn.classList.remove("disabled-state");
+            });
+
+            // Clear DB
+            fetch('/api/newform/clear_station2/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire("Data Cleared");
+                    } else {
+                        Swal.fire("Data Not Cleared");
+                    }
+                });
+        }
+
+
+        function cancel_station2() {
+            // Clear ALL localStorage immediately
+            localStorage.clear();
+
+            // Reset JS arrays and saved status
+            disabled_btn2 = [];
+            disabled_testid2 = [];
+            station2_saved = false;
+            loadbutton_status2 = false;
+
+            // Clear all input/select fields
+            document.querySelectorAll(".fullcontainer2 input, .fullcontainer2 select").forEach(f => f.value = "");
+
+            // Re-enable all fields in both stations
+            document.getElementById('standard_s1').disabled = false;
+            document.getElementById('size_s1').disabled = false;
+            document.getElementById('class_s1').disabled = false;
+            document.getElementById('body_material_s1').disabled = false;
+            document.getElementById('type_s1').disabled = false;
+            document.getElementById('pressureunit_s1').disabled = false;
+
+            document.getElementById('standard_s2').disabled = false;
+            document.getElementById('size_s2').disabled = false;
+            document.getElementById('class_s2').disabled = false;
+            document.getElementById('body_material_s2').disabled = false;
+            document.getElementById('type_s2').disabled = false;
+            document.getElementById('pressureunit_s2').disabled = false;
+
+            // Re-enable both load buttons
+            document.querySelector('.fullcontainer1 .loadbutton').disabled = false;
+            document.querySelector('.fullcontainer2 .loadbutton').disabled = false;
+
+            // Reset buttons
+            document.querySelectorAll(".pressuretable2 button").forEach(btn => {
+                btn.textContent = "Enabled";
+                btn.classList.remove("disabled-state");
+            });
+
+            fetch('/api/newform/cancel_station2/', {
+
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status == "success") {
+                        window.location.href = '/dashboard/'
+                    }
+                    else {
+                        Swal.fire("Data Not Cleared")
+                    }
+                })
+        }
+
+        function restore_disabled_buttons2() {
+            let saved_ids = JSON.parse(localStorage.getItem("disabled_testid2")) || [];
+
+            document.querySelectorAll(".pressuretable2 button").forEach(btn => {
+                let id = btn.dataset.testid;
+
+                if (saved_ids.includes(id)) {
+                    btn.textContent = "Disabled";
+                    btn.classList.add("disabled-state");
+                }
+            });
+
+            // Also restore arrays in case user disables again
+            disabled_btn2 = JSON.parse(localStorage.getItem("disabled_btn2")) || [];
+            disabled_testid2 = saved_ids;
+        }
+
+
+        // save all inputs in local storage //
+
+        function saveToLocalStorage2() {
+            const fields = document.querySelectorAll(".fullcontainer2 input, select");
+            let formData = {};
+
+            fields.forEach(f => {
+                if (f.name) {
+                    formData[f.name] = f.value;
+                }
+            });
+
+            localStorage.setItem("station2_form", JSON.stringify(formData));
+        }
+
+        function loadFromLocalStorage2() {
+            const saved = localStorage.getItem("station2_form");
+            if (!saved) return;
+
+            const formData = JSON.parse(saved);
+            const fields = document.querySelectorAll(".fullcontainer2 input, select");
+
+            fields.forEach(f => {
+                if (f.name && formData[f.name] !== undefined) {
+                    f.value = formData[f.name];
+                }
+            });
+        }
+
+        function enableAutoSave2() {
+            const fields = document.querySelectorAll(".fullcontainer2 input, select");
+            fields.forEach(f => {
+                f.addEventListener("input", saveToLocalStorage2);
+                f.addEventListener("change", saveToLocalStorage2);
+            });
+        }
+
+        // Run on page load
+        loadFromLocalStorage2();
+        enableAutoSave2();
+
+
+        //  station 1 continue button //
+
+        function continue_station1() {
+            console.log('Continue Station 1 - Button states:', {
+                loadbutton_status1,
+                station1_saved,
+                test_mode
+            });
+
+            var station1saved = station1_saved
+
+            if (station1saved == true) {
+                fetch('/api/newform/continue_station1/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Response is not JSON');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                       
+                        if (data.status == "success")
+                         {
+                            console.log("continue station received data for redirect", data)
+                            // Use the redirect_url returned by the API
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                // Fallback to default behavior
+                                window.location.href = "/live_page";
+                            }
+                        }
+                        else {
+                            Swal.fire("Error", data.message || "Failed to continue", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire("Error", "An error occurred while processing your request", "error");
+                    });
+            }
+            else {
+                Swal.fire("Please click save button first");
+                return;
+            }
+        }
+
+
+        //  station 2 continue button //
+
+        function continue_station2() {
+            console.log('Continue Station 2 - Button states:', {
+                loadbutton_status2,
+                station2_saved,
+                test_mode
+            });
+
+            var station2saved = station2_saved
+
+            if (station2saved == true) {
+                fetch('/api/newform/continue_station2/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            throw new Error('Response is not JSON');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status == "success") {
+                            // Use the redirect_url returned by the API
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                // Fallback to default behavior
+                                window.location.href = "/sync_page";
+                            }
+                        }
+                        else {
+                            Swal.fire("Error", data.message || "Failed to continue", "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire("Error", "An error occurred while processing your request", "error");
+                    });
+            }
+            else {
+                Swal.fire("Please click save button first");
+                return;
+            }
+        }
+
+        // check assembly id available or not //
+
+        function checkAssemblyId(station) {
+            const serialInput = station === 's1' ?
+                document.getElementById('VALVE_SER_NO') :
+                document.getElementById('VALVE_SER_NO_s2');
+
+            const serialNumber = serialInput.value.trim();
+
+            if (!serialNumber) {
+                hideAssemblyStatus(station);
+                return;
+            }
+
+            fetch('/api/newform/check_assembly_id/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        handleSerialValidationResponse(data, station, serialNumber);
+                    } else {
+                        console.error('Error checking assembly ID:', data.message);
+                        hideAssemblyStatus(station);
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideAssemblyStatus(station);
+                    Swal.fire('Error', 'Failed to validate serial number', 'error');
+                });
+        }
+
+        function handleSerialValidationResponse(data, station, serialNumber) {
+            console.log('handleSerialValidationResponse called with:', { data, station, serialNumber });
+
+            switch (data.action) {
+                case 'ask_deletion':
+                    // Status is 2 or 3 - ask for deletion
+                    Swal.fire({
+                        title: 'Serial Number Already Tested',
+                        text: data.message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Delete & Retest',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            deleteAndRetestSerial(serialNumber, station);
+                        } else {
+                            // Clear the input if user cancels
+                            const serialInput = station === 's1' ?
+                                document.getElementById('VALVE_SER_NO') :
+                                document.getElementById('VALVE_SER_NO_s2');
+                            serialInput.value = '';
+                            hideAssemblyStatus(station);
+                        }
+                    });
+                    break;
+
+                case 'show_tick':
+                    // Status is 0 and assembly ID exists - show green tick
+                    console.log('Showing green tick for station:', station);
+                    showGreenTick(station);
+                    break;
+
+                case 'show_buttons':
+                    // Status is 0 but no assembly ID, or new serial number
+                    if (data.abrs_connected) {
+                        // ABRS server connected - always show single combined button
+                        showFetchAndSaveButton(station);
+                    } else {
+                        // ABRS server not connected - show warning message
+
+
+                        if (!data.serial_exists) {
+                            // Serial doesn't exist in local DB - show save button to allow saving without assembly ID
+                            hideGetAssemblyButton(station);
+                            showSaveLocalDBButton(station);
+                        } else {
+                            // Serial exists but no assembly ID - hide both buttons (can't fetch from ABRS)
+                            hideGetAssemblyButton(station);
+                            hideSaveLocalDBButton(station);
+                        }
+                    }
+                    break;
+
+                default:
+                    hideAssemblyStatus(station);
+                    break;
+            }
+        }
+
+        function deleteAndRetestSerial(serialNumber, station) {
+            fetch('/api/newform/delete_and_retest_serial/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('Success', data.message, 'success');
+                        // After successful deletion, check again to show appropriate buttons
+                        setTimeout(() => {
+                            checkAssemblyId(station);
+                        }, 500);
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        hideAssemblyStatus(station);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'Failed to delete serial number', 'error');
+                    hideAssemblyStatus(station);
+                });
+        }
+
+        function getAssemblyId(station) {
+            const serialInput = station === 's1' ?
+                document.getElementById('VALVE_SER_NO') :
+                document.getElementById('VALVE_SER_NO_s2');
+
+            const serialNumber = serialInput.value.trim();
+
+            if (!serialNumber) {
+                Swal.fire('Error', 'Please enter a serial number first', 'error');
+                return;
+            }
+
+            // Show loading state
+            const button = document.getElementById(`get_assembly_btn_${station}`);
+            const originalText = button.textContent;
+            button.textContent = 'Loading...';
+            button.disabled = true;
+
+            fetch('/api/newform/get_assembly_id/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire('Success', `Assembly ID retrieved: ${data.assembly_id}`, 'success');
+                        // Reset button state (don't show green tick since we're not saving)
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        // Reset button state
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while retrieving assembly ID', 'error');
+                    // Reset button state
+                    button.textContent = originalText;
+                    button.disabled = false;
+                });
+        }
+
+        function showGreenTick(station) {
+            document.getElementById(`green_tick_${station}`).style.display = 'block';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+            document.getElementById(`save_local_db_btn_${station}`).style.display = 'none';
+        }
+
+        function showGetAssemblyButton(station) {
+            document.getElementById(`green_tick_${station}`).style.display = 'none';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'inline-block';
+        }
+
+        function hideGetAssemblyButton(station) {
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+        }
+
+        function hideAssemblyStatus(station) {
+            document.getElementById(`green_tick_${station}`).style.display = 'none';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+
+            // Reset save button to original state
+            const saveButton = document.getElementById(`save_local_db_btn_${station}`);
+            saveButton.style.display = 'none';
+            saveButton.textContent = 'Save in Local DB';
+            saveButton.setAttribute('onclick', `saveToLocalDB('${station}')`);
+        }
+
+        // Sync helper functions for sync mode
+        function syncPressureTableToStation2() {
+            console.log('Syncing pressure table to Station 2');
+            const tbody2 = document.getElementById("pressureTableBody2");
+            tbody2.innerHTML = "";  // clear old rows
+
+            document.getElementsByClassName("pressuretable2")[0].style.display = "block";
+            document.getElementsByClassName("degreetable2")[0].style.display = "block";
+
+            const tbody1_degree = document.querySelector(".degreetable2 table tbody");
+            tbody1_degree.innerHTML = `
+                <tr>
+                    <td>${open_degree_s2}</td>
+                    <td>${close_degree_s2}</td>
+                </tr>
+            `;
+
+            // Copy pressure table from station 1 to station 2
+            for (let i = 0; i < all_testnames2.length; i++) {
+                let row = `
+                    <tr>
+                        <td>${all_testnames2[i]}</td>
+                        <td><input type="text" value="${all_pressure2[i] ?? ''}" disabled></td>
+                        <td><input type="text" value="${all_duration2[i] ?? ''}" disabled></td>
+                        <td><button onclick="enable_disable2(this)" data-testname="${all_testnames2[i]}" data-testid="${all_testid2[i]}" disabled>Enabled</button></td>
+                    </tr>
+                `;
+                tbody2.innerHTML += row;
+            }
+            loadbutton_status2 = true;
+            localStorage.setItem('loadbutton_status2', 'true');
+        }
+
+        function syncPressureTableToStation1() {
+            console.log('Syncing pressure table to Station 1');
+            const tbody1 = document.getElementById("pressureTableBody");
+            tbody1.innerHTML = "";  // clear old rows
+
+            document.getElementsByClassName("pressuretable")[0].style.display = "block";
+            document.getElementsByClassName("degreetable")[0].style.display = "block";
+
+            const tbody1_degree = document.querySelector(".degreetable table tbody");
+            tbody1_degree.innerHTML = `
+                <tr>
+                    <td>${open_degree_s1}</td>
+                    <td>${close_degree_s1}</td>
+                </tr>
+            `;
+
+            // Copy pressure table from station 2 to station 1
+            for (let i = 0; i < all_testnames.length; i++) {
+                let row = `
+                    <tr>
+                        <td>${all_testnames[i]}</td>
+                        <td><input type="text" value="${all_pressure[i] ?? ''}" disabled></td>
+                        <td><input type="text" value="${all_duration[i] ?? ''}" disabled></td>
+                        <td><button onclick="enable_disable(this)" data-testname="${all_testnames[i]}" data-testid="${all_testid[i]}" disabled>Enabled</button></td>
+                    </tr>
+                `;
+                tbody1.innerHTML += row;
+            }
+            loadbutton_status1 = true;
+            localStorage.setItem('loadbutton_status1', 'true');
+        }
+
+        function syncButtonStateToStation2(test_id, newState) {
+            document.querySelectorAll(".pressuretable2 button").forEach(btn => {
+                if (btn.dataset.testid === test_id) {
+                    btn.textContent = newState;
+                    if (newState === "Disabled") {
+                        btn.classList.add("disabled-state");
+                    } else {
+                        btn.classList.remove("disabled-state");
+                    }
+                }
+            });
+        }
+
+        function syncButtonStateToStation1(test_id, newState) {
+            document.querySelectorAll(".pressuretable button").forEach(btn => {
+                if (btn.dataset.testid === test_id) {
+                    btn.textContent = newState;
+                    if (newState === "Disabled") {
+                        btn.classList.add("disabled-state");
+                    } else {
+                        btn.classList.remove("disabled-state");
+                    }
+                }
+            });
+        }
+
+        // Handle duplicate serial number - separate function for future removal if needed
+        function handleDuplicateSerial(serialNumber, station) {
+            Swal.fire({
+                title: 'Duplicate Serial Number',
+                text: `Serial number ${serialNumber} already exists in the database. Do you want to delete it and retest?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete and retest',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteAndRetestSerial(serialNumber, station);
+                } else {
+                    // Reset button state if user cancels
+                    const button = document.getElementById(`save_local_db_btn_${station}`);
+                    button.textContent = 'Save in Local DB';
+                    button.disabled = false;
+                }
+            });
+        }
+
+        // Delete existing serial number and save as new
+        function deleteAndRetestSerial(serialNumber, station) {
+            const button = document.getElementById(`save_local_db_btn_${station}`);
+            button.textContent = 'Deleting...';
+
+            fetch('/api/newform/delete_and_retest_serial/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // After successful deletion, save as new
+                        button.textContent = 'Saving...';
+                        saveToLocalDBAfterDelete(station, serialNumber);
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        // Reset button state
+                        button.textContent = 'Save in Local DB';
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while deleting the serial number', 'error');
+                    // Reset button state
+                    button.textContent = 'Save in Local DB';
+                    button.disabled = false;
+                });
+        }
+
+        // Save to Local DB after deletion (bypasses duplicate check)
+        function saveToLocalDBAfterDelete(station, serialNumber) {
+            const button = document.getElementById(`save_local_db_btn_${station}`);
+
+            fetch('/api/newform/save_to_local_db/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        let message = data.message;
+                        if (data.assembly_id) {
+                            message += `\nAssembly ID: ${data.assembly_id}`;
+                        }
+                        Swal.fire('Success', 'Serial number deleted and saved as new!\n' + message, 'success');
+                        // Hide both buttons and show green tick
+                        showGreenTick(station);
+                        hideSaveLocalDBButton(station);
+                        hideGetAssemblyButton(station);
+                    } else if (data.status === 'duplicate') {
+                        // This shouldn't happen after deletion, but handle it just in case
+                        Swal.fire('Error', 'Unexpected duplicate error after deletion', 'error');
+                        button.textContent = 'Save in Local DB';
+                        button.disabled = false;
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        // Reset button state
+                        button.textContent = 'Save in Local DB';
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while saving to local database', 'error');
+                    // Reset button state
+                    button.textContent = 'Save in Local DB';
+                    button.disabled = false;
+                });
+        }
+
+        // Save to Local DB function
+        function saveToLocalDB(station) {
+            const serialInput = station === 's1' ?
+                document.getElementById('VALVE_SER_NO') :
+                document.getElementById('VALVE_SER_NO_s2');
+
+            const serialNumber = serialInput.value.trim();
+
+            if (!serialNumber) {
+                Swal.fire('Error', 'Please enter a serial number first', 'error');
+                return;
+            }
+
+            // Show loading state
+            const button = document.getElementById(`save_local_db_btn_${station}`);
+            const originalText = button.textContent;
+            button.textContent = 'Saving...';
+            button.disabled = true;
+
+            fetch('/api/newform/save_to_local_db/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        let message = data.message;
+
+                        // Only show green tick if assembly ID was found
+                        if (data.assembly_id) {
+                            message += `\nAssembly ID: ${data.assembly_id}`;
+                            Swal.fire('Success', message, 'success');
+                            // Show green tick and hide buttons
+                            showGreenTick(station);
+                            hideSaveLocalDBButton(station);
+                            hideGetAssemblyButton(station);
+                        } else {
+                            // No assembly ID - just show success message and hide button
+                            Swal.fire('Success', message, 'success');
+                            // Hide button but don't show green tick
+                            hideSaveLocalDBButton(station);
+                            hideGetAssemblyButton(station);
+                        }
+                    } else if (data.status === 'duplicate') {
+                        // Handle duplicate serial number
+                        handleDuplicateSerial(data.serial_number, station);
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        // Reset button state
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while saving to local database', 'error');
+                    // Reset button state
+                    button.textContent = originalText;
+                    button.disabled = false;
+                });
+        }
+
+        function showSaveLocalDBButton(station) {
+            const saveButton = document.getElementById(`save_local_db_btn_${station}`);
+            saveButton.style.display = 'inline-block';
+            saveButton.textContent = 'Save in Local DB';
+            saveButton.setAttribute('onclick', `saveToLocalDB('${station}')`);
+        }
+
+        function hideSaveLocalDBButton(station) {
+            document.getElementById(`save_local_db_btn_${station}`).style.display = 'none';
+        }
+
+        function showFetchAndSaveButton(station) {
+            // Hide individual buttons and show combined button
+            document.getElementById(`green_tick_${station}`).style.display = 'none';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+
+            // Change the save button text to indicate combined action
+            const saveButton = document.getElementById(`save_local_db_btn_${station}`);
+            saveButton.textContent = 'Fetch & Save';
+            saveButton.style.display = 'inline-block';
+
+            // Update the onclick to use combined function
+            saveButton.setAttribute('onclick', `fetchAndSaveToLocalDB('${station}')`);
+        }
+
+        // Combined function to fetch from ABRS and save to local DB
+        function fetchAndSaveToLocalDB(station) {
+            const serialInput = station === 's1' ?
+                document.getElementById('VALVE_SER_NO') :
+                document.getElementById('VALVE_SER_NO_s2');
+
+            const serialNumber = serialInput.value.trim();
+
+            if (!serialNumber) {
+                Swal.fire('Error', 'Please enter a serial number first', 'error');
+                return;
+            }
+
+            // Show loading state
+            const button = document.getElementById(`save_local_db_btn_${station}`);
+            const originalText = button.textContent;
+            button.textContent = 'Fetching & Saving...';
+            button.disabled = true;
+
+            // Call the combined API endpoint
+            fetch('/api/newform/fetch_and_save_assembly/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        let message = data.message;
+
+                        // Only show green tick if assembly ID was found
+                        if (data.assembly_id) {
+                            message += `\nAssembly ID: ${data.assembly_id}`;
+                            Swal.fire('Success', message, 'success');
+                            // Show green tick and hide button
+                            showGreenTick(station);
+                        } else {
+                            // Assembly ID not found - show warning but hide button (serial is saved)
+                            Swal.fire('Warning', message, 'warning');
+                            // Hide button since serial is already saved
+                            hideSaveLocalDBButton(station);
+                            hideGetAssemblyButton(station);
+                        }
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        // Reset button state
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while fetching and saving assembly ID', 'error');
+                    // Reset button state
+                    button.textContent = originalText;
+                    button.disabled = false;
+                });
+        }
+
+        function showGreenTick(station) {
+            document.getElementById(`green_tick_${station}`).style.display = 'block';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+            document.getElementById(`save_local_db_btn_${station}`).style.display = 'none';
+        }
+
+        function showGetAssemblyButton(station) {
+            document.getElementById(`green_tick_${station}`).style.display = 'none';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'inline-block';
+        }
+
+        function hideGetAssemblyButton(station) {
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+        }
+
+        function hideAssemblyStatus(station) {
+            document.getElementById(`green_tick_${station}`).style.display = 'none';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+
+            // Reset save button to original state
+            const saveButton = document.getElementById(`save_local_db_btn_${station}`);
+            saveButton.style.display = 'none';
+            saveButton.textContent = 'Save in Local DB';
+            saveButton.setAttribute('onclick', `saveToLocalDB('${station}')`);
+        }
+
+        function showFetchAndSaveButton(station) {
+            // Hide individual buttons and show combined button
+            document.getElementById(`green_tick_${station}`).style.display = 'none';
+            document.getElementById(`get_assembly_btn_${station}`).style.display = 'none';
+            document.getElementById(`save_local_db_btn_${station}`).style.display = 'none';
+
+            // Change the save button text to indicate combined action
+            const saveButton = document.getElementById(`save_local_db_btn_${station}`);
+            saveButton.textContent = 'Fetch & Save';
+            saveButton.style.display = 'inline-block';
+
+            // Update the onclick to use combined function
+            saveButton.setAttribute('onclick', `fetchAndSaveToLocalDB('${station}')`);
+        }
+
+        // Combined function to fetch from ABRS and save to local DB
+        function fetchAndSaveToLocalDB(station) {
+            const serialInput = station === 's1' ?
+                document.getElementById('VALVE_SER_NO') :
+                document.getElementById('VALVE_SER_NO_s2');
+
+            const serialNumber = serialInput.value.trim();
+
+            if (!serialNumber) {
+                Swal.fire('Error', 'Please enter a serial number first', 'error');
+                return;
+            }
+
+            // Show loading state
+            const button = document.getElementById(`save_local_db_btn_${station}`);
+            const originalText = button.textContent;
+            button.textContent = 'Fetching & Saving...';
+            button.disabled = true;
+
+            // Call the combined API endpoint
+            fetch('/api/newform/fetch_and_save_assembly/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    serial_number: serialNumber
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        let message = data.message;
+
+                        // Only show green tick if assembly ID was found
+                        if (data.assembly_id) {
+                            message += `\nAssembly ID: ${data.assembly_id}`;
+                            Swal.fire('Success', message, 'success');
+                            // Show green tick and hide button
+                            showGreenTick(station);
+                        } else {
+                            // Assembly ID not found - show warning but hide button (serial is saved)
+                            Swal.fire('Warning', message, 'warning');
+                            // Hide button since serial is already saved
+                            hideSaveLocalDBButton(station);
+                            hideGetAssemblyButton(station);
+                        }
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                        // Reset button state
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An error occurred while fetching and saving assembly ID', 'error');
+                    // Reset button state
+                    button.textContent = originalText;
+                    button.disabled = false;
+                });
+        }
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,784 @@
+{% extends 'base_new.html' %}
+{% load static %}
+
+{% block header_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_new.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Content -->
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <div class="welcome-card">
+    <div class="welcome-content">
+      <div class="welcome-text">
+        <h2>Welcome Back, {{ username|default:"Admin" }}</h2>
+        <p>Here's an overview of valve testing data</p>
+      </div>
+      <div class="last-login-info">
+        <div class="last-login-label">Last Login</div>
+        <div class="last-login-time">{{ last_login|default:"Never" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <!-- Stat Card 1 -->
+    <div class="stat-card stat-card-green">
+      <div class="card-icon"></div>
+      <div class="card-badge">+2 valves today</div>
+      <h3 class="card-title">Tested Valves</h3>
+      <h3 class="card-value">2500</h3>
+    </div>
+
+    <!-- Stat Card 2 -->
+    <div class="stat-card stat-card-red">
+      <div class="card-icon"></div>
+      <div class="card-badge">+2 valves today</div>
+      <h3 class="card-title">Tested Valves</h3>
+      <h3 class="card-value">2500</h3>
+    </div>
+
+    <!-- Stat Card 3 -->
+    <div class="stat-card stat-card-white">
+      <div class="card-icon card-icon-yellow"></div>
+      <div class="card-badge card-badge-yellow">+2 valves today</div>
+      <h3 class="card-title card-title-dark">Tested Valves</h3>
+      <h3 class="card-value card-value-dark">2500</h3>
+    </div>
+
+    <!-- Stat Card 4 -->
+    <div class="stat-card stat-card-white">
+      <div class="card-icon card-icon-pink"></div>
+      <div class="card-badge card-badge-pink" id="sync-nonsync_mode"></div>
+      <h3 class="card-title card-title-dark">Sync & Non-sync Status</h3>
+      <h3 class="card-value card-value-dark"></h3>
+    </div>
+  </div>
+
+
+
+  <div class="testing-card">
+    <div class="testing-inner d-flex justify-content-between">
+
+      <!-- LEFT BLOCK -->
+      <div class="left-block d-flex align-items-center">
+
+        <h2 class="m-0">Start Valve Testing</h2>
+
+        <!-- <div class="d-flex flex-column">
+          <select class="form-select form-select-sm custom-select" id="test_mode" style="width:160px;">
+            <option value="sync">Sync</option>
+            <option value="non-sync">Non-Sync</option>
+          </select>
+
+        </div> -->
+
+        <div class="d-flex gap-2">
+
+          <a href="#" class="btn btn-green" onclick="newtest()">New Test</a>
+          <a href="#" class="btn btn-blue" onclick="continue_test()">Continue Test</a>
+        </div>
+
+      </div>
+
+      <!-- RIGHT BLOCK -->
+      <div class="right-block border-start ps-4">
+        <h5 class="fw-semibold mb-2">Connection Status</h5>
+        <div class="status-row d-flex align-items-center gap-4">
+
+          <div class="d-flex align-items-center mb-1">
+            <span class="status-dot bg-success"></span>
+            <span class="ms-2">HMI Connected</span>
+          </div>
+
+          <div class="d-flex align-items-center">
+            <span class="status-dot bg-danger"></span>
+            <span class="ms-2">ABRS Disconnected</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- Bottom Section -->
+  <div class="bottom-section">
+    <!-- Alerts Carousel -->
+    <div class="alerts-card">
+      <div class="alerts-header d-flex justify-content-between align-items-center mb-3">
+        <h3 id="alertsTitle">Recent Alerts</h3>
+        <div class="carousel-controls">
+          <button id="prevAlert" class="carousel-btn" onclick="prevAlertCard()" disabled>
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button id="nextAlert" class="carousel-btn" onclick="nextAlertCard()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Alerts Card -->
+      <div id="recentAlertsCard" class="alert-card-content active">
+        <div id="alarmsList" class="alerts-list">
+          <!-- Alarms will be inserted here by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Gauge Alerts Card -->
+      <div id="gaugeAlertsCard" class="alert-card-content">
+        <div id="gaugeAlertsList" class="alerts-list">
+          <!-- Gauge Calibration Alerts will be inserted here by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Machine Image -->
+    <div class="machine-card">
+      <video class="machine-image" autoplay loop muted playsinline>
+        <source src="{% static 'videos/bray_video.mp4' %}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+  <!-- <div id="debug"></div>
+<script>
+function updateDebug() {
+    document.getElementById("debug").textContent =
+        `W: ${window.innerWidth}px   H: ${window.innerHeight}px   DPR: ${window.devicePixelRatio}`;
+}
+updateDebug();
+window.addEventListener("resize", updateDebug);
+</script> -->
+
+  <style>
+    #debug {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: black;
+      color: white;
+      padding: 5px 10px;
+      font-size: 14px;
+      z-index: 999999;
+      font-family: monospace;
+    }
+  </style>
+
+</div>
+
+
+<script>
+  // sync/ non-sync test mode selection//
+
+  // document.getElementById('test_mode').addEventListener('change', function () {
+  //   const selectedMode = this.value;
+  //   alert(selectedMode)
+  //   fetch(`/api/dashboard/set_test_mode/?mode=${selectedMode}`)
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       console.log('Test mode set to:', data.mode);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error setting test mode:', error);
+  //     });
+  // });
+
+  var hmistatus = ""
+  // HMI AND ABRS CONNECTION STATUS CHECKING //
+  function checkConnections() {
+    fetch('/api/user_config/get_hmi_abrs/', {
+
+    })
+      .then(response => response.json())
+      .then(data => {
+        const hmiStatusDot = document.querySelector('.right-block .status-row .d-flex:nth-child(1) .status-dot');
+        const hmiStatusText = document.querySelector('.right-block .status-row .d-flex:nth-child(1) span.ms-2');
+        const abrsStatusDot = document.querySelector('.right-block .status-row .d-flex:nth-child(2) .status-dot');
+        const abrsStatusText = document.querySelector('.right-block .status-row .d-flex:nth-child(2) span.ms-2');
+        hmistatus = data.hmi_connection;
+
+        const sync_nonsync_status = data.sync_nonsync_status;
+        document.getElementById('sync-nonsync_mode').innerHTML = sync_nonsync_status;
+
+        // Update alarms display
+        if (data.recent_alarms && data.recent_alarms.length > 0) {
+          updateAlarmsDisplay(data.recent_alarms);
+        } else {
+          console.log('⚠️ No alarms to display');
+        }
+
+        // Update gauge calibration alerts display
+        if (data.gauge_calibration_alerts) {
+          updateGaugeAlertsDisplay(data.gauge_calibration_alerts);
+        } else {
+          console.log('⚠️ No gauge calibration alerts to display');
+        }
+        // Update HMI status
+        if (data.hmi_connection == 1) {
+          hmiStatusDot.classList.remove('bg-danger');
+          hmiStatusDot.classList.add('bg-success');
+          hmiStatusText.textContent = 'HMI Connected';
+        } else {
+          hmiStatusDot.classList.remove('bg-success');
+          hmiStatusDot.classList.add('bg-danger');
+          hmiStatusText.textContent = 'HMI Disconnected';
+        }
+
+        // Update ABRS status
+        if (data.abrs_connection == 1) {
+          abrsStatusDot.classList.remove('bg-danger');
+          abrsStatusDot.classList.add('bg-success');
+          abrsStatusText.textContent = 'ABRS Connected';
+        } else {
+          abrsStatusDot.classList.remove('bg-success');
+          abrsStatusDot.classList.add('bg-danger');
+          abrsStatusText.textContent = 'ABRS Disconnected';
+        }
+
+
+      })
+      .catch(error => {
+        console.error('Error checking connections:', error);
+      });
+  }
+
+  function updateAlarmsDisplay(alarms) {
+    const alarmsList = document.getElementById('alarmsList');
+
+    if (!alarmsList) {
+      console.error('alarmsList element not found!');
+      return;
+    }
+
+    // Store current scroll position
+    const scrollTop = alarmsList.scrollTop;
+
+    if (alarms.length === 0) {
+      const noAlarmsHtml = `
+        <div class="alert-item alert-yellow">
+          <img src="{% static 'images/danger-yellow.png' %}" alt="Alert" class="alert-icon">
+          <span class="alert-text">No recent alarms</span>
+        </div>
+      `;
+
+      // Only update if content has changed
+      if (alarmsList.innerHTML.trim() !== noAlarmsHtml.trim()) {
+        alarmsList.innerHTML = noAlarmsHtml;
+      }
+      return;
+    }
+
+    // Build alarms HTML
+    let alarmsHtml = '';
+    alarms.forEach((alarm, index) => {
+      // Alternate between red and yellow alerts
+      const alertClass = index % 2 === 0 ? 'alert-red' : 'alert-yellow';
+      const iconSrc = index % 2 === 0 ?
+        "{% static 'images/danger.png' %}" :
+        "{% static 'images/danger-yellow.png' %}";
+
+      alarmsHtml += `
+        <div class="alert-item ${alertClass}">
+          <img src="${iconSrc}" alt="Alert" class="alert-icon">
+          <span class="alert-text">${alarm.alarm_name} - ${alarm.time_ago}</span>
+        </div>
+      `;
+    });
+
+    // Only update if content has changed to prevent unnecessary DOM manipulation
+    if (alarmsList.innerHTML.trim() !== alarmsHtml.trim()) {
+      alarmsList.innerHTML = alarmsHtml;
+      // Restore scroll position
+      alarmsList.scrollTop = scrollTop;
+    }
+  }
+
+  function updateGaugeAlertsDisplay(gaugeAlerts) {
+    const gaugeAlertsList = document.getElementById('gaugeAlertsList');
+
+    if (!gaugeAlertsList) {
+      console.error('gaugeAlertsList element not found!');
+      return;
+    }
+
+    // Store current scroll position
+    const scrollTop = gaugeAlertsList.scrollTop;
+
+    if (gaugeAlerts.length === 0) {
+      const noAlertsHtml = `
+        <div class="alert-item alert-yellow">
+          <img src="{% static 'images/danger-yellow.png' %}" alt="Alert" class="alert-icon">
+          <span class="alert-text">No gauge calibration alerts</span>
+        </div>
+      `;
+
+      // Only update if content has changed
+      if (gaugeAlertsList.innerHTML.trim() !== noAlertsHtml.trim()) {
+        gaugeAlertsList.innerHTML = noAlertsHtml;
+      }
+      return;
+    }
+
+    // Build gauge alerts HTML
+    let gaugeAlertsHtml = '';
+    gaugeAlerts.forEach((alert, index) => {
+      // Use yellow for alerts with more days left, red for urgent (1-2 days)
+      const alertClass = alert.days_left <= 2 ? 'alert-red' : 'alert-yellow';
+      const iconSrc = alert.days_left <= 2 ?
+        "{% static 'images/danger.png' %}" :
+        "{% static 'images/danger-yellow.png' %}";
+
+      gaugeAlertsHtml += `
+        <div class="alert-item ${alertClass}">
+          <img src="${iconSrc}" alt="Alert" class="alert-icon">
+          <span class="alert-text">${alert.alert_text}</span>
+        </div>
+      `;
+    });
+
+    // Only update if content has changed to prevent unnecessary DOM manipulation
+    if (gaugeAlertsList.innerHTML.trim() !== gaugeAlertsHtml.trim()) {
+      gaugeAlertsList.innerHTML = gaugeAlertsHtml;
+      // Restore scroll position
+      gaugeAlertsList.scrollTop = scrollTop;
+    }
+  }
+
+  // Alerts Carousel Navigation
+  let currentAlertIndex = 0;
+  const alertCards = ['recentAlertsCard', 'gaugeAlertsCard'];
+  const alertTitles = ['Recent Alerts', 'Gauge Alerts'];
+
+  function updateAlertCard() {
+    // Hide all cards
+    alertCards.forEach((cardId, index) => {
+      const card = document.getElementById(cardId);
+      if (card) {
+        card.classList.remove('active');
+      }
+    });
+
+    // Show current card
+    const currentCard = document.getElementById(alertCards[currentAlertIndex]);
+    if (currentCard) {
+      currentCard.classList.add('active');
+    }
+
+    // Update title
+    const titleElement = document.getElementById('alertsTitle');
+    if (titleElement) {
+      titleElement.textContent = alertTitles[currentAlertIndex];
+    }
+
+    // Update button states
+    const prevBtn = document.getElementById('prevAlert');
+    const nextBtn = document.getElementById('nextAlert');
+
+    if (prevBtn) {
+      prevBtn.disabled = currentAlertIndex === 0;
+    }
+    if (nextBtn) {
+      nextBtn.disabled = currentAlertIndex === alertCards.length - 1;
+    }
+  }
+
+  function nextAlertCard() {
+    if (currentAlertIndex < alertCards.length - 1) {
+      currentAlertIndex++;
+      updateAlertCard();
+    }
+  }
+
+  function prevAlertCard() {
+    if (currentAlertIndex > 0) {
+      currentAlertIndex--;
+      updateAlertCard();
+    }
+  }
+
+  checkConnections();
+  setInterval(checkConnections, 5000); // Check every 5 seconds
+
+
+  // New Test button functionality //
+  function newtest() {
+    var hmi_connection = hmistatus;
+    if (hmi_connection == 1) {
+      checkfor_incomplete_test();
+    }
+    else {
+      DialogManager.toast({
+        title: 'HMI Not Connected',
+        message: 'Please connect HMI before proceeding.',
+        type: 'error',
+        duration: 3000
+      });
+      return;
+    }
+
+  }
+
+
+  // New Test button functionality //
+  function continue_test() {
+    var hmi_connection = hmistatus;
+    if (hmi_connection == 1) {
+      checkfor_incomplete_for_continue();
+    }
+    else {
+      DialogManager.toast({
+        title: 'HMI Not Connected',
+        message: 'Please connect HMI before proceeding.',
+        type: 'error',
+        duration: 3000
+      });
+      return;
+    }
+
+  }
+
+
+
+  function checkfor_incomplete_test() {
+    fetch('/api/dashboard/check_incomplete_test/')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+
+        if (!data.found) {
+          localStorage.removeItem("lockedStation");
+          window.location.href = '{% url "form_page" %}';
+          return;
+        }
+
+        // Check the mode from the first test (all tests should have the same mode)
+        const testMode = data.tests[0]?.mode;
+
+        // Handle NON-SYNC mode
+        if (testMode === 'Non_Sync') {
+
+          const count = data.no_of_stations;
+
+          // ONE station → NO LOCK
+          if (count === 1) {
+            localStorage.removeItem("lockedStation");
+          }
+
+          if (count === 2) {
+            localStorage.setItem("lockedStation", "true");
+          }
+
+          let html = `
+        <div style="text-align:left; max-width: 500px; margin: 0 auto;">
+      `;
+
+          data.tests.forEach((test, index) => {
+            html += `
+          <div style="
+            margin-bottom: 16px;
+            padding: 20px;
+            // background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+          ">
+            <div style="color: white; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 18px; font-weight: 600;">
+                  Station ${test.id}
+                </span>
+                <span style="
+                  background: rgba(255,255,255,0.2);
+                  padding: 4px 12px;
+                  border-radius: 20px;
+                  font-size: 12px;
+                  font-weight: 500;
+                ">
+                  Incomplete
+                </span>
+              </div>
+              <div style="
+                font-size: 14px;
+                opacity: 0.95;
+                padding: 8px 0;
+                border-top: 1px solid rgba(255,255,255,0.2);
+              ">
+                <strong>Serial No:</strong> ${test.serial_no}
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+              <button 
+                class="btn btn-sm"
+                onclick="continueTest('${test.id}')"
+                style="
+                  flex: 1;
+                  background: white;
+                  color: #667eea;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  cursor: pointer;
+                  transition: all 0.3s;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                "
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
+              >
+                ▶ Continue
+              </button>
+
+              <button 
+                class="btn btn-sm"
+                onclick="deleteTest('${test.id}','${test.serial_no}')"
+                style="
+                  flex: 1;
+                  background: rgba(220, 53, 69, 0.9);
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  cursor: pointer;
+                  transition: all 0.3s;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                "
+                onmouseover="this.style.background='rgba(200, 35, 51, 1)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+                onmouseout="this.style.background='rgba(220, 53, 69, 0.9)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
+              >
+                🗑 Delete
+              </button>
+            </div>
+          </div>
+        `;
+          });
+
+          html += `</div>`;
+
+          DialogManager.alert({
+            title: 'Incomplete Tests Found',
+            message: html,
+            allowOutsideClick: true
+          });
+        }
+        // Handle SYNC mode
+        else if (testMode === 'Sync') {
+          // Build message with all serial numbers and test info
+          let serialNumbers = data.tests.map(test => test.serial_no).join(', ');
+
+          // Get all tests for delete function
+          const allTests = data.tests;
+
+          let syncHtml = `
+            <div style="text-align: center; padding: 20px;">
+              <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 30px;
+                border-radius: 12px;
+                color: white;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+              ">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔄</div>
+                <h3 style="margin-bottom: 16px; font-weight: 600;">Test Available in Sync Station</h3>
+                <div style="
+                  background: rgba(255,255,255,0.2);
+                  padding: 16px;
+                  border-radius: 8px;
+                  margin-top: 20px;
+                ">
+                  <p style="margin: 0; font-size: 14px; opacity: 0.9;">Serial Number${data.tests.length > 1 ? 's' : ''}:</p>
+                  <p style="margin: 8px 0 0 0; font-size: 18px; font-weight: 600;">${serialNumbers}</p>
+                </div>
+              </div>
+            </div>
+          `;
+
+          DialogManager.confirm({
+            title: 'Sync Test Found',
+            message: syncHtml,
+            confirmText: 'Continue Test',
+            cancelText: 'Delete Test',
+            reverseButtons: true,
+            allowOutsideClick: true,
+            confirmButtonClass: 'dm-btn-info',
+            onConfirm: () => {
+              // Redirect to sync page (not based on station ID)
+              window.location.href = '/sync_page/';
+            },
+            onCancel: () => {
+              // Delete all tests in sync mode
+              deleteSyncTests(allTests);
+            }
+          });
+        }
+
+      })
+      .catch(() => {
+        window.location.href = '{% url "form_page" %}';
+      });
+  }
+
+
+
+  function continueTest(id) {
+    if (id === '1') {
+      window.location.href = '/single_page/';
+    } else if (id === '2') {
+      window.location.href = '/single_page/';
+    }
+  }
+
+
+  function deleteTest(stationNum, serialNo) {
+    DialogManager.confirmAction({
+      title: 'Confirm Delete',
+      text: `Delete incomplete test for Serial No: <b>${serialNo}</b>?`,
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      url: `/api/dashboard/delete_incomplete_test/${stationNum}/${serialNo}/`,
+      method: 'POST',
+      onSuccess: () => {
+        // Clear only keys starting with station{stationNum}_
+        const prefix = `station${stationNum}_`;
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith(prefix)) {
+            localStorage.removeItem(key);
+          }
+        });
+
+        fetch('/api/dashboard/check_incomplete_test/')
+          .then(res => res.json())
+          .then(data => {
+            if (data.found) {
+              window.location.href = '/single_page/';
+            } else {
+              window.location.reload();
+            }
+          });
+      }
+    });
+  }
+
+
+  // Function to delete all sync tests
+  function deleteSyncTests(tests) {
+    // Build confirmation message with all serial numbers
+    let serialNumbers = tests.map(test => test.serial_no).join(', ');
+
+    DialogManager.confirm({
+      title: 'Confirm Delete All',
+      message: `Delete all incomplete sync tests?<br><br><b>Serial Numbers:</b> ${serialNumbers}`,
+      confirmText: 'Yes, Delete All',
+      cancelText: 'Cancel',
+      reverseButtons: true,
+      confirmButtonClass: 'dm-btn-danger',
+      onConfirm: async () => {
+        // Show loading
+        DialogManager.loading("Deleting tests...", "Please wait");
+
+        try {
+          // Delete all tests sequentially
+          for (const test of tests) {
+            const response = await fetch(`/api/dashboard/delete_incomplete_test/${test.id}/${test.serial_no}/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': window.CSRF_TOKEN || ''
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error(`Failed to delete test for ${test.serial_no}`);
+            }
+          }
+
+          // Close loading and show success
+          DialogManager.closeLoading();
+          DialogManager.toast({
+            type: 'success',
+            message: 'All tests deleted successfully',
+            duration: 3000
+          });
+
+          // Clear localStorage and reload
+          localStorage.clear();
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+
+        } catch (error) {
+          DialogManager.closeLoading();
+          DialogManager.toast({
+            type: 'error',
+            message: 'Error deleting tests: ' + error.message,
+            duration: 4000
+          });
+        }
+      }
+    });
+  }
+
+
+
+  function checkfor_incomplete_for_continue() {
+    fetch('/api/dashboard/check_incomplete_test/')
+
+      .then(response => response.json())
+      .then(data => {
+
+        if (data.found == true) {
+          // Check the mode from the first test
+          const testMode = data.tests[0]?.mode;
+
+          DialogManager.confirm({
+            title: 'Incomplete Test Found',
+            confirmText: 'Continue Test',
+            cancelText: 'Cancel',
+            reverseButtons: true,
+            allowOutsideClick: true,
+
+            onConfirm: () => {
+              // Redirect based on mode
+              if (testMode === 'Sync') {
+                window.location.href = '/sync_page/';
+              } else if (testMode === 'Non_Sync') {
+                window.location.href = '/single_page/';
+              } else {
+                // Fallback to single_page if mode is unknown
+                window.location.href = '/single_page/';
+              }
+            }
+          });
+        } else {
+          // No incomplete test found - show message
+          DialogManager.alert({
+            title: 'No Test Available',
+            message: 'No incomplete test found. Please start a new test.',
+            type: 'info'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error checking incomplete test:', error);
+        DialogManager.toast({
+          title: 'Error',
+          message: 'Failed to check for incomplete tests',
+          type: 'error',
+          duration: 3000
+        });
+      });
+  }
+
+
+</script>
+{% endblock %}

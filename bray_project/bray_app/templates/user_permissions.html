@@ -1,0 +1,148 @@
+{% extends 'base_new.html' %}
+{% block header_title %}User Permissions{% endblock %}
+{% load static %}
+
+{% block content %}
+<style>
+  .custom-header {
+    background-color: #FFFFFF;
+    color: rgb(27, 26, 26);
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .content-wrapper {
+    max-width: 1210px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    color: #006b83;
+  }
+
+  .section-header td {
+    text-align: left !important;
+    padding-left: 15px;
+    background-color: #f3f3f3;
+    color: #006b83;
+    font-weight: bold;
+  }
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+</style>
+
+<div class="content-wrapper">
+  <div class="card">
+    <div class="custom-header d-flex justify-content-between align-items-center">
+      <span>Access Control</span>
+    </div>
+    <div class="card-body">
+      <form method="get">
+        <div class="mb-3 row align-items-center">
+          <div class="col-sm-10" style="margin:auto;">
+            <select class="form-select" id="userDropdown" name="user_id" onchange="this.form.submit()">
+              <option value="">Select a user</option>
+              {% for user in users %}
+                <option value="{{ user.id }}" {% if selected_user and user.id == selected_user.id %}selected{% endif %}>
+                  {{ user.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if selected_user %}
+<!-- Modal -->
+<div class="modal fade" id="permissionModal" tabindex="-1" aria-labelledby="permissionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="user_id" value="{{ selected_user.id }}">
+        <div class="modal-header">
+          <h5 class="modal-title" id="permissionModalLabel">Permissions for {{ selected_user.name }}</h5>
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th class="text-center">Menu Name</th>
+                <th class="text-center">Access</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for section, items in menu_items_by_section.items %}
+                <tr class="section-header">
+                  <td colspan="2">{{ section }}</td>
+                </tr>
+                {% for item in items %}
+                  <tr>
+                    <td class="text-center">{{ item.name }}</td>
+                    <td class="text-center">
+                      <input type="checkbox" name="menu_items" value="{{ item.id }}"
+                        {% if item.id in selected_item_ids %}checked{% endif %}>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn" style="color:white;background-color: #040D52;border-radius: 5px;">Save Permissions</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Show the modal on page load if a user is selected
+  document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('user_id')) {
+      const modal = new bootstrap.Modal(document.getElementById('permissionModal'));
+      modal.show();
+    }
+  });
+</script>
+{% endif %}
+
+<!-- Bootstrap JS must be here, inside content block or base template -->
+<script src="{% static 'scripts/bootstrap/bootstrap.bundle.js' %}"></script>
+{% endblock %}
+
+<script>
+  document.getElementById('userDropdown').addEventListener('change', function () {
+    const selectedValue = this.value;
+    if (selectedValue) {
+      document.getElementById('userForm').submit();  // Submit and open modal via backend
+    } else {
+      // Optional: reset page or hide modal
+      window.location.href = window.location.pathname; // reload without query param
+    }
+  });
+</script>
+{% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      {% for message in messages %}
+        Swal.fire({
+          icon: '{{ message.tags|default:"info" }}',  // success, error, warning, info, question
+          title: '{{ message|escapejs }}',
+          showConfirmButton: false,
+          timer: 3000
+        });
+      {% endfor %}
+    });
+  </script>
+{% endif %}

@@ -1,0 +1,315 @@
+  .hidden {
+    display: none !important;
+  }
+
+  .polygon-header {
+    position: absolute;
+    top: 11%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35%;
+    height: 40%;
+    background: rgb(255, 19, 19);
+    clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    z-index: 10;
+  }
+
+  .small {
+    font-size: 16px;
+    font-family: 'Roboto', system-ui, sans-serif;
+  }
+
+  /* .button-container{
+   background-color: #9999995a; 
+  } */
+
+  .r1-card>div,
+  .r2-card,
+  .r3-card>div,
+  .r4-card,
+  .alm-btn {
+    background: #fff;
+    border: 1px solid #999;
+    border-radius: 6px;
+    font-weight: 600;
+    font-family: 'Roboto', system-ui, sans-serif;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .r1-card>div {
+    height: 40px;
+  }
+
+  .r2-card {
+    height: 312px;
+  }
+
+  .r3-card>div {
+    height: 60px;
+  }
+
+  .r4-card {
+    height: 60px;
+  }
+
+  .alm-btn {
+    height: 60px;
+    background: #f70303;
+    color: #fff;
+  }
+
+
+  .fixed-card {
+    height: 83px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px;
+  }
+
+  .fixed-card .label {
+    align-self: flex-start;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .fixed-card .value-group {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .fixed-card .value {
+    font-size: 34px;
+    font-weight: 400;
+    font-family: 'JetBrains Mono', monospace;
+    /* margin-right: 8px; */
+  }
+
+  .fixed-card .unit {
+    font-size: 13px;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    width: 30%;
+  }
+
+  .fixed-card-1 {
+    height: 60px;
+    font-size: 14px;
+    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    background-color: rgb(18, 18, 88);
+    color: white;
+  }
+
+  .right-bt-card {
+    display: flex;
+    height: 60px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+  }
+
+  .right-bt-card .label {
+    font-weight: bold;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: 'Roboto', system-ui, sans-serif;
+  }
+
+  .right-bt-card .value-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .right-bt-card .value {
+    font-size: 30px;
+    font-weight: bold;
+    font-weight: 400;
+  }
+
+  .right-bt-card .unit {
+    font-size: 9px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    width: 40px;
+  }
+
+  .btn {
+    height: 35px;
+    width: 125px;
+    font-size: 12px;
+    font-family: 'Roboto', system-ui, sans-serif;
+    font-weight: 600;
+    background-color: rgb(19, 19, 124);
+    box-shadow: 0 0 50px #eee;
+    border-color: #22028a;
+    border-radius: 5px;
+  }
+
+
+  .btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .live-section {
+    height: 100%;
+    border-color: 5px #22028a;
+    border-radius: 20px;
+    box-shadow: 0 0 100px #0a0a0a;
+  }
+
+
+  .chart-wrapper {
+    display: block;
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+  }
+
+  .status-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    scale: 0.8;
+    background-color: green;
+  }
+
+  #inner-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #inner-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: rgb(28, 85, 28);
+  }
+
+  /* Disconnected state */
+  .disconnected {
+    background-color: red !important;
+    animation: blink 1s infinite;
+  }
+
+  .disconnected #inner-circle {
+    background-color: red !important;
+  }
+
+  .disconnected #inner-dot {
+    background-color: darkred !important;
+  }
+
+  /* Blink animation */
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.3;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .card-container {
+    height: 100%;
+  }
+
+
+  .set-card {
+    background-color: gainsboro;
+    color: #030303;
+  }
+
+  .act-card {
+
+    background-color: green;
+    color: white;
+
+  }
+
+  .result-card {
+    background-color: #f70303;
+    color: white;
+  }
+
+  .active-test-btn {
+    background: linear-gradient(135deg, #fd550d);
+    color: #fff !important;
+    border: none;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .active-test-btn:hover {
+    background: linear-gradient(135deg, #f28454);
+  }
+
+  .station-live-container {
+    flex: 1;
+    min-width: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .station-live-container.active {
+    visibility: visible;
+    pointer-events: auto;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Test result button colors */
+  .test-pass {
+    background-color: #28a745 !important;
+    color: #fff !important;
+    border-color: #218838 !important;
+  }
+
+  .test-pass:hover {
+    background-color: #218838 !important;
+  }
+
+  .test-fail {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    border-color: #bd2130 !important;
+  }
+
+  .test-fail:hover {
+    background-color: #c82333 !important;
+  }

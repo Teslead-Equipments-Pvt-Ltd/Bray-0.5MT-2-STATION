@@ -1,0 +1,1051 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bray Dashboard</title>
+
+  <!-- External Libraries (Offline) -->
+  <link href="{% static 'vendor/google-fonts/inter.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'vendor/font-awesome/all-6.5.0.min.css' %}">
+  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons-1.10.5.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/datatables/dataTables.bootstrap5.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet">
+ 
+
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/base_new.css' %}">
+  {% block extra_css %}{% endblock %}
+
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <!-- Menu Toggle (Tablet & Mobile Only) - Inside Sidebar Header -->
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars" id="menuToggleIcon"></i>
+      </button>
+      <img class="logo-img" src="{% static 'images/12.jpg' %}" alt="Standard Logo">
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Dashboard -->
+      <button class="menu-button" data-title="Dashboard" data-url="/dashboard/"
+        onclick="setTimeout(function() { window.location.href='/dashboard/'; }, 100)">
+        <span>
+          <img class="icon-img" src="{% static 'images/Group 743 (1).png' %}" alt="Dashboard">
+          Dashboard
+        </span>
+      </button>
+
+      <!-- Master Section -->
+      {% if sectioned_menu.master %}
+      <button class="menu-button" data-title="Master" onclick="toggleDropdown('master')">
+        <span>
+          <img class="icon-img" src="{% static 'images/Group 783 (1).png' %}" alt="Master">
+          Master
+        </span>
+      </button>
+      <div id="dropdown-master" class="dropdown-content">
+        {% for item in sectioned_menu.master %}
+
+        {% if item.name == "Standard" %}
+        <button class="dropdown-item" data-url="/standards/" onclick="navigateWithDelay('/standards/', this);">
+          <i class="fa-solid fa-scale-balanced me-2"></i> Standard
+        </button>
+        {% endif %}
+
+        {% if item.name == "Valve Size" %}
+        <button type="button" class="dropdown-item" data-url="/valvesize/"
+          onclick="navigateWithDelay('/valvesize/',this);">
+          <i class="fa-solid fa-ruler-vertical me-2"></i> Valve Size
+        </button>
+        {% endif %}
+
+        {% if item.name == "Valve Class" %}
+        <button class="dropdown-item" data-url="/valve_class/" onclick="navigateWithDelay('/valve_class/',this);">
+          <i class="fa-solid fa-diagram-project me-2"></i> Valve Class
+        </button>
+        {% endif %}
+
+        {% if item.name == "Valve Type" %}
+        <button class="dropdown-item" data-url="/valve_type/" onclick="navigateWithDelay('/valve_type/', this);">
+          <i class="fa-solid fa-shapes me-2"></i> Valve Type
+        </button>
+        {% endif %}
+
+        {% if item.name == "Shell Material" %}
+        <button class="dropdown-item" data-url="/shell_material/" onclick="navigateWithDelay('/shell_material/',this);">
+          <i class="fa-solid fa-cubes me-2"></i> Shell Material
+        </button>
+        {% endif %}
+
+        {% if item.name == "Gauge Details" %}
+        <button class="dropdown-item" data-url="/gauge_details/" onclick="navigateWithDelay('/gauge_details/',this);">
+          <i class="fa-solid fa-gauge-simple-high me-2"></i> Gauge Details
+        </button>
+        {% endif %}
+
+        {% if item.name == "Alarm" %}
+        <button class="dropdown-item" data-url="/alarm/" onclick="navigateWithDelay('/alarm/', this);">
+          <i class="fa-solid fa-exclamation-triangle me-2"></i> Alarm
+        </button>
+        {% endif %}
+
+        {% if item.name == "Category" %}
+        <button class="dropdown-item" data-url="/category/" onclick="navigateWithDelay('/category/', this);">
+          <i class="fa-solid fa-tags me-2"></i> Category
+        </button>
+        {% endif %}
+
+        {% if item.name == "CategoryInstrument" %}
+        <button class="dropdown-item" data-url="/category_instrument/" onclick="navigateWithDelay('/category_instrument/', this);">
+          <i class="fa-solid fa-layer-group me-2"></i> Category Instrument
+        </button>
+        {% endif %}
+
+        {% if item.name == "Instrument Type" %}
+        <button class="dropdown-item" data-url="/instrument_type/" onclick="navigateWithDelay('/instrument_type/', this);">
+          <i class="fa-solid fa-tools me-2"></i> Instrument Type
+        </button>
+        {% endif %}
+
+        {% if item.name == "Test Type" %}
+        <button class="dropdown-item" data-url="/testtype/" onclick="navigateWithDelay('/testtype/', this);">
+          <i class="fa-solid fa-flask me-2"></i> Test Type
+        </button>
+        {% endif %}
+
+        {% if item.name == "TypeTest" %}
+        <button class="dropdown-item" data-url="/testtype/" onclick="navigateWithDelay('/testtype/', this);">
+          <i class="fa-solid fa-vial me-2"></i> Type Test
+        </button>
+        {% endif %}
+
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Settings Section -->
+      {% if sectioned_menu.settings %}
+      <button class="menu-button" data-title="Settings" data-url="/user_config/"
+        onclick="navigateWithDelay('/user_config/', this);">
+        <span>
+          <img class="icon-img" src="{% static 'images/Group 808.png' %}" alt="Settings">
+          Settings
+        </span>
+      </button>
+      {% endif %}
+
+      <!-- ABRS Section -->
+      {% if sectioned_menu.ABRS %}
+      <button class="menu-button" data-title="ABRS" data-url="/abrs/" onclick="navigateWithDelay('/abrs/', this);">
+        <span>
+          <img class="icon-img" src="{% static 'images/Group 808.png' %}" alt="ABRS">
+          ABRS
+        </span>
+      </button>
+      {% endif %}
+
+
+      <!-- Users Section -->
+      {% if sectioned_menu.users %}
+      <button class="menu-button" data-title="Users" onclick="toggleDropdown('users')">
+        <span>
+          <img class="icon-img" src="{% static 'images/Group 784 (2).png' %}" alt="Users">
+          Users
+        </span>
+      </button>
+      <div id="dropdown-users" class="dropdown-content">
+        <!-- Static User Account Entry -->
+        <button class="dropdown-item" data-url="/user_accounting/"
+          onclick="navigateWithDelay('/user_accounting/',this);">
+          <i class="fa-solid fa-user me-2"></i> User Account
+        </button>
+        
+        <!-- Static Employee Entry -->
+        <button class="dropdown-item" data-url="/employee/" onclick="navigateWithDelay('/employee/',this);">
+          <i class="fa-solid fa-user-tie me-2"></i> Employee
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- Report Section
+      {% if sectioned_menu.report %}
+      <button class="menu-button" data-title="Report" onclick="toggleDropdown('report')">
+        <span>
+          <img class="icon-img" src="{% static 'images/Group 784 (2).png' %}" alt="Report">
+          Report
+        </span>
+      </button>
+      <div id="dropdown-report" class="dropdown-content">
+        {% for item in sectioned_menu.report %}
+        {% if item.name == "Graph" %}
+        <button class="dropdown-item" data-url="/graph/" onclick="navigateWithDelay('/graph/',this);">
+          <i class="fa-solid fa-chart-line me-2"></i> Graph
+        </button>
+        {% endif %}
+        {% if item.name == "VTR" %}
+        <button class="dropdown-item" data-url="/vtr/" onclick="navigateWithDelay('/vtr/',this);">
+          <i class="fa-solid fa-display me-2"></i> VTR
+        </button>
+        {% endif %}
+        {% if item.name == "Pdf" %}
+        <button class="dropdown-item" data-url="/pdf/" onclick="navigateWithDelay('/pdf/',this);">
+          <i class="fa-solid fa-display me-2"></i> PDF
+        </button>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %} -->
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="powered-by">
+        <strong>Powered By</strong><br>
+        <strong>Teslead Equipments Private Limited</strong>
+      </div>
+      <button type="button" class="logout-btn" id="logoutBtn" data-title="LOGOUT" data-hover="Are you sure?"
+        aria-label="Logout"></button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-content">
+        <h1 class="header-title">{% block header_title %}{% endblock %}</h1>
+        <div class="header-right">
+          <div class="datetime-box" id="datetime"></div>
+          <div class="admin-section" style="cursor: pointer;" data-bs-toggle="modal"
+            data-bs-target="#changePasswordModal">
+            <i class="fas fa-user-circle user-icon"></i>
+            <span class="admin-text">{{ username }}</span>
+          </div>
+        </div>
+      </div>
+      <hr class="header-divider">
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      {% csrf_token %}
+      {% block content %}
+      <form action="/ball_valve/" method="post">
+        {% csrf_token %}
+        <div class="form-section">
+          <label for="valve" class="form-label"><b>Valve Type</b></label>
+          <select id="valve" class="form-select" name="valve">
+            <option>Ball Valve</option>
+            <option>Gate Valve</option>
+            <option>Globe Valve</option>
+          </select>
+
+          <label for="pressure" class="form-label"><b>Pressure Entry</b></label>
+          <select id="pressure" class="form-select" name="pressure">
+            <option>Option 1</option>
+            <option>Option 2</option>
+          </select>
+
+          <div class="form-buttons">
+            <button type="submit" class="btn-new">New Test</button>
+            <button type="button" class="btn-continue">Continue</button>
+          </div>
+        </div>
+      </form>
+      <img class="machine-image" style="width: 100%; height: auto" src="{% static 'images/2.jpg' %}"
+        alt="Machine Image">
+      {% endblock %}
+    </main>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" id="changePasswordForm">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="password-rules-box">
+              <label class="password-rules-label">Password must contain:</label>
+              <ul class="password-rules" id="password-rules">
+                <li id="rule-length"><i class="fas fa-circle rule-icon"></i> At least 8 characters</li>
+                <li id="rule-uppercase"><i class="fas fa-circle rule-icon"></i> At least 1 uppercase letter (A-Z)</li>
+                <li id="rule-number"><i class="fas fa-circle rule-icon"></i> At least 1 number (0-9)</li>
+                <li id="rule-special"><i class="fas fa-circle rule-icon"></i> At least 1 special character (!@#$%^&*)
+                </li>
+              </ul>
+            </div>
+
+            <div class="mb-3">
+              <label for="old_password" class="form-label">Old Password</label>
+              <div class="password-input-container">
+                <div class="password-input-wrapper">
+                  <input type="password" class="form-control" id="old_password" name="old_password" required>
+                  <i class="fas fa-eye toggle-password" data-target="old_password"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="new_password" class="form-label">New Password</label>
+              <div class="password-input-container">
+                <div class="password-input-wrapper">
+                  <input type="password" class="form-control" id="new_password" name="new_password" required>
+                  <i class="fas fa-eye toggle-password" data-target="new_password"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirm_password" class="form-label">Confirm Password</label>
+              <div class="password-input-container">
+                <div class="password-input-wrapper">
+                  <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                  <i class="fas fa-eye toggle-password" data-target="confirm_password"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="updatePasswordBtn">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages Display -->
+  {% if messages %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("width:", window.innerWidth, "height:", window.innerHeight, "dpr:", window.devicePixelRatio);
+
+      {% for message in messages %}
+      Swal.fire({
+        icon: '{{ message.tags|default:"info" }}',
+        title: '{{ message|escapejs }}',
+        showConfirmButton: false,
+        timer: 3000
+      });
+      {% endfor %}
+    });
+  </script>
+  {% endif %}
+
+  <!-- External Scripts (Offline) -->
+  <script src="{% static 'vendor/jquery/jquery-3.7.0.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+  <script src="{% static 'vendor/datatables/dataTables.bootstrap5.min.js' %}"></script>
+  <script src="{% static 'vendor/sweetalert2/sweetalert2.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+
+  <script src="{% static 'scripts/form-validator.js' %}"></script>
+  <script src="{% static 'scripts/dialog-manager.js' %}"></script>
+
+  <!-- Standard Options Script -->
+  <script>
+    const standardOptions = `
+  <option value="">Select</option>
+  {% for code in standard %}
+    <option value="{{ code.id }}">{{ code.name }}</option>
+  {% endfor %}
+`;
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+
+
+  </script>
+
+  <!-- Custom Scripts -->
+  <script>
+    // DateTime Update
+    function updateDateTime() {
+      const now = new Date();
+      const date = now.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+      const time = now.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
+      const datetimeEl = document.getElementById("datetime");
+      if (datetimeEl) {
+        datetimeEl.textContent = `${date} | ${time}`;
+      }
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // Password Toggle
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.toggle-password').forEach(function (icon) {
+        icon.addEventListener('click', function () {
+          const targetId = this.getAttribute('data-target');
+          const input = document.getElementById(targetId);
+          if (input) {
+            if (input.type === 'password') {
+              input.type = 'text';
+              this.classList.remove('fa-eye');
+              this.classList.add('fa-eye-slash');
+            } else {
+              input.type = 'password';
+              this.classList.remove('fa-eye-slash');
+              this.classList.add('fa-eye');
+            }
+          }
+        });
+      });
+
+      // Logout functionality
+      const sidebarElement = document.getElementById('sidebar');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      if (logoutBtn) {
+        const shouldConfirmLogout = () => window.innerWidth <= 1400;
+        const logoutHoverText = logoutBtn.getAttribute('data-hover') || 'Are you sure?';
+        const logoutTitleText = logoutBtn.getAttribute('data-title') || 'LOGOUT';
+
+        // Update logout button attributes based on screen size and sidebar state
+        const updateLogoutAttributes = () => {
+          if (!logoutBtn) return;
+          const isMobileOrTablet = window.innerWidth <= 1400;
+          const isSidebarCollapsed = sidebarElement && sidebarElement.classList.contains('collapsed');
+
+          if (isMobileOrTablet) {
+            logoutBtn.removeAttribute('data-hover');
+          } else {
+            logoutBtn.setAttribute('data-hover', logoutHoverText);
+          }
+
+          if (isSidebarCollapsed) {
+            logoutBtn.removeAttribute('data-title');
+          } else {
+            logoutBtn.setAttribute('data-title', logoutTitleText);
+          }
+        };
+
+        updateLogoutAttributes();
+        window.updateLogoutAttributes = updateLogoutAttributes;
+
+        // Get CSRF token helper
+        const getCSRFToken = () => {
+          const token = document.querySelector('[name=csrfmiddlewaretoken]');
+          return token ? token.value : '';
+        };
+
+        // Logout API call
+        const performLogout = () => {
+          const csrfToken = getCSRFToken();
+
+          fetch('/api/auth/logout/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
+            }
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'success') {
+                window.location.href = '/login/';
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Logout Failed',
+                  text: data.message || 'An error occurred during logout'
+                });
+              }
+            })
+            .catch(error => {
+              console.error('Logout error:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Logout Failed',
+                text: 'An error occurred. Please try again.'
+              });
+            });
+        };
+
+        // Handle logout button click
+        logoutBtn.addEventListener('click', function (event) {
+          event.preventDefault();
+
+          // Show confirmation on mobile/tablet
+          if (shouldConfirmLogout()) {
+            Swal.fire({
+              title: 'Logout?',
+              text: 'Do you really want to logout?',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Yes, logout'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                performLogout();
+              }
+            });
+          } else {
+            // Desktop: logout directly
+            performLogout();
+          }
+        });
+      }
+
+      // Password Validation with FormValidator
+      const passwordValidator = new FormValidator('changePasswordForm', {
+        new_password: {
+          rules: [
+            ValidationRules.required,
+            {
+              test: (val) => val.length >= 8,
+              message: 'Password must be at least 8 characters'
+            },
+            {
+              test: (val) => /[A-Z]/.test(val),
+              message: 'Password must contain at least one uppercase letter'
+            },
+            {
+              test: (val) => /[0-9]/.test(val),
+              message: 'Password must contain at least one number'
+            },
+            {
+              test: (val) => /[!@#$%^&*(),.?":{}|<>]/.test(val),
+              message: 'Password must contain at least one special character'
+            }
+          ]
+        },
+        confirm_password: {
+          rules: [
+            ValidationRules.required,
+            {
+              test: (val, form) => {
+                const newPwd = form.querySelector('[name="new_password"]').value;
+                return val === newPwd;
+              },
+              message: 'Passwords do not match'
+            }
+          ]
+        }
+      });
+
+      // Override renderError to append errors to .password-input-container
+      passwordValidator.renderError = function (fieldName) {
+        if (!this.state[fieldName].touched) return;
+
+        const field = this.form.querySelector(`[name="${fieldName}"]`);
+        if (!field) return;
+
+        field.classList.add('is-invalid');
+        if (field.classList.contains('is-valid')) field.classList.remove('is-valid');
+
+        // Find the password-input-container (grandparent of field)
+        const container = field.closest('.password-input-container');
+        if (!container) return;
+
+        let errorDiv = container.querySelector('.invalid-feedback');
+        if (!errorDiv) {
+          errorDiv = document.createElement('div');
+          errorDiv.className = 'invalid-feedback';
+          container.appendChild(errorDiv);
+        }
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = this.state[fieldName].error;
+      };
+
+      // Override renderSuccess to remove errors from .password-input-container
+      passwordValidator.renderSuccess = function (fieldName) {
+        const field = this.form.querySelector(`[name="${fieldName}"]`);
+        if (!field) return;
+
+        field.classList.remove('is-invalid');
+
+        const container = field.closest('.password-input-container');
+        if (container) {
+          const errorDiv = container.querySelector('.invalid-feedback');
+          if (errorDiv) errorDiv.style.display = 'none';
+        }
+      };
+
+      // Dynamic Password Rules UI Update
+      const newPasswordInput = document.getElementById('new_password');
+      const confirmPasswordInput = document.getElementById('confirm_password');
+
+      function updatePasswordRulesUI(password) {
+        const rules = {
+          length: password.length >= 8,
+          uppercase: /[A-Z]/.test(password),
+          number: /[0-9]/.test(password),
+          special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        // Update UI for each rule
+        Object.keys(rules).forEach(rule => {
+          const ruleEl = document.getElementById(`rule-${rule}`);
+          if (!ruleEl) return;
+
+          const icon = ruleEl.querySelector('.rule-icon');
+
+          if (rules[rule]) {
+            ruleEl.classList.add('rule-valid');
+            ruleEl.classList.remove('rule-invalid');
+            icon.classList.remove('fa-circle', 'fa-times');
+            icon.classList.add('fa-check');
+          } else {
+            ruleEl.classList.add('rule-invalid');
+            ruleEl.classList.remove('rule-valid');
+            icon.classList.remove('fa-circle', 'fa-check');
+            icon.classList.add('fa-times');
+          }
+        });
+      }
+
+      if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function () {
+          updatePasswordRulesUI(this.value);
+        });
+      }
+
+      // Password Form Submit Handler
+      const passwordForm = document.querySelector('#changePasswordForm');
+      if (passwordForm) {
+        passwordForm.addEventListener('submit', async function (e) {
+          e.preventDefault();
+
+          // Validate using FormValidator
+          const isValid = await passwordValidator.validateAll();
+
+          if (!isValid) {
+            DialogManager.toast({
+              type: 'error',
+              message: 'Please fix all validation errors'
+            });
+            return;
+          }
+
+          const oldPassword = document.getElementById('old_password').value;
+          const newPassword = document.getElementById('new_password').value;
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+          // Check old password
+          fetch('/api/auth/check_password/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ old_password: oldPassword })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (!data.valid) {
+                DialogManager.toast({
+                  type: 'error',
+                  message: 'Old password is incorrect!'
+                });
+              } else {
+                // Send change password request as JSON
+                fetch('/api/auth/change_password/', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                  },
+                  body: JSON.stringify({
+                    old_password: oldPassword,
+                    new_password: newPassword
+                  })
+                })
+                  .then(response => response.json())
+                  .then(result => {
+                    if (result.success) {
+                      DialogManager.toast({ type: 'success', message: "Password changed successfully!" });
+                      // Close modal and reset form
+                      const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                      if (modal) modal.hide();
+                      passwordForm.reset();
+                    } else {
+                      DialogManager.toast({ type: 'error', message: result.error || "Failed to change password" });
+                    }
+                  })
+                  .catch(err => {
+                    console.error('Error changing password:', err);
+                    DialogManager.toast({ type: 'error', message: "Error changing password. Please try again." });
+                  });
+              }
+            })
+            .catch(err => {
+              console.error('Error checking password:', err);
+            });
+        });
+      }
+
+      // Reset password validation when modal is closed
+      const changePasswordModal = document.getElementById('changePasswordModal');
+      if (changePasswordModal) {
+        changePasswordModal.addEventListener('hidden.bs.modal', function () {
+          // Reset the form
+          const passwordForm = document.getElementById('changePasswordForm');
+          if (passwordForm) {
+            passwordForm.reset();
+          }
+
+          // Reset password validator state
+          if (passwordValidator) {
+            passwordValidator.reset();
+          }
+
+          // Clear all validation error messages manually
+          document.querySelectorAll('.password-input-container .invalid-feedback').forEach(errorDiv => {
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+          });
+
+          // Remove is-invalid class from all inputs
+          document.querySelectorAll('#changePasswordForm .form-control').forEach(input => {
+            input.classList.remove('is-invalid');
+            input.classList.remove('is-valid');
+          });
+
+          // Reset password rules to default state (gray circles)
+          const ruleElements = ['rule-length', 'rule-uppercase', 'rule-number', 'rule-special'];
+          ruleElements.forEach(ruleId => {
+            const ruleEl = document.getElementById(ruleId);
+            if (ruleEl) {
+              ruleEl.classList.remove('rule-valid', 'rule-invalid');
+              const icon = ruleEl.querySelector('.rule-icon');
+              if (icon) {
+                icon.classList.remove('fa-check', 'fa-times');
+                icon.classList.add('fa-circle');
+              }
+            }
+          });
+
+          // Ensure complete modal cleanup
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+          document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        });
+      }
+    });
+
+    // Dropdown Toggle Function
+    function toggleDropdown(section) {
+      const dropdowns = document.querySelectorAll('.dropdown-content');
+      dropdowns.forEach(drop => {
+        if (drop.id !== `dropdown-${section}`) {
+          drop.style.display = 'none';
+          const button = drop.previousElementSibling;
+          if (button && button.classList.contains('menu-button')) {
+            button.classList.remove('active');
+          }
+        }
+      });
+
+      const current = document.getElementById(`dropdown-${section}`);
+      const isVisible = current.style.display === 'flex' || current.style.display === 'block';
+      current.style.display = isVisible ? 'none' : 'flex';
+      localStorage.setItem('activeDropdown', isVisible ? '' : section);
+
+      const currentButton = current.previousElementSibling;
+      if (currentButton && currentButton.classList.contains('menu-button')) {
+        if (isVisible) {
+          currentButton.classList.remove('active');
+        } else {
+          currentButton.classList.add('active');
+        }
+      }
+    }
+
+    // Navigation with Delay
+    function navigateWithDelay(url, el) {
+      setTimeout(() => {
+        window.location.href = url;
+      }, 200);
+    }
+
+    // Initialize on Load
+    window.onload = function () {
+      const currentUrl = window.location.pathname;
+
+      // Highlight Dropdown Items & Open Parents
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        const itemUrl = item.getAttribute('data-url');
+        if (itemUrl && currentUrl.startsWith(itemUrl)) {
+          item.classList.add('active');
+          const dropdown = item.closest('.dropdown-content');
+          if (dropdown) {
+            dropdown.style.display = 'flex';
+            const parentBtn = dropdown.previousElementSibling;
+            if (parentBtn && parentBtn.classList.contains('menu-button')) {
+              parentBtn.classList.add('active');
+            }
+          }
+        }
+      });
+
+      // Highlight Direct Menu Buttons (Dashboard, Settings, ABRS)
+      document.querySelectorAll('.menu-button').forEach(btn => {
+        const btnUrl = btn.getAttribute('data-url');
+        if (btnUrl && currentUrl.startsWith(btnUrl)) {
+          btn.classList.add('active');
+        }
+      });
+    };
+
+    // Menu Toggle (Tablet & Mobile Only - Not Desktop)
+    document.addEventListener('DOMContentLoaded', function () {
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const sidebar = document.getElementById('sidebar');
+      const isPortraitTablet = () => window.innerWidth > 600 && window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+      const isMobileView = () => window.innerWidth <= 768 && !isPortraitTablet();
+      const isTabletView = () => (window.innerWidth > 768 && window.innerWidth <= 1400) || isPortraitTablet();
+      const refreshLogoutAttrs = () => {
+        if (typeof window.updateLogoutAttributes === 'function') {
+          window.updateLogoutAttributes();
+        }
+      };
+
+      if (mobileMenuToggle && sidebar) {
+        // Check for saved sidebar state on tablet only (not desktop)
+        const isTablet = isTabletView();
+        if (isTablet) {
+          const sidebarState = localStorage.getItem('sidebarCollapsed');
+          if (sidebarState === 'true') {
+            sidebar.classList.add('collapsed');
+            if (typeof window.updateLogoutAttributes === 'function') {
+              window.updateLogoutAttributes();
+            }
+          }
+        }
+
+        // Toggle sidebar - only works on tablet and mobile
+        mobileMenuToggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const isMobileClick = isMobileView();
+          const isTabletClick = isTabletView();
+
+          if (isMobileClick) {
+            // Mobile behavior: slide in/out
+            sidebar.classList.toggle('sidebar-open');
+            document.body.classList.toggle('sidebar-open');
+          } else if (isTabletClick) {
+            // Tablet behavior: collapse/expand to icon-only
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            if (typeof window.updateLogoutAttributes === 'function') {
+              window.updateLogoutAttributes();
+            }
+
+            // Update hamburger icon - use left arrow when open, hamburger when collapsed
+            const icon = document.getElementById('menuToggleIcon');
+            if (icon) {
+              if (isCollapsed) {
+                // Sidebar collapsed, show hamburger to expand
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-bars');
+              } else {
+                // Sidebar open, show left arrow to collapse
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-chevron-left');
+              }
+            }
+          }
+        });
+
+        // Close sidebar when clicking outside on mobile/tablet
+        document.addEventListener('click', function (event) {
+          const isMobile = isMobileView();
+          if (isMobile) {
+            if (!sidebar.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+              sidebar.classList.remove('sidebar-open');
+              document.body.classList.remove('sidebar-open');
+            }
+          }
+        });
+
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () {
+            const isMobileResize = isMobileView();
+            const isTabletResize = isTabletView();
+            const isDesktopResize = window.innerWidth > 1400;
+
+            if (isMobileResize) {
+              // On mobile, remove collapsed class and use sidebar-open instead
+              sidebar.classList.remove('collapsed');
+              const sidebarState = localStorage.getItem('sidebarCollapsed');
+              if (sidebarState === 'true') {
+                sidebar.classList.remove('sidebar-open');
+                document.body.classList.remove('sidebar-open');
+              }
+              if (typeof window.updateLogoutAttributes === 'function') {
+                window.updateLogoutAttributes();
+              }
+            } else if (isTabletResize) {
+              // On tablet, handle collapsed state
+              sidebar.classList.remove('sidebar-open');
+              document.body.classList.remove('sidebar-open');
+              const sidebarState = localStorage.getItem('sidebarCollapsed');
+              if (sidebarState === 'true') {
+                sidebar.classList.add('collapsed');
+              }
+              if (typeof window.updateLogoutAttributes === 'function') {
+                window.updateLogoutAttributes();
+              }
+
+              // Update icon based on collapsed state
+              const icon = document.getElementById('menuToggleIcon');
+              if (icon) {
+                if (sidebar.classList.contains('collapsed')) {
+                  // Sidebar collapsed, show hamburger
+                  icon.classList.remove('fa-chevron-left');
+                  icon.classList.add('fa-bars');
+                } else {
+                  // Sidebar open, show left arrow
+                  icon.classList.remove('fa-bars');
+                  icon.classList.add('fa-chevron-left');
+                }
+              }
+            } else if (isDesktopResize) {
+              // On desktop, remove all collapsed states - sidebar always visible
+              sidebar.classList.remove('collapsed');
+              sidebar.classList.remove('sidebar-open');
+              document.body.classList.remove('sidebar-open');
+              if (typeof window.updateLogoutAttributes === 'function') {
+                window.updateLogoutAttributes();
+              }
+            }
+          }, 250);
+        });
+
+        // Initialize icon based on screen size
+        const isMobileInit = isMobileView();
+        const isTabletInit = isTabletView();
+        const icon = document.getElementById('menuToggleIcon');
+
+        if (icon) {
+          if (isMobileInit) {
+            // On mobile, always show hamburger
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          } else if (isTabletInit) {
+            // On tablet, show based on collapsed state
+            const sidebarState = localStorage.getItem('sidebarCollapsed');
+            if (sidebarState === 'true') {
+              // Sidebar collapsed, show hamburger
+              icon.classList.remove('fa-chevron-left');
+              icon.classList.add('fa-bars');
+            } else {
+              // Sidebar open, show left arrow
+              icon.classList.remove('fa-bars');
+              icon.classList.add('fa-chevron-left');
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+  <!-- Universal Table Pagination - Initializes DataTables for all tables (matching standard_list.html style) -->
+  <script>
+    $(document).ready(function () {
+      // Pages to exclude from pagination
+      var excludedPages = [
+        '/gauge_details/',
+        '/category/',
+        '/instrument_type/',
+        '/vtr/',
+        '/graph/',
+        '/get_serial_counts/',
+        '/standards/',
+        '/valve_type/',
+        '/shell_material/'
+      ];
+
+      // Check if current page should be excluded
+      var currentUrl = window.location.pathname;
+      var shouldExclude = excludedPages.some(function (page) {
+        return currentUrl.startsWith(page);
+      });
+
+      // Skip DataTables initialization for excluded pages
+      if (shouldExclude) {
+        return;
+      }
+
+      // Initialize DataTables for all tables that don't already have it
+      $('table.table').each(function () {
+        var $table = $(this);
+
+        // Skip tables inside modals (they often have colspan rows that cause column mismatch)
+        if ($table.closest('.modal').length > 0) {
+          return;
+        }
+
+        // Skip tables with no-datatables class
+        if ($table.hasClass('no-datatables')) {
+          return;
+        }
+
+        // Skip tables initialized by their own scripts after data loads
+        if ($table.attr('id') === 'standardTable' || $table.attr('id') === 'valveTable' || $table.attr('id') === 'valveClassTable') {
+          return;
+        }
+
+        // Check if DataTables is already initialized on this table
+        var isAlreadyInitialized = false;
+        try {
+          var tableId = $table.attr('id');
+          if (tableId) {
+            isAlreadyInitialized = $.fn.DataTable.isDataTable('#' + tableId);
+          } else {
+            // For tables without ID, check if DataTable was initialized directly
+            isAlreadyInitialized = $.fn.DataTable.isDataTable($table);
+          }
+        } catch (e) {
+          // If check fails, assume not initialized
+          isAlreadyInitialized = false;
+        }
+
+        if (!isAlreadyInitialized) {
+          // If table doesn't have an ID, add one
+          if (!$table.attr('id')) {
+            $table.attr('id', 'table_' + Math.random().toString(36).substr(2, 9));
+          }
+
+          // Initialize DataTables with simple style matching standard_list.html
+          $table.DataTable();
+        }
+      });
+    });
+
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>

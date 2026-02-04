@@ -1,0 +1,225 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #251c1c;
+    color: white;
+    margin-top: 5px;
+    width: 95%;
+    margin-left: 20px;
+    border-radius: 15px;
+    box-shadow: 15px 10px 15px 0 rgb(97, 89, 89);
+    }
+
+.navbar img {
+    height: 40px;
+    width: auto;
+    }
+
+.navbar .center-text {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+    }
+
+
+/* Form Row */
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 20px;
+    background: #f4f4f4;
+}
+
+.form-row label {
+    font-weight: bold;
+    margin-left: 25px;
+}
+
+.form-row select {
+    padding: 5px;
+    min-width: 250px;
+    border: 2px solid rgb(117, 97, 59);
+    border-radius: 5px;
+}
+
+.form-row button {
+    padding: 12px 28px;
+    background: #b12855;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow:2px 2px 5px 5px rgb(175, 173, 163);
+}
+
+.form-row button:hover {
+    background: #2ac999;
+}
+
+
+ /* Container */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px 20px;
+    padding: 20px;
+    background: #f4f4f4;
+    box-shadow: 20px 20px 15px 0px rgb(179, 170, 170);
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: bold;
+    min-width: 200px; /* keeps labels aligned */
+}
+
+.form-group input,
+.form-group select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 4px;
+    border: 2px solid rgb(117, 97, 59);
+}
+
+/* table */
+
+.table-container {
+    box-shadow: 20px 20px 15px 0px rgb(179, 170, 170);
+    padding: 10px; 
+    /* background: #777; */
+}
+
+.parts-table {
+      width: 60%;
+      border-collapse: collapse;
+      background: #777; /* background like in image */
+      color: white;
+      margin-top: 10px;
+    }
+
+.parts-table th,
+.parts-table td {
+    padding: 5px;
+    text-align: center;
+}
+
+.parts-table th {
+    font-weight: bold;
+}
+
+.parts-table td input {
+    width: 80%;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+}
+
+.parts-table td {
+    background: #f4f4f4;
+    color: black;
+}
+
+.parts-table td input {
+    background: white;
+    color: black;
+    border: 2px solid rgb(117, 97, 59);
+    font-size: 15px;
+    font-weight: bold; 
+}
+
+.parts-table td:first-child,
+.parts-table th:first-child {
+  text-align: left;
+  padding-left: 25px; 
+  font-weight: bold; 
+}
+
+/* duration table */
+ .test-table {
+    width: 35%;
+    border-collapse: collapse;
+    margin-top: -17%;
+    background: #777;
+    color: white;
+    margin-left: 62%;
+}
+
+.test-table th,
+.test-table td {
+    border: 1px solid #666;
+    padding: 10px;
+    text-align: center;
+}
+
+.test-table th {
+    background: #555;
+    font-weight: bold;
+}
+
+/* Highlight Test PR(PSI) column */
+.test-table td:nth-child(3),
+.test-table th:nth-child(3) {
+    /* background: limegreen; */
+    color: rgb(243, 239, 239);
+    font-weight: bold;
+}
+
+/* Left align first column */
+.test-table td:first-child {
+    text-align: left;
+    padding-left: 10px;
+    font-weight: bold;
+}
+
+/* Button */
+
+.button-row {
+    display: flex;
+    justify-content: center; /* center buttons */
+    gap: 20px;               /* spacing between buttons */
+    margin-top: 30px;
+}
+
+.button-row button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #29a173;
+    color: white;
+    transition: background 0.3s;
+    box-shadow: 10px 6px 10px 0px rgb(124, 114, 114);
+}
+
+.button-row button:hover {
+    background: rgb(79, 214, 86);
+}
+
+.backbtn{
+    background-color: red !important;
+}
+.backbtn:hover{
+    background-color: rgb(26, 211, 140) !important;
+}
+#errormsg{
+    position: absolute;
+    margin-top: 45px;
+    margin-left:13%;
+    font-size: 15px;
+    padding: 10px; 
+}
