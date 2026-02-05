@@ -98,7 +98,7 @@
         <div class="col-3">
           <div class="card p-3 text-center shadow-sm fixed-card-1 op">
             <span>Clamping Method</span>
-            <span id="claming-method"></span>
+            <span id="clamping-method"></span>
           </div>
         </div>
         <div class="col-3">
@@ -813,6 +813,7 @@
           // Both stations enabled - update both torques and display both valve serials
           updateValue("s1-deg", `${data.s1_open_degree || 0} / ${data.s1_close_degree || 0}`);
           updateValue("s2-deg", `${data.s2_open_degree || 0} / ${data.s2_close_degree || 0}`);
+          updateValue("clamping-method", `${data.clamping_method}`);
 
 
 
