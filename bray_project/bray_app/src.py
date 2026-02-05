@@ -1,6 +1,6 @@
 class HmiAddress:
 
-    #Station-1 HMI Addresses
+    #0.5MT Station-1 HMI Addresses
 
     S1_VALVE_SIZE = 2000
     S1_VALVE_CLASS = 2001
@@ -52,7 +52,7 @@ class HmiAddress:
     S1_ACTUAL_CLOSE_DEGREE = 2042
    
 
-    #Station-2 HMI Addresses
+    #0.5MT Station-2 HMI Addresses
 
     S2_VALVE_SIZE = 2100
     S2_VALVE_CLASS = 2101

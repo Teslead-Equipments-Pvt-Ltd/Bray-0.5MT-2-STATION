@@ -48,12 +48,12 @@ def export_station_data(valve_serial_no, station_num):
             print(f"[EXPORT_EXCEL] Count ID: {count_id}")
         
         # Create E drive directory if it doesn't exist
-        e_drive_path = "D:/Bray_DB_export"
+        e_drive_path = "D:/Bray_0.5_DB_export"
         os.makedirs(e_drive_path, exist_ok=True)
         print(f"[EXPORT_EXCEL] Export directory: {e_drive_path}")
         
         # Generate filename with serial number and count id
-        filename = f"{valve_serial_no}_{count_id}.xlsx"
+        filename = f"{valve_serial_no}_{count_id}_0.5MT.xlsx"
         filepath = os.path.join(e_drive_path, filename)
         print(f"[EXPORT_EXCEL] Excel file path: {filepath}")
         
@@ -126,124 +126,191 @@ def export_station_data(valve_serial_no, station_num):
 
 def graph_generation_from_excel(excel_filepath, test_id, test_name):
     """
-    Generate pressure vs time graph for a single test from Excel file and return as base64 string
+    Generate modern, professional pressure vs time graph for a single test from Excel file
     Returns None if test has no timer on/off events (should be omitted from report)
     """
     try:
         from openpyxl import load_workbook
         from datetime import datetime
-        
-        # Load the Excel file
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
+        from io import BytesIO
+        import base64
+
+        # ---------------- LOAD EXCEL ----------------
         wb = load_workbook(excel_filepath)
         ws = wb.active
-        
-        # Read data from Excel
+
         date_times = []
         pressures = []
         timer_status = []
-        
-        # Skip header row, start from row 2
+
         for row in ws.iter_rows(min_row=2, values_only=True):
-            # Columns: id, VALVE_SERIAL_NO, PRESSURE, TEST_ID, TEST_NAME, DATE_TIME, TIMER_STATUS, RESULT
-            if row[3] == test_id:  # TEST_ID column
-                date_time = row[5]  # DATE_TIME column
-                pressure = row[2]   # PRESSURE column
-                timer_stat = row[6] # TIMER_STATUS column
-                
+            if row[3] == test_id:
+                date_time = row[5]
+                pressure = row[2]
+                timer_stat = row[6]
+
                 if date_time and pressure is not None:
-                    # Convert datetime to proper format if it's a string
                     if isinstance(date_time, str):
                         try:
                             date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
                         except:
                             continue
-                    
+
                     date_times.append(date_time)
                     pressures.append(float(pressure))
                     timer_status.append(int(timer_stat) if timer_stat is not None else 0)
-        
+
         if not date_times:
-            print(f"[GRAPH] No data found for test {test_id} in Excel file")
             wb.close()
-            return None
-        
-        # Check if test has timer on/off events
-        has_timer_on = any(status == 1 for status in timer_status)
+            return "NO_GRAPH"
+
+        # ---------------- TIMER CHECK ----------------
+        has_timer_on = any(s == 1 for s in timer_status)
         has_timer_off_after_on = False
-        
+
         timer_was_on = False
-        for status in timer_status:
-            if status == 1:
+        for s in timer_status:
+            if s == 1:
                 timer_was_on = True
-            elif status == 0 and timer_was_on:
+            elif s == 0 and timer_was_on:
                 has_timer_off_after_on = True
                 break
-        
-        # If no timer events, skip this test (return None to omit from report)
-        # if not has_timer_on or not has_timer_off_after_on:
-        #     print(f"[GRAPH] Test {test_id} ({test_name}) has no complete timer on/off cycle - omitting from report")
-        #     wb.close()
-        #     return None
-        
-        # Create the graph
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        # Plot the pressure line
-        ax.plot(date_times, pressures, 'b-', linewidth=2, label='Pressure')
-        
-        # Find where TIMER_STATUS changes from 0 to 1 (green line)
-        # and from 1 to 0 (red line)
-        green_line_drawn = False
-        red_line_drawn = False
-        
+
+        if not has_timer_on or not has_timer_off_after_on:
+            wb.close()
+            return "NO_GRAPH"
+
+        # ---------------- FIND TIMER WINDOW ----------------
+        timer_start_time = None
+        timer_stop_time = None
+
         for i in range(len(timer_status)):
-            # Draw green line when first 1 is found
-            if timer_status[i] == 1 and not green_line_drawn:
-                ax.axvline(x=date_times[i], color='green', linestyle='--', 
-                          linewidth=2, label='Timer Start')
-                green_line_drawn = True
-            
-            # Draw red line when 0 is found after 1
-            if green_line_drawn and timer_status[i] == 0 and not red_line_drawn:
-                ax.axvline(x=date_times[i], color='red', linestyle='--', 
-                          linewidth=2, label='Timer Stop')
-                red_line_drawn = True
+            if timer_status[i] == 1 and timer_start_time is None:
+                timer_start_time = date_times[i]
+
+            if timer_start_time and timer_status[i] == 0:
+                timer_stop_time = date_times[i]
                 break
+
+        # ---------------- MODERN FIGURE ----------------
+        fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
         
-        # Format the plot
-        ax.set_xlabel('Time', fontsize=12)
-        ax.set_ylabel('Pressure', fontsize=12)
-        ax.set_title(f'{test_name}', fontsize=14, fontweight='bold')
-        ax.grid(True, alpha=0.3)
-        ax.legend()
+        # Modern Color Palette
+        COLOR_BG = '#FFFFFF'
+        COLOR_PLOT_BG = '#FFFFFF'
+        COLOR_PRIMARY = '#2563EB'  # Vibrant Blue (Royal Blue)
+        COLOR_GRID = '#E2E8F0'     # Light Slate
+        COLOR_TEXT = '#475569'     # Slate 600
+        COLOR_TITLE = '#1E293B'    # Slate 800
+        COLOR_START = '#10B981'    # Emerald 500
+        COLOR_STOP = '#EF4444'     # Red 500
+
+        # Background Configuration
+        fig.patch.set_facecolor(COLOR_BG)
+        ax.set_facecolor(COLOR_PLOT_BG)
+
+        # ---------------- PRESSURE LINE ----------------
+        ax.plot(date_times, pressures, color=COLOR_PRIMARY, linewidth=2.5, solid_capstyle='round', zorder=3)
+
+        # Soft Gradient Fill
+        ax.fill_between(date_times, pressures, 0, color=COLOR_PRIMARY, alpha=0.10, zorder=2)
+
+        # ---------------- TIMER MARKERS ----------------
+        # Get Y-axis limits for label positioning
+        # We plot first so limits are set
+        y_min, y_max = ax.get_ylim()
         
-        # Format x-axis to show time nicely
+        # Start Line
+        ax.axvline(x=timer_start_time, color=COLOR_START, linestyle='--', linewidth=1.5, zorder=4)
+
+        # Stop Line
+        ax.axvline(x=timer_stop_time, color=COLOR_STOP, linestyle='--', linewidth=1.5, zorder=4)
+
+        # Text Annotations for Start/Stop
+        # Using y_max for positioning
+        ax.text(timer_start_time, y_max, ' START', color=COLOR_START, fontsize=10, fontweight='bold', va='bottom', ha='left', rotation=90)
+        ax.text(timer_stop_time, y_max, ' STOP', color=COLOR_STOP, fontsize=10, fontweight='bold', va='bottom', ha='right', rotation=90)
+
+        # Range Highlight
+        ax.axvspan(timer_start_time, timer_stop_time, color=COLOR_START, alpha=0.05, zorder=1)
+
+        # ---------------- AXIS STYLING ----------------
+        ax.set_title(test_name, fontsize=16, fontweight='bold', color=COLOR_TITLE, pad=20)
+        ax.set_xlabel('Time', fontsize=11, fontweight='500', color=COLOR_TEXT, labelpad=10)
+        ax.set_ylabel('Pressure', fontsize=11, fontweight='500', color=COLOR_TEXT, labelpad=10)
+
+        # Date/Time Formatting
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=6, maxticks=10))
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
-        plt.xticks(rotation=45)
         
-        # Tight layout to prevent label cutoff
+        # Grid Styling (Clean Horizontal Lines)
+        ax.grid(True, axis='y', color=COLOR_GRID, linestyle='-', linewidth=0.5, alpha=0.8)
+        ax.grid(False, axis='x')
+        ax.set_axisbelow(True)
+
+        # Spines (Borders) - Minimalist
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['bottom'].set_color(COLOR_GRID)
+        ax.spines['bottom'].set_linewidth(1.5)
+
+        # Ticks
+        ax.minorticks_on()
+        ax.tick_params(axis='both', colors=COLOR_TEXT, labelsize=10)
+        ax.tick_params(axis='y', length=0) # Hide Y ticks
+        ax.tick_params(axis='x', length=5, color=COLOR_GRID)
+        
+        # Date rotation
+        fig.autofmt_xdate(rotation=0, ha='center')
+
+        # Margins
+        ax.margins(x=0.02, y=0.1)
+
         plt.tight_layout()
-        
-        # Save to BytesIO buffer instead of file
+
+        # ---------------- SAVE IMAGE ----------------
         buffer = BytesIO()
-        plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
+        plt.savefig(
+            buffer,
+            format='png',
+            dpi=200,
+            bbox_inches='tight',
+            facecolor='white'
+        )
         buffer.seek(0)
-        
-        # Convert to base64
+
         image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
-        
+
         plt.close(fig)
         buffer.close()
         wb.close()
-    
+
         return f"data:image/png;base64,{image_base64}"
-        
+
     except Exception as e:
-        print(f"[GRAPH] Error generating graph from Excel for test {test_id}: {e}")
+        print(f"[GRAPH] Error generating graph for test {test_id}: {e}")
         import traceback
         traceback.print_exc()
         return None
     
+
+def get_logo_base64():
+    """
+    Convert the Bray logo to base64 for embedding in PDF
+    """
+    try:
+        from django.conf import settings
+        logo_path = os.path.join(settings.BASE_DIR, 'bray_app', 'static', 'images', 'braylogo.webp')
+        
+        with open(logo_path, 'rb') as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            return f"data:image/webp;base64,{encoded_string}"
+    except Exception as e:
+        print(f"[LOGO] Error encoding logo: {e}")
+        return ""
 
     
 def merged_report(valve_serial_no, station_num):
@@ -306,7 +373,7 @@ def merged_report(valve_serial_no, station_num):
                 return False
         
         # Get report path from configuration_table or use default
-        default_path = "D:/Bray_Reports"
+        default_path = "D:/Bray_0.5_Reports"
         base_report_path = default_path
         
         with connection.cursor() as cursor:
@@ -357,8 +424,8 @@ def merged_report(valve_serial_no, station_num):
         current_date = datetime.now().strftime("%d-%m-%Y")
         
         # Get the Excel file path (should be in D:/Bray_DB_export)
-        excel_filename = f"{valve_serial_no}_{count_id}.xlsx"
-        excel_filepath = os.path.join("D:/Bray_DB_export", excel_filename)
+        excel_filename = f"{valve_serial_no}_{count_id}_0.5MT.xlsx"
+        excel_filepath = os.path.join("D:/Bray_0.5_DB_export", excel_filename)
         print(f"[EXPORT_PDF] Looking for Excel file: {excel_filepath}")
         
         # Check if Excel file exists
@@ -377,11 +444,11 @@ def merged_report(valve_serial_no, station_num):
             test_id = test_row[0]
             test_type = test_row[1] or ""
             print(f"[EXPORT_PDF] Processing test {test_id} ({test_type})")
+
             
             # Generate graph from Excel file to check if test is valid
-            graph_image_base64 = graph_generation_from_excel(
-                excel_filepath, test_id, test_type
-            )
+            print("call the graph function")
+            graph_image_base64 = graph_generation_from_excel(excel_filepath, test_id, test_type)
             
             # Only include tests that have timer on/off events
             if graph_image_base64 is not None:
@@ -454,7 +521,8 @@ def merged_report(valve_serial_no, station_num):
                 'time_diff': time_diff,
                 'valve_status': valve_status,
                 'current_date': current_date,
-                'graph_image_base64': graph_image_base64
+                'graph_image_base64': graph_image_base64,
+                'logo_base64': get_logo_base64()  
             }
             
             # Render the template for this test
@@ -511,7 +579,7 @@ def excel_report(valve_serial_no, station_num):
             print(f"[EXCEL_COPY] Count ID: {count_id}")
         
         # Get report path from configuration_table or use default
-        default_path = "D:/Bray_Reports"
+        default_path = "D:/Bray_0.5_Reports"
         base_report_path = default_path
         
         with connection.cursor() as cursor:

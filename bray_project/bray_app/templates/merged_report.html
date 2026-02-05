@@ -1,4 +1,4 @@
-<!-- {% load static %} -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,7 +13,7 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Times New Roman', Times, serif;
       font-size: 15px;
       margin: 40px;
       padding: 0;
@@ -24,16 +24,35 @@
       width: 100%;
     }
 
+    /* Add double border to header table */
+    .header-table {
+      border: 3px double black;
+    }
+
     .header-table td {
       border: 1px solid black;
       padding: 6px 10px;
       vertical-align: middle;
     }
 
+    /* Define specific column widths for proper alignment */
+    .header-table td:nth-child(2),
+    .header-table td:nth-child(4) {
+      width: 15%;
+      font-weight: bold;
+      /* background-color: #f5f5f5; */
+    }
+
+    .header-table td:nth-child(3),
+    .header-table td:nth-child(5) {
+      width: 35%;
+    }
+
     .logo-cell {
       text-align: center;
       width: 150px;
       padding: 0;
+      border-right: 3px double black;
     }
 
     .logo-cell img {
@@ -44,28 +63,38 @@
 
     .summary-section {
       margin-top: 15px;
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 250px 200px 250px auto;
+      gap: 20px;
       align-items: center;
     }
 
-    .summary-left {
-      display: flex;
-
+    .summary-section span {
+      display: inline-block;
+      white-space: nowrap;
     }
 
-    .summary-left span {
-      display: inline-block;
+    .summary-section strong {
+      font-weight: bold;
+      margin-right: 5px;
     }
 
     .summary-bottom {
       margin-top: 20px;
-      display: flex;
-      gap: 114px;
+      display: grid;
+      grid-template-columns: 250px 200px 250px auto;
+      gap: 20px;
+      align-items: center;
     }
 
     .summary-bottom span {
       display: inline-block;
+      white-space: nowrap;
+    }
+
+    .summary-bottom strong {
+      font-weight: bold;
+      margin-right: 5px;
     }
 
     .green {
@@ -89,6 +118,7 @@
       border: none;
       border-radius: 8px;
       text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .chart-img {
@@ -116,7 +146,7 @@
   <table class="header-table">
     <tr>
       <td rowspan="3" class="logo-cell">
-        <img src="{% static 'images/1.png' %}" alt="Logo">
+        <img src="{{ logo_base64 }}" alt="Logo">
       </td>
       <td><strong>Serial No</strong></td>
       <td>{{ serial_no }}</td>
@@ -131,36 +161,36 @@
     </tr>
     <tr>
       <td><strong>Part No</strong></td>
-      <td>{{ part_no }}</td>
+      <td>{{ part_number }}</td>
       <td><strong>Part Name</strong></td>
-      <td></td>
+      <td>{{ part_name }}</td>
     </tr>
   </table>
 
   <!-- Test Summary -->
   <div class="summary-section">
-    <div class="summary-left">
-      <span><strong>Test Type :</strong> {{ test_type }}</span>
-      <span style="margin-left: 79px;"><strong>Set Time :</strong> {{ set_time }} SEC</span>
-      <span style="margin-left: 79px;"><strong>Set Pressure :</strong> {{ set_pressure }} bar</span>
-    </div>
+    <span><strong>Test Type :</strong> {{ test_type }}</span>
+    <span><strong>Set Time :</strong> {{ set_time }} SEC</span>
+    <span><strong>Set Pressure :</strong> {{ set_pressure }} bar</span>
+    <span><strong>Valve Status :</strong> <span class="green">{{ valve_status }}</span></span>
   </div>
 
   <div class="summary-bottom">
     <span><strong>Start Time :</strong> {{ start_time }}</span>
-
     <span><strong>End Time :</strong> {{ end_time }}</span>
-
-    <span style="margin-left:-45px;"><strong>Diff :</strong> {{ time_diff }}</span>
-
-    <span><strong>Valve Status :</strong> <span class="green">{{ valve_status }}</span></span>
+    <span><strong>Diff :</strong> {{ time_diff }}</span>
   </div>
 
   <!-- Chart Container -->
   <div class="chart-block">
     {% if graph_image_base64 %}
-    <img src="{{ graph_image_base64 }}" alt="Pressure Graph" style="height: 410px; width: 100%;">
-
+    <img src="{{ graph_image_base64 }}" alt="Pressure Graph" style="height: 390px; width: 100%;">
+    {% else %}
+    <div
+      style="padding: 50px; text-align: center; color: #666; border: 2px dashed #ccc; border-radius: 8px; background-color: #f9f9f9;">
+      <p style="font-size: 18px; margin: 0;"><strong>No Graph Available</strong></p>
+      <p style="font-size: 14px; margin-top: 10px;">Test was not performed (no timer on/off data)</p>
+    </div>
     {% endif %}
   </div>
 

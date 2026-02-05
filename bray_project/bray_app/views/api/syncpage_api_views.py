@@ -342,6 +342,15 @@ def get_station_values(request, stationId):
                     s1_close_deg = getstatus(HmiAddress.S1_SET_CLOSE_DEGREE)
                     s2_open_deg = getstatus(HmiAddress.S2_SET_OPEN_DEGREE)
                     s2_close_deg = getstatus(HmiAddress.S2_SET_CLOSE_DEGREE)
+                    s1_clamping_method = getstatus(HmiAddress.S1_CLAMPING_METHOD)
+                    s2_clamping_method = getstatus(HmiAddress.S2_CLAMPING_METHOD)
+                    
+                    if s1_clamping_method == 1 and s2_clamping_method == 1:
+                        both_clamping_method = "Control Clamping"
+                    elif s1_clamping_method== 0 and s2_clamping_method== 0 :
+                        both_clamping_method = "Proportional Clamping"
+                    else:
+                        both_clamping_method = "Unknown"
 
                     print("set torque values", s1_open_deg, s1_close_deg, s2_open_deg, s2_close_deg)
                     
@@ -360,7 +369,8 @@ def get_station_values(request, stationId):
                         "s1_open_degree": s1_open_deg,
                         "s1_close_degree": s1_close_deg,
                         "s2_open_degree": s2_open_deg,
-                        "s2_close_degree": s2_close_deg
+                        "s2_close_degree": s2_close_deg,
+                        "clamping_method": both_clamping_method
                     }
 
                     # Get valve size ID
