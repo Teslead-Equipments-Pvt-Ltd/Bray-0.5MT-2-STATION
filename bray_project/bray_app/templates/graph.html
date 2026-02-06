@@ -1,0 +1,139 @@
+{% extends 'base_new.html' %}
+{% block header_title %}
+  Graph Report Generator
+{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 800px;">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">
+        <i class="fas fa-chart-line me-2"></i>
+        Valve Test Graph Report Generator
+      </h4>
+    </div>
+
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Instructions:</strong> Select a valve serial number from the dropdown to generate a comprehensive PDF report containing all test graphs and details for that valve.
+      </div>
+
+      <form method="POST" class="mt-4">
+        {% csrf_token %}
+        <div class="row mb-4">
+          <label for="valveSerial" class="col-sm-3 col-form-label fw-bold text-end" style="color: #007d99;">
+            <i class="fas fa-tag me-1"></i>Valve Serial No
+          </label>
+          <div class="col-sm-7">
+            <select name="valve_serial" id="valveSerial" class="form-select" required>
+              <option value="">-- Select Serial Number --</option>
+              {% for serial in serial_numbers %}
+                <option value="{{ serial }}">{{ serial }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text">
+              <i class="fas fa-database me-1"></i>
+              {{ serial_numbers|length }} serial numbers available
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary btn-lg px-5 me-3">
+            <i class="fas fa-download me-2"></i>
+            Generate PDF Report
+          </button>
+          <a href="/dashboard/" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>
+            Back to Dashboard
+          </a>
+        </div>
+      </form>
+
+      {% comment %} {% if serial_numbers %}
+        <div class="mt-4">
+          <h6 class="text-muted">
+            <i class="fas fa-list me-1"></i>
+            Available Serial Numbers:
+          </h6>
+          <div class="row">
+            {% for serial in serial_numbers|slice:":12" %}
+              <div class="col-md-3 col-sm-4 col-6 mb-2">
+                <span class="badge bg-light text-dark">{{ serial }}</span>
+              </div>
+            {% endfor %}
+            {% if serial_numbers|length > 12 %}
+              <div class="col-12">
+                <small class="text-muted">... and {{ serial_numbers|length|add:"-12" }} more</small>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %} {% endcomment %}
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  {% comment %} <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card h-100 border-primary">
+        <div class="card-body text-center">
+          <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+          <h6 class="card-title">Complete Test Report</h6>
+          <p class="card-text small">Generate a comprehensive PDF with all test types for the selected valve.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 border-success">
+        <div class="card-body text-center">
+          <i class="fas fa-chart-area fa-3x text-success mb-3"></i>
+          <h6 class="card-title">Pressure Graphs</h6>
+          <p class="card-text small">Each test includes detailed pressure vs time graphs with test parameters.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100 border-info">
+        <div class="card-body text-center">
+          <i class="fas fa-print fa-3x text-info mb-3"></i>
+          <h6 class="card-title">Print Ready</h6>
+          <p class="card-text small">Optimized for A4 landscape printing with professional formatting.</p>
+        </div>
+      </div>
+    </div>
+  </div> {% endcomment %}
+</div>
+
+<style>
+.card {
+  border-radius: 10px;
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.form-select:focus {
+  border-color: #007d99;
+  box-shadow: 0 0 0 0.2rem rgba(0, 125, 153, 0.25);
+}
+
+.btn-primary {
+  background-color: #007d99;
+  border-color: #007d99;
+}
+
+.btn-primary:hover {
+  background-color: #006d89;
+  border-color: #006d89;
+}
+
+.badge {
+  font-size: 0.8rem;
+  padding: 0.5rem 0.8rem;
+}
+</style>
+{% endblock %}

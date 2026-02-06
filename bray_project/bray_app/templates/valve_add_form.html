@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Valve Size Table</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <style>
+    :root { --brand-blue: #006b83; --brand-blue-light: #e0f7fa; }
+    body { background-color: #f8f9fa; }
+    .card-header { background-color: var(--brand-blue); color: white; }
+    .btn-brand { background-color: var(--brand-blue); color: white; }
+    .btn-brand:hover { background-color: #004d5a; color: white; }
+    .table thead { background-color: var(--brand-blue); color: white; }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Valve Size</h4>
+      <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#addValveModal">
+        <i class="bi bi-plus-lg"></i> Add
+      </button>
+    </div>
+    <div class="card-body">
+      <table id="valveTable" class="table table-striped table-bordered">
+        <thead>
+          <tr><th>Code</th><th>Name</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          {% for v in valves %}
+          <tr>
+            <td>{{ v.code }}</td>
+            <td>{{ v.name }}</td>
+            <td>{{ v.desc }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal fade" id="addValveModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="post" action="{% url 'valve_add_form' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Add Valve Size</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-4"><label>Valve Code</label><input name="code" class="form-control" required></div>
+            <div class="col-md-4"><label>Valve Name</label><input name="name" class="form-control" required></div>
+            <div class="col-md-4"><label>Valve Desc</label><input name="desc" class="form-control"></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4"><label>Part No</label><input name="part_no" class="form-control"></div>
+            <div class="col-md-4"><label>Part Name</label><input name="part_name" class="form-control"></div>
+          </div>
+
+          <table class="table table-bordered text-center align-middle">
+            <thead>
+              <tr>
+                <th><button type="button" class="btn btn-sm btn-brand" onclick="addRow()"><i class="bi bi-plus-lg"></i></button></th>
+                <th>Standard</th><th>Hydro Shell</th><th>Hydro Seat</th><th>Torque</th>
+                <th>Air Seat</th><th>Gas Shell</th><th>Gas Seat</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr>
+                <td><button type="button" class="btn text-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+                <td><select name="standard[]" class="form-select form-select-sm"><option>--Select--</option><option>Standard A</option><option>Standard B</option></select></td>
+                <td><input name="hydro_shell[]" class="form-control form-control-sm text-center"></td>
+                <td><input name="hydro_seat[]" class="form-control form-control-sm text-center"></td>
+                <td><input name="torque[]" class="form-control form-control-sm text-center"></td>
+                <td><input name="air_seat[]" class="form-control form-control-sm text-center"></td>
+                <td><input name="gas_shell[]" class="form-control form-control-sm text-center"></td>
+                <td><input name="gas_seat[]" class="form-control form-control-sm text-center"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-brand" type="submit">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function addRow() {
+  const row = `
+    <tr>
+      <td><button type="button" class="btn text-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+      <td><select name="standard[]" class="form-select form-select-sm"><option>--Select--</option><option>Standard A</option><option>Standard B</option></select></td>
+      <td><input name="hydro_shell[]" class="form-control form-control-sm text-center"></td>
+      <td><input name="hydro_seat[]" class="form-control form-control-sm text-center"></td>
+      <td><input name="torque[]" class="form-control form-control-sm text-center"></td>
+      <td><input name="air_seat[]" class="form-control form-control-sm text-center"></td>
+      <td><input name="gas_shell[]" class="form-control form-control-sm text-center"></td>
+      <td><input name="gas_seat[]" class="form-control form-control-sm text-center"></td>
+    </tr>`;
+  document.getElementById('tableBody').insertAdjacentHTML('beforeend', row);
+}
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#valveTable').DataTable();
+  });
+</script>
+</body>
+</html>

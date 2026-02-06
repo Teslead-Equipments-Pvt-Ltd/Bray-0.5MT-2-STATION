@@ -1,0 +1,1330 @@
+{% extends 'base_new.html' %}
+{% block header_title %}ABRS Serial Updation{% endblock %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* ===== Table Container ===== */
+  .table-container-wrapper {
+    height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  /* ===== Card Styling ===== */
+  .card {
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .card-body {
+    background: white;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ===== Search Toggle ===== */
+  .search-toggle-container {
+    position: relative;
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 2px;
+    width: 36px;
+    height: 36px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .search-input-wrapper.active {
+    width: 300px;
+    background: white;
+    border-color: #0b1a35;
+    box-shadow: 0 4px 6px -1px rgba(11, 26, 53, 0.2);
+  }
+
+  .search-icon-btn {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .search-input-wrapper.active .search-icon-btn {
+    background: transparent;
+    color: #0b1a35;
+    cursor: default;
+  }
+
+  .search-input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    color: #2d3748;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease 0.1s;
+  }
+
+  .search-input-wrapper.active input {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .search-close-btn {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .search-close-btn:hover {
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.1);
+  }
+
+  .search-input-wrapper.active .search-close-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== Filter Row ===== */
+  .custom-filter-row {
+    padding: 0.75rem 1rem;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .left-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .table-action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  /* ===== Status Filter Dropdown Styling ===== */
+  .status-filter-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .status-filter-select {
+    appearance: none;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+
+  .status-filter-select:focus {
+    border-color: #4a5568;
+    box-shadow: 0 0 0 0.2rem rgba(74, 85, 104, 0.25);
+    outline: none;
+  }
+
+  .status-filter-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 0.75rem;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+  }
+
+  .status-filter-wrapper:hover .status-filter-icon {
+    color: #4a5568;
+  }
+
+  .status-filter-select:focus+.status-filter-icon {
+    transform: translateY(-50%) rotate(180deg);
+    color: #4a5568;
+  }
+
+  .btn-brand {
+    background: #4a5568;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    transition: background 0.2s ease;
+  }
+
+  .btn-brand:disabled {
+    background: #9ca3af;
+    color: #6b7280;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .btn-brand:disabled:hover {
+    background: #9ca3af;
+    color: #6b7280;
+    transform: none;
+  }
+
+  /* ===== Table Scroll ===== */
+  .table-responsive {
+    background: white;
+    border: none;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #F9D8D0 #f0f0f0;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #E21A34;
+    border-radius: 4px;
+  }
+
+  .table {
+    margin-bottom: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #e9ecef;
+    color: black;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid #edf2f7;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  /* Sticky columns from S.No to Status - preserve original widths */
+  .table thead th:nth-child(1),
+  .table thead th:nth-child(2),
+  .table thead th:nth-child(3),
+  .table thead th:nth-child(4),
+  .table thead th:nth-child(5) {
+    position: sticky;
+    z-index: 15;
+    background: #e9ecef;
+  }
+
+  .table thead th:nth-child(1) {
+    left: 0;
+  }
+
+  .table thead th:nth-child(2) {
+    left: var(--col1-width, 80px);
+  }
+
+  .table thead th:nth-child(3) {
+    left: var(--col2-left, 200px);
+  }
+
+  .table thead th:nth-child(4) {
+    left: var(--col3-left, 350px);
+  }
+
+  .table thead th:nth-child(5) {
+    left: var(--col4-left, 470px);
+  }
+
+  .table tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+
+  /* Sticky columns for body cells */
+  .table tbody td:nth-child(1),
+  .table tbody td:nth-child(2),
+  .table tbody td:nth-child(3),
+  .table tbody td:nth-child(4),
+  .table tbody td:nth-child(5) {
+    position: sticky;
+    background: white;
+    z-index: 5;
+  }
+
+  .table tbody td:nth-child(1) {
+    left: 0;
+  }
+
+  .table tbody td:nth-child(2) {
+    left: var(--col1-width, 80px);
+  }
+
+  .table tbody td:nth-child(3) {
+    left: var(--col2-left, 200px);
+  }
+
+  .table tbody td:nth-child(4) {
+    left: var(--col3-left, 350px);
+  }
+
+  .table tbody td:nth-child(5) {
+    left: var(--col4-left, 470px);
+  }
+
+  /* Add shadow to the last sticky column for visual separation */
+  .table thead th:nth-child(5),
+  .table tbody td:nth-child(5) {
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ===== Pagination ===== */
+  .custom-pagination-wrapper {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 20;
+    position: relative;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+  }
+
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pagination-btn:hover:not(:disabled):not(.active) {
+    border-color: #4a5568;
+    color: #4a5568;
+  }
+
+  .pagination-btn.active {
+    background: white;
+    border-color: #4a5568;
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .pagination-btn.prev-btn,
+  .pagination-btn.next-btn {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+  .pagination-btn.next-btn {
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  .pagination-btn.next-btn:hover:not(:disabled) {
+    color: #2d3748;
+  }
+
+  .pagination-per-page {
+    margin-left: 1rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+  }
+
+  /* ===== ABRS Status Widget ===== */
+  .abrs-status-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    height: 36px;
+  }
+
+  .abrs-status-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .connection-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .connection-indicator.connected {
+    color: #059669;
+  }
+
+  .connection-indicator.disconnected {
+    color: #dc2626;
+  }
+
+  /* ===== Unified Action & Badge Size ===== */
+  /* Enforcing exact height of 24px for both buttons and badges */
+  .table-btn,
+  .status-badge {
+    height: 24px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: normal;
+    border: none;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    vertical-align: middle;
+  }
+
+  .table-btn {
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .table-btn i {
+    margin-right: 5px;
+    font-size: 0.7rem;
+  }
+
+  .table-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #9ca3af !important;
+    color: white !important;
+  }
+
+  .table-btn.btn-push {
+    background: #10b981;
+    color: white;
+  }
+
+  .table-btn.btn-push:hover {
+    background: #059669;
+    transform: translateY(-1px);
+  }
+
+  .table-btn.btn-repush {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .table-btn.btn-repush:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .table-btn.btn-get {
+    background: #0f172a;
+    color: white;
+  }
+
+  .table-btn.btn-get:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+  }
+
+  .table-btn.btn-disabled {
+    background: #94a3b8;
+    color: white;
+  }
+
+  /* ===== Status Column Full Cell Styling (Following user_account pattern) ===== */
+  .status-cell-pending {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #fbbf24 !important;
+  }
+
+  .status-cell-running {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #60a5fa !important;
+  }
+
+  .status-cell-pass {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #fb923c !important;
+  }
+
+  .status-cell-pushed {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #34d399 !important;
+  }
+
+  .status-cell-fail {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #f87171 !important;
+  }
+
+  /* Override hover effects for status cells */
+  .table tbody tr:hover .status-cell-pending {
+    background-color: #fde68a !important;
+    border-color: #f59e0b !important;
+  }
+
+  .table tbody tr:hover .status-cell-running {
+    background-color: #bfdbfe !important;
+    border-color: #3b82f6 !important;
+  }
+
+  .table tbody tr:hover .status-cell-pass {
+    background-color: #fdba74 !important;
+    border-color: #ea580c !important;
+  }
+
+  .table tbody tr:hover .status-cell-pushed {
+    background-color: #a7f3d0 !important;
+    border-color: #10b981 !important;
+  }
+
+  .table tbody tr:hover .status-cell-fail {
+    background-color: #fecaca !important;
+    border-color: #ef4444 !important;
+  }
+
+  /* ===== Column Color Coding Based on Test Count and Push Status ===== */
+  /* White - First test, not pushed */
+  .col-white {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+  }
+
+  /* Green - Pushed columns */
+  .col-green {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Orange - Repeat test, current test columns not pushed */
+  .col-orange {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Hover effects */
+  .table tbody tr:hover .col-white {
+    background-color: #f9fafb !important;
+  }
+
+  .table tbody tr:hover .col-green {
+    background-color: #a7f3d0 !important;
+  }
+
+  .table tbody tr:hover .col-orange {
+    background-color: #fdba74 !important;
+  }
+
+  /* ===== Modal Styles (Updated to Standard) ===== */
+  /* Standard header styling overrides if needed, or rely on bootstrap default which is white/grey */
+  .modal-header {
+    border-bottom: 1px solid #dee2e6;
+    background: #fff;
+    border-top-left-radius: calc(0.3rem - 1px);
+    border-top-right-radius: calc(0.3rem - 1px);
+    padding: 1rem 1rem;
+  }
+
+  .modal-title {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  /* Tabs in Modal */
+  .nav-pills {
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .nav-pills .nav-link {
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .nav-pills .nav-link.active {
+    background: #4a5568;
+    color: white;
+  }
+
+  .nav-pills .nav-link:hover:not(.active) {
+    background: #e2e8f0;
+  }
+
+  .autocomplete-dropdown-modern {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .autocomplete-item-modern {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .autocomplete-item-modern:hover {
+    background: #f8fafc;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+
+<div class="container-fluid table-container-wrapper">
+  <div class="card">
+
+    <!-- Filter Row -->
+    <div class="custom-filter-row">
+      <div class="left-controls">
+        <div class="search-toggle-container">
+          <div class="search-input-wrapper" id="searchInputWrapper">
+            <button id="searchToggleBtn" class="search-icon-btn"><i class="fas fa-search"></i></button>
+            <input type="text" id="customSearchInput" placeholder="Search...">
+            <button class="search-close-btn" id="searchCloseBtn"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-action-buttons">
+        <div class="status-filter-wrapper" style="width: 200px; position: relative;">
+          <select id="statusFilter" class="form-select form-select-sm status-filter-select">
+            <option value="">All Status</option>
+            <option value="0">Not Performed</option>
+            <option value="1">Running</option>
+            <option value="2">Test Performed</option>
+            <option value="3">Test Performed & Pushed</option>
+          </select>
+          <i class="fas fa-chevron-down status-filter-icon"></i>
+        </div>
+        <div class="abrs-status-widget">
+          <span class="abrs-status-label">ABRS Status:</span>
+          <span id="abrsConnectionIndicator" class="connection-indicator disconnected">
+            <i class="fas fa-spinner fa-spin"></i> Checking...
+          </span>
+        </div>
+        <button id="importDataBtn" class="btn btn-brand" disabled>
+          <i class="fas fa-cloud-download-alt me-2"></i> Import Data
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table no-datatables" id="abrsTable">
+        <thead>
+          <tr>
+            <th class="text-end pe-3" style="width: 60px;">S.No</th>
+            <th>Serial No</th>
+            <th>Assembly No</th>
+            <th>Action</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5" class="text-center py-4">Loading Data...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="custom-pagination-wrapper" id="customPagination"></div>
+  </div>
+</div>
+
+<!-- Import Modal (Standardized) -->
+<div class="modal fade" id="importSerialModal" tabindex="-1" aria-labelledby="importSerialModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="importSerialModalLabel">Import Serial Data</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <!-- Tabs using nav-pills -->
+        <ul class="nav nav-pills" id="importTabs">
+          <li class="nav-item">
+            <button class="nav-link active tab-pill" data-tab="serial" type="button">
+              <img src="{% static 'images/chat.png' %}" alt="Serial"
+                style="width: 20px; height: 20px; margin-right: 8px;">
+              By Serial
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link tab-pill" data-tab="date" type="button"><i class="fas fa-calendar-alt me-2"></i>By
+              Date</button>
+          </li>
+        </ul>
+
+        <div id="serialSearchSection" class="form-section">
+          <form id="serialSearchForm">
+            <div class="mb-3">
+              <label class="form-label" style="font-weight: 600;">Serial Number</label>
+              <div style="position: relative;">
+                <input type="text" id="serialNumberAutocomplete" class="form-control"
+                  placeholder="Enter serial number..." required>
+                <div id="serialDropdown" class="autocomplete-dropdown-modern"></div>
+              </div>
+            </div>
+            <div class="text-end mt-4">
+              <button type="submit" class="btn btn-brand">Import Serial</button>
+            </div>
+          </form>
+        </div>
+        <div id="dateSearchSection" class="form-section hidden">
+          <form id="dateSearchForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label" style="font-weight: 600;">From Date</label>
+                <input type="date" id="fromDate" class="form-control" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label" style="font-weight: 600;">To Date</label>
+                <input type="date" id="toDate" class="form-control" required>
+              </div>
+            </div>
+            <div class="text-end mt-4">
+              <button type="submit" class="btn btn-brand">Import by Date</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'scripts/bootstrap/bootstrap.bundle.js' %}"></script>
+<script src="{% static 'scripts/abrs_loader.js' %}"></script>
+
+<script>
+  // JS Logic (Preserved)
+  const SESSION_PAGE_KEY = 'abrs_current_page'; const SESSION_ENTRIES_KEY = 'abrs_entries_per_page'; const SESSION_STATUS_FILTER_KEY = 'abrs_status_filter'; const SESSION_SEARCH_KEY = 'abrs_search_query';
+  let searchQuery = ''; let currentPage = 1; let entriesPerPage = 10; let currentStatusFilter = ''; let abrsConnected = false; let allTableData = []; let filteredTableData = [];
+  function loadSessionState() { const p = sessionStorage.getItem(SESSION_PAGE_KEY); if (p) currentPage = parseInt(p); const e = sessionStorage.getItem(SESSION_ENTRIES_KEY); if (e) entriesPerPage = parseInt(e); const s = sessionStorage.getItem(SESSION_STATUS_FILTER_KEY); if (s) { currentStatusFilter = s; document.getElementById('statusFilter').value = s; } const q = sessionStorage.getItem(SESSION_SEARCH_KEY); if (q) { searchQuery = q; const i = document.getElementById('customSearchInput'); if (i) i.value = q; } }
+  function saveSessionState() { sessionStorage.setItem(SESSION_PAGE_KEY, currentPage); sessionStorage.setItem(SESSION_ENTRIES_KEY, entriesPerPage); sessionStorage.setItem(SESSION_STATUS_FILTER_KEY, currentStatusFilter); sessionStorage.setItem(SESSION_SEARCH_KEY, searchQuery); }
+  function clearSessionState() { sessionStorage.removeItem(SESSION_PAGE_KEY); sessionStorage.removeItem(SESSION_ENTRIES_KEY); sessionStorage.removeItem(SESSION_STATUS_FILTER_KEY); sessionStorage.removeItem(SESSION_SEARCH_KEY); }
+  document.addEventListener('DOMContentLoaded', function () { const n = performance.getEntriesByType('navigation')[0]?.type || (performance.navigation?.type === 1 ? 'reload' : 'navigate'); if (n === 'reload') loadSessionState(); else clearSessionState(); initSearchToggle(); checkAbrsConnection(); loadTableData(); setInterval(checkAbrsConnection, 2000); calculateStickyPositions(); resetImportButton(); });
+
+  function calculateStickyPositions() {
+    // Wait for table to be rendered
+    setTimeout(() => {
+      const table = document.getElementById('abrsTable');
+      if (!table) return;
+
+      const headerCells = table.querySelectorAll('thead th');
+      if (headerCells.length < 5) return;
+
+      let cumulativeWidth = 0;
+      const root = document.documentElement;
+
+      // Calculate positions based on actual cell widths
+      for (let i = 0; i < 5; i++) {
+        if (i > 0) {
+          root.style.setProperty(`--col${i}-left`, `${cumulativeWidth}px`);
+        }
+        if (i < 4) {
+          const cellWidth = headerCells[i].offsetWidth;
+          if (i === 0) {
+            root.style.setProperty(`--col1-width`, `${cellWidth}px`);
+          }
+          cumulativeWidth += cellWidth;
+        }
+      }
+    }, 100);
+  }
+  function initSearchToggle() { const t = document.getElementById('searchToggleBtn'); const w = document.getElementById('searchInputWrapper'); const i = document.getElementById('customSearchInput'); const c = document.getElementById('searchCloseBtn'); t.addEventListener('click', e => { e.stopPropagation(); if (!w.classList.contains('active')) { w.classList.add('active'); t.classList.add('active'); setTimeout(() => i.focus(), 300); } }); c.addEventListener('click', e => { e.stopPropagation(); w.classList.remove('active'); t.classList.remove('active'); i.value = ''; searchQuery = ''; currentPage = 1; saveSessionState(); applySearchFilter(); }); i.addEventListener('keyup', function () { const newSearchQuery = this.value.toLowerCase().trim(); if (newSearchQuery !== searchQuery) { searchQuery = newSearchQuery; saveSessionState(); applySearchFilter(); } }); document.addEventListener('click', e => { if (w.classList.contains('active') && !w.contains(e.target) && !t.contains(e.target)) { w.classList.remove('active'); t.classList.remove('active'); i.value = ''; searchQuery = ''; currentPage = 1; saveSessionState(); applySearchFilter(); } }); }
+  function applySearchFilter() {
+    // Reset to page 1 when searching
+    if (searchQuery !== '') {
+      currentPage = 1;
+      saveSessionState();
+    }
+
+    if (searchQuery === '') {
+      renderTableBodyFromFiltered();
+    } else {
+      const s = filteredTableData.filter(r => (r.serial_no || '').toLowerCase().includes(searchQuery) || (r.assembly_no || '').toLowerCase().includes(searchQuery));
+      renderSearchedData(s);
+    }
+  }
+  function applyStatusFilter(r = false) {
+    if (currentStatusFilter === '') {
+      filteredTableData = allTableData;
+    } else {
+      const c = parseInt(currentStatusFilter);
+      filteredTableData = allTableData.filter(row => row.status_code === c);
+    }
+
+    if (r) {
+      currentPage = 1;
+      saveSessionState();
+    }
+
+    // When status filter changes, also reset search to ensure we search in the new filtered data
+    applySearchFilter();
+  }
+  async function loadTableData() { try { const t = new Date().getTime(); const r = await fetch(`/api/abrs/table-data/?_=${t}`); const d = await r.json(); if (d.status === 'success') { renderTableHeaders(d.column_headers); renderTableBody(d.data); } else renderEmptyState(); } catch { renderEmptyState(); } }
+  function renderTableHeaders(h) { let x = `<th>S.No</th><th>Serial No</th><th>Assembly No</th><th>Action</th><th>Status</th>`; if (h && h.length) h.forEach(v => x += `<th>${v}</th>`); else for (let i = 1; i <= 13; i++)x += `<th>COL${i}</th>`; document.querySelector('#abrsTable thead tr').innerHTML = x; calculateStickyPositions(); }
+  function renderTableBody(d) {
+    if (!d || !d.length) {
+      renderEmptyState();
+      updatePaginationControls(0);
+      return;
+    }
+    console.log('Rendering table with', d.length, 'rows');
+    console.log('First row data:', d[0]);
+    allTableData = d;
+    applyStatusFilter();
+  }
+  function renderTableBodyFromFiltered() { renderSearchedData(filteredTableData); }
+
+  function renderSearchedData(data) {
+    const tbody = document.querySelector('#abrsTable tbody');
+    if (!data || !data.length) { tbody.innerHTML = `<tr><td colspan="20" class="text-center py-5 text-muted">No records found</td></tr>`; updatePaginationControls(0); return; }
+    const s = (currentPage - 1) * entriesPerPage; const e = s + entriesPerPage; const p = data.slice(s, e);
+    let h = '';
+    p.forEach((r, i) => {
+      const sno = s + i + 1; const sc = r.status_class || 'pending'; const hasA = r.assembly_no && r.assembly_no.trim() !== '' && r.assembly_no !== '-';
+      let btn = '';
+      if (hasA) {
+        if (r.status_code === 2) btn = `<button class="table-btn btn-push" onclick="pushToAbrs('${r.serial_no}','${r.assembly_no}')"><i class="fas fa-upload"></i>Push</button>`;
+        else if (r.status_code === 3) btn = `<button class="table-btn btn-repush" onclick="pushToAbrs('${r.serial_no}','${r.assembly_no}')"><i class="fas fa-redo"></i>Re-Push</button>`;
+        else btn = `<button class="table-btn btn-disabled" disabled><i class="fas fa-upload"></i>Push</button>`;
+      } else btn = `<button class="table-btn btn-get" onclick="getAssemblyFromAbrs('${r.serial_no}')"><i class="fas fa-download"></i>Get Assembly</button>`;
+
+      // Color-coding logic based on test count and push status
+      const testCount = r.test_count || 0;
+      const pushedColumns = r.pushed_columns || [];
+
+      let c = '';
+      r.col_values.forEach((v, colIndex) => {
+        let cellClass = 'text-center';
+
+        // Check if value is empty (not performed)
+        const isEmpty = !v || v === '-' || v.trim() === '';
+
+        if (isEmpty) {
+          // Tests not performed or empty → WHITE
+          cellClass = 'text-center col-white';
+        } else {
+          // Determine color based on test count and push status
+          // Treat test_count 0 or 1 as first test
+          if (testCount === 0 || testCount === 1) {
+            // First Test (Count = 0 or 1)
+            if (pushedColumns.includes(colIndex)) {
+              // Pushed → GREEN
+              cellClass = 'text-center col-green';
+            } else {
+              // Not pushed → WHITE
+              cellClass = 'text-center col-white';
+            }
+          } else if (testCount > 1) {
+            // Repeat Tests (Count > 1)
+            if (pushedColumns.includes(colIndex)) {
+              // Any pushed columns → GREEN
+              cellClass = 'text-center col-green';
+            } else {
+              // Current test columns not pushed → ORANGE
+              cellClass = 'text-center col-orange';
+            }
+          }
+        }
+
+        c += `<td class="${cellClass}">${v || '-'}</td>`;
+      });
+
+      // Status cell with full background color (following user_account pattern)
+      let statusCell = '';
+      if (r.status_class === 'pending') {
+        statusCell = `<td class="text-center status-cell-pending">${r.status_text}</td>`;
+      } else if (r.status_class === 'running') {
+        statusCell = `<td class="text-center status-cell-running">${r.status_text}</td>`;
+      } else if (r.status_class === 'pass') {
+        statusCell = `<td class="text-center status-cell-pass">${r.status_text}</td>`;
+      } else if (r.status_class === 'pushed') {
+        statusCell = `<td class="text-center status-cell-pushed">${r.status_text}</td>`;
+      } else if (r.status_class === 'fail') {
+        statusCell = `<td class="text-center status-cell-fail">${r.status_text}</td>`;
+      } else {
+        statusCell = `<td class="text-center status-cell-pending">${r.status_text}</td>`;
+      }
+
+      h += `<tr><td class="text-end font-weight-bold pe-3">${sno}</td><td class="font-weight-bold">${r.serial_no}</td><td>${r.assembly_no || '-'}</td><td class="text-center">${btn}</td>${statusCell}${c}</tr>`;
+    });
+    tbody.innerHTML = h; updatePaginationControls(data.length);
+    calculateStickyPositions(); // Recalculate positions after rendering
+  }
+
+  function updatePaginationControls(t) { const tp = Math.ceil(t / entriesPerPage); const c = document.getElementById('customPagination'); if (!c) return; let h = []; h.push(`<span class="text-muted small me-3">Total: ${t}</span>`); h.push(`<button class="pagination-btn prev-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>`); if (tp <= 7) { for (let i = 1; i <= tp; i++) h.push(`<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`); } else { h.push(`<button class="pagination-btn ${currentPage === 1 ? 'active' : ''}" onclick="goToPage(1)">1</button>`); if (currentPage > 3) h.push('<span class="pagination-ellipsis">...</span>'); let s = Math.max(2, currentPage - 1); let e = Math.min(tp - 1, currentPage + 1); for (let i = s; i <= e; i++) h.push(`<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`); if (currentPage < tp - 2) h.push('<span class="pagination-ellipsis">...</span>'); h.push(`<button class="pagination-btn ${currentPage === tp ? 'active' : ''}" onclick="goToPage(${tp})">${tp}</button>`); } h.push(`<button class="pagination-btn next-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === tp || tp === 0 ? 'disabled' : ''}>Next</button>`); h.push(`<select class="pagination-per-page" onchange="changeItemsPerPage(this.value)"><option value="10" ${entriesPerPage === 10 ? 'selected' : ''}>10 / page</option><option value="25" ${entriesPerPage === 25 ? 'selected' : ''}>25 / page</option><option value="50" ${entriesPerPage === 50 ? 'selected' : ''}>50 / page</option><option value="100" ${entriesPerPage === 100 ? 'selected' : ''}>100 / page</option></select>`); c.innerHTML = h.join(''); }
+  window.goToPage = function (p) { const t = Math.ceil(filteredTableData.length / entriesPerPage); if (p < 1 || (t > 0 && p > t)) return; currentPage = p; saveSessionState(); renderTableBodyFromFiltered(); };
+  window.changeItemsPerPage = function (v) { entriesPerPage = parseInt(v); currentPage = 1; saveSessionState(); renderTableBodyFromFiltered(); };
+  document.getElementById('statusFilter').addEventListener('change', function () { currentStatusFilter = this.value; saveSessionState(); applyStatusFilter(true); });
+  async function checkAbrsConnection() { const i = document.getElementById('abrsConnectionIndicator'); const importBtn = document.getElementById('importDataBtn'); try { const r = await fetch('/api/user_config/get_hmi_abrs/'); const d = await r.json(); if (d.abrs_connection === 1) { abrsConnected = true; i.className = 'connection-indicator connected'; i.innerHTML = '<i class="fas fa-check-circle"></i> Connected'; importBtn.disabled = false; } else { abrsConnected = false; i.className = 'connection-indicator disconnected'; i.innerHTML = '<i class="fas fa-times-circle"></i> Disconnected'; importBtn.disabled = true; } } catch { abrsConnected = false; i.className = 'connection-indicator disconnected'; i.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error'; importBtn.disabled = true; } }
+  function renderEmptyState() { document.querySelector('#abrsTable tbody').innerHTML = `<tr><td colspan="20" class="text-center py-5">No Data</td></tr>`; }
+  function getCsrfToken() { return document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''; }
+
+  // updated tabs logic for nav-pills
+  document.querySelectorAll('.tab-pill').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const tab = this.dataset.tab;
+      if (tab === 'serial') { document.getElementById('serialSearchSection').classList.remove('hidden'); document.getElementById('dateSearchSection').classList.add('hidden'); }
+      else { document.getElementById('dateSearchSection').classList.remove('hidden'); document.getElementById('serialSearchSection').classList.add('hidden'); }
+    });
+  });
+
+  // Robust modal closing function
+  function closeModalProperly(modalId) {
+    const modalEl = document.getElementById(modalId);
+    if (!modalEl) return;
+
+    // Get existing modal instance
+    let modal = bootstrap.Modal.getInstance(modalEl);
+
+    // If modal exists, dispose of it completely
+    if (modal) {
+      modal.dispose();
+    }
+
+    // Force cleanup with multiple attempts
+    const cleanup = () => {
+      // Remove all modal backdrops (sometimes multiple exist)
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        backdrop.remove();
+      });
+
+      // Reset body classes and styles
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.body.style.removeProperty('padding-right');
+
+      // Remove modal-specific classes that might be stuck
+      modalEl.classList.remove('show');
+      modalEl.style.display = 'none';
+      modalEl.setAttribute('aria-hidden', 'true');
+      modalEl.removeAttribute('aria-modal');
+      modalEl.removeAttribute('role');
+
+      // Remove any Bootstrap data attributes that might cause issues
+      modalEl.removeAttribute('data-bs-backdrop');
+      modalEl.removeAttribute('data-bs-keyboard');
+    };
+
+    // Immediate cleanup
+    setTimeout(cleanup, 50);
+
+    // Backup cleanup in case the first one fails
+    setTimeout(cleanup, 200);
+
+    // Final cleanup attempt
+    setTimeout(cleanup, 500);
+  }
+
+  // Function to reset modal button functionality
+  function resetImportButton() {
+    const importBtn = document.getElementById('importDataBtn');
+    if (importBtn) {
+      // Remove Bootstrap attributes to prevent conflicts
+      importBtn.removeAttribute('data-bs-toggle');
+      importBtn.removeAttribute('data-bs-target');
+
+      // Remove existing click handlers by cloning
+      const newBtn = importBtn.cloneNode(true);
+      importBtn.parentNode.replaceChild(newBtn, importBtn);
+
+      // Add programmatic click handler
+      newBtn.addEventListener('click', function () {
+        if (!abrsConnected) return;
+
+        // Ensure modal is completely clean before opening
+        const modalEl = document.getElementById('importSerialModal');
+
+        // Dispose any existing modal instance
+        const existingModal = bootstrap.Modal.getInstance(modalEl);
+        if (existingModal) {
+          existingModal.dispose();
+        }
+
+        // Create fresh modal instance and show
+        const modal = new bootstrap.Modal(modalEl, {
+          backdrop: 'static',
+          keyboard: true
+        });
+        modal.show();
+      });
+    }
+  }
+
+  document.getElementById('serialSearchForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const s = document.getElementById('serialNumberAutocomplete').value;
+    if (!s) return;
+
+    DialogManager.loading('Importing...');
+
+    try {
+      const r = await fetch('/api/abrs/import-by-serial/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ serial_number: s })
+      });
+
+      const d = await r.json();
+      DialogManager.closeLoading();
+
+      if (d.status === 'success') {
+        // Clear form first
+        document.getElementById('serialNumberAutocomplete').value = '';
+        document.getElementById('serialDropdown').style.display = 'none';
+
+        // Close modal properly
+        closeModalProperly('importSerialModal');
+
+        // Show success toast after modal is closed
+        setTimeout(() => {
+          // Remove all modal backdrops
+          document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+          });
+
+          // Reset body classes and styles
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+          document.body.style.removeProperty('padding-right');
+
+          // Show success toast
+          DialogManager.toast({
+            type: 'success',
+            message: d.message || 'Serial imported successfully'
+          });
+
+          // Reset to first page and reload table data
+          currentPage = 1;
+          saveSessionState();
+          loadTableData();
+
+          // Reset the import button functionality
+          resetImportButton();
+        }, 300);
+      } else {
+        // Show error toast with specific error message
+        DialogManager.toast({
+          type: 'error',
+          message: d.message || 'Failed to import serial'
+        });
+
+        // Clear the input field and reset form state
+        document.getElementById('serialNumberAutocomplete').value = '';
+        document.getElementById('serialDropdown').style.display = 'none';
+      }
+    } catch (e) {
+      DialogManager.closeLoading();
+      DialogManager.toast({ type: 'error', message: e.message });
+    }
+  });
+
+  // Date form submission handler
+  document.getElementById('dateSearchForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const fromDate = document.getElementById('fromDate').value;
+    const toDate = document.getElementById('toDate').value;
+
+    if (!fromDate || !toDate) {
+      DialogManager.toast({ type: 'error', message: 'Please select both from and to dates' });
+      return;
+    }
+
+    if (new Date(fromDate) > new Date(toDate)) {
+      DialogManager.toast({ type: 'error', message: 'From date cannot be later than to date' });
+      return;
+    }
+
+    DialogManager.loading('Importing data by date range...');
+
+    try {
+      const r = await fetch('/api/abrs/import-by-date/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({
+          from_date: fromDate,
+          to_date: toDate
+        })
+      });
+
+      const d = await r.json();
+      DialogManager.closeLoading();
+
+      if (d.status === 'success') {
+        // Clear form first
+        document.getElementById('fromDate').value = '';
+        document.getElementById('toDate').value = '';
+
+        // Close modal properly
+        closeModalProperly('importSerialModal');
+
+        // Show success toast after modal is closed
+        setTimeout(() => {
+          DialogManager.toast({
+            type: 'success',
+            message: d.message || `Successfully imported ${d.count || 0} records`
+          });
+
+          // Reset to first page and reload table data
+          currentPage = 1;
+          saveSessionState();
+          loadTableData();
+
+          // Reset the import button functionality
+          resetImportButton();
+        }, 300);
+      } else {
+        // Show error toast with specific error message
+        DialogManager.toast({
+          type: 'error',
+          message: d.message || 'Failed to import data by date'
+        });
+
+        // Clear the form fields
+        document.getElementById('fromDate').value = '';
+        document.getElementById('toDate').value = '';
+      }
+    } catch (e) {
+      DialogManager.closeLoading();
+      DialogManager.toast({ type: 'error', message: e.message || 'An error occurred while importing data' });
+    }
+  });
+  // (Autocomplete & Date Form logic truncated for brevity but assumed present)
+  document.getElementById('serialNumberAutocomplete').addEventListener('input', async function () { const q = this.value; const dd = document.getElementById('serialDropdown'); if (q.length < 1) { dd.style.display = 'none'; return; } try { const r = await fetch(`/api/abrs/search-serials/?q=${encodeURIComponent(q)}`); const d = await r.json(); if (d.serials && d.serials.length) { dd.innerHTML = ''; d.serials.forEach(s => { const div = document.createElement('div'); div.className = 'autocomplete-item-modern'; div.innerHTML = `<span>${s.number}</span> <span class="badge bg-secondary">${s.displayType}</span>`; div.onclick = () => { document.getElementById('serialNumberAutocomplete').value = s.number; dd.style.display = 'none'; }; dd.appendChild(div); }); dd.style.display = 'block'; } else dd.style.display = 'none'; } catch { dd.style.display = 'none'; } });
+  document.addEventListener('click', e => { if (!e.target.closest('#serialNumberAutocomplete')) document.getElementById('serialDropdown').style.display = 'none'; });
+  // Clear form when modal opens
+  document.getElementById('importSerialModal').addEventListener('shown.bs.modal', function () {
+    // Clear serial form
+    document.getElementById('serialNumberAutocomplete').value = '';
+    document.getElementById('serialDropdown').style.display = 'none';
+
+    // Clear date form
+    document.getElementById('fromDate').value = '';
+    document.getElementById('toDate').value = '';
+
+    // Focus on the active tab's first input
+    const activeTab = document.querySelector('.tab-pill.active');
+    if (activeTab && activeTab.dataset.tab === 'serial') {
+      document.getElementById('serialNumberAutocomplete').focus();
+    } else if (activeTab && activeTab.dataset.tab === 'date') {
+      document.getElementById('fromDate').focus();
+    }
+  });
+
+  // Additional modal cleanup when closed by other means (X button, Escape, etc.)
+  document.getElementById('importSerialModal').addEventListener('hidden.bs.modal', function () {
+    // Force cleanup in case modal gets stuck
+    setTimeout(() => {
+      // Remove any remaining backdrops
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        backdrop.remove();
+      });
+
+      // Reset body state
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.body.style.removeProperty('padding-right');
+
+      // Reset modal state
+      const modalEl = document.getElementById('importSerialModal');
+      modalEl.classList.remove('show');
+      modalEl.style.display = 'none';
+      modalEl.setAttribute('aria-hidden', 'true');
+      modalEl.removeAttribute('aria-modal');
+      modalEl.removeAttribute('role');
+    }, 50);
+  });
+
+  // Handle Escape key globally to force modal cleanup
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      // Check if any modal is open and force cleanup
+      const openModal = document.querySelector('.modal.show');
+      if (openModal) {
+        setTimeout(() => {
+          document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+          });
+          document.body.classList.remove('modal-open');
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+          document.body.style.removeProperty('padding-right');
+        }, 100);
+      }
+    }
+  });
+
+  window.pushToAbrs = function (s, a) {
+    DialogManager.confirmAction({
+      title: 'Push Data?',
+      text: `Push serial ${s}?`,
+      confirmText: 'Yes, Push',
+      url: '/api/abrs/push-data/',
+      method: 'POST',
+      data: { serial_no: s, assembly_no: a },
+      onSuccess: (response) => {
+        console.log('Push successful, response:', response);
+        console.log('Reloading table data...');
+        loadTableData();
+      }
+    });
+  };
+  window.getAssemblyFromAbrs = function (s) { DialogManager.confirmAction({ title: 'Get Assembly?', text: `Fetch assembly for ${s}?`, confirmText: 'Get', url: '/api/abrs/get-assembly/', method: 'POST', data: { serial_no: s }, onSuccess: () => loadTableData() }); };
+</script>
+{% endblock %}

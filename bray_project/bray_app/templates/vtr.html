@@ -1,0 +1,70 @@
+{% extends 'base_new.html' %}
+{% block header_title %}
+  VTR
+{% endblock %}
+{% load static %}
+
+
+{% block content %}
+
+<div class="container mt-4" style="max-width: 1190px;">
+  
+
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">VTR Report</h4>
+      <button class="btn btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#reportForm">
+      </button>
+    </div>
+
+    <div id="reportForm" class="collapse show" >
+      <div class="card-body" style="text-align: center;" >
+       <form method="POST">
+  {% csrf_token %}
+  <!-- Hidden input to hold final value -->
+  <input type="hidden" name="valve_serial" id="finalSerialInput" />
+
+  <div class="row mb-4" style="justify-content: center;">
+    <label for="valveSerialSelect" class="col-sm-2 col-form-label fw-bold text-end" style="color: #007d99;">
+      Valve Serial No
+    </label>
+    <div class="col-sm-6">
+      <select id="valveSerialSelect" class="form-control" style="width: 100%;" name="valve_serial">
+        <option value="" disabled selected>Select or enter a serial number</option>
+        {% for serial in serial_numbers %}
+          <option value="{{ serial }}">{{ serial }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <button type="submit" class="btn px-4 me-2" style="background-color: #007d99; color: white;">Download</button>
+    <a href="/dashboard/" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+</form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#valveSerialSelect').select2({
+      tags: true,
+      placeholder: "Enter or choose...",
+      width: '100%'
+    });
+
+    $('form').on('submit', function () {
+      const finalVal = $('#valveSerialSelect').val();
+      $('#finalSerialInput').val(finalVal);
+    });
+  });
+</script>

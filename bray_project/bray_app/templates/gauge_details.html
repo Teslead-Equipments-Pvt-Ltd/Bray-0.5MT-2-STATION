@@ -1,0 +1,822 @@
+{% extends 'base_new.html' %}
+{% block header_title %}Gauge Details{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  /* ===== Container & Scroll ===== */
+  .table-container-wrapper {
+    height: calc(100vh - 135px);
+    /* Adjusted to ensure footer is always visible */
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .card {
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .card-body {
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    min-height: 0;
+  }
+
+  /* ===== Hint Bar ===== */
+  .edit-hint {
+    padding: 0.5rem 1rem;
+    background: #e7f3ff;
+    color: #0066cc;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid #b3d9ff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .edit-hint .close-btn {
+    background: transparent;
+    border: none;
+    color: #0066cc;
+    font-size: 1.125rem;
+    cursor: pointer;
+    margin-left: auto;
+    line-height: 1;
+  }
+
+  /* ===== Table Styling ===== */
+  .table-responsive {
+    flex: 1;
+    overflow: auto;
+    background: white;
+    min-height: 0;
+    max-height: calc(100vh - 240px);
+  }
+
+  /* Scrollbar Styling */
+  .table-responsive::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #E21A34;
+    border-radius: 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #c9162e;
+  }
+
+  .table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #e9ecef;
+    color: black;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid #edf2f7;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .table tbody td {
+    padding: 0.5rem;
+    vertical-align: middle;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+  }
+
+  .table tbody tr:first-child td {
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* Inputs in table */
+  .table .form-control,
+  .table .form-select {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.5rem;
+    border-color: #e2e8f0;
+  }
+
+  .table .form-control:focus,
+  .table .form-select:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 1px rgba(49, 130, 206, 0.2);
+  }
+
+  .table .form-control::placeholder {
+    color: #cbd5e0;
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  .btn-icon {
+    border: none;
+    background: transparent;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .btn-icon.delete {
+    color: #dc3545;
+  }
+
+  .btn-icon.delete:hover {
+    background: #ffe5e5;
+  }
+
+  .btn-add-row {
+    background: #48bb78;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .btn-add-row:hover {
+    background: #38a169;
+  }
+
+  .btn-add-row:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+  }
+
+  /* Footer Controls */
+  .footer-controls {
+    padding: 0.75rem 1rem;
+    background: white;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+  }
+
+  .invalid-feedback {
+    font-size: 0.75rem;
+  }
+
+  /* Overdue Row Styling */
+  .table tbody tr.overdue-row {
+    background-color: #ffebee !important;
+  }
+
+  .table tbody tr.overdue-row td {
+    background-color: #ffebee !important;
+    border-color: #ffcdd2 !important;
+  }
+
+  .table tbody tr.overdue-row .form-control,
+  .table tbody tr.overdue-row .form-select {
+    background-color: #ffebee !important;
+  }
+</style>
+
+<div class="container-fluid table-container-wrapper">
+  <div class="card">
+
+    <!-- Hint -->
+    <div class="edit-hint" id="editHint">
+      <div>💡 Tip: Modify values directly in the table cells • Click '+' to add new rows • Click Trash to remove</div>
+      <button class="close-btn" onclick="document.getElementById('editHint').style.display='none'">&times;</button>
+    </div>
+
+    <!-- MAIN FORM -->
+    <form id="gaugeForm" style="display: flex; flex-direction: column; height: 100%;">
+      {% csrf_token %}
+
+      <!-- Table Area -->
+      <div class="table-responsive">
+        <table class="table" id="gaugeTable">
+          <thead>
+            <tr>
+
+              <th class="d-none">INSTRUMENT</th> <!-- Hidden ID -->
+              <th class="text-end pe-3" style="width: 150px;">SERIAL NUMBER</th>
+              <th class="text-start">RANGE</th>
+              <th class="text-start">TYPE</th>
+              <th class="text-start">CAL DONE DATE</th>
+              <th class="text-start">CAL DUE DATE</th>
+              <th class="text-start">STATION ID</th>
+              <th class="text-start">STATUS</th>
+              <th style="width: 50px;">
+                <button type="button" class="btn-add-row" id="addRowBtn" onclick="addRow()" title="Add Row">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="gaugeTableBody">
+            <tr>
+              <td colspan="8" class="text-center py-4">Loading gauges...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="footer-controls">
+        <!-- <button type="button" class="btn btn-light border" onclick="loadGauges()">Refresh</button> -->
+        <button type="submit" class="btn btn-success px-4">SAVE</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script src="{% static 'scripts/dialog-manager.js' %}"></script>
+<script src="{% static 'scripts/form-validator.js' %}"></script>
+<script>
+  let existingSerials = [];
+  let instrumentTypes = [];
+  let hasUnsavedChanges = false;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadGauges();
+
+    // Validation - Allow any characters
+    const validator = new FormValidator('gaugeForm', {
+      serial_number: {
+        rules: [ValidationRules.required],
+        asyncRule: (val, signal, form) => new Promise((resolve) => {
+          setTimeout(() => {
+            const currentId = form.querySelector('[name="gauge_id"]')?.value;
+            const exists = existingSerials.some(serial => {
+              // Need to fetch full data to get IDs - simplified for now
+              return serial.toLowerCase() === val.toLowerCase();
+            });
+            resolve(exists ? "Serial number already exists" : true);
+          }, 300);
+        })
+      }
+    });
+  });
+
+  // ============================================
+  // LOAD DATA
+  // ============================================
+  function loadGauges() {
+    // No full screen loader here to prevent conflict with Save action loader
+    fetch("/api/gauge_details/")
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          return DialogManager.toast({ type: 'error', message: data.error });
+        }
+
+        existingSerials = data.existing_serials || [];
+        instrumentTypes = data.instrument_types || [];
+
+        renderTable(data.gauges || []);
+      })
+      .catch(err => {
+        console.error(err);
+        DialogManager.toast({ type: 'error', message: 'Failed to load gauges.' });
+      });
+  }
+
+  function renderTable(gauges) {
+    const tbody = document.getElementById("gaugeTableBody");
+    tbody.innerHTML = "";
+
+    if (gauges.length === 0) {
+      // Always maintain at least one row - add empty row automatically
+      tbody.appendChild(createRow(null));
+    } else {
+      gauges.forEach(g => {
+        tbody.appendChild(createRow(g));
+      });
+    }
+
+    // Reset unsaved changes flag after loading
+    hasUnsavedChanges = false;
+    updateAddButtonState();
+
+    // Check for overdue rows after rendering
+    setTimeout(checkAllOverdueRows, 200);
+  }
+
+  // ============================================
+  // ROW CREATION
+  // ============================================
+  function createRow(g) {
+    const row = document.createElement('tr');
+
+    const typeOpts = instrumentTypes.map(t =>
+      `<option value="${t}" ${g && g.gauge_type === t ? 'selected' : ''}>${t}</option>`
+    ).join('');
+
+    row.innerHTML = `
+     
+      
+      <td class="d-none">
+        <input type="text" name="station1_gauge_name[]" value="${g ? g.gauge_id : ''}">
+      </td>
+
+      <td>
+        <input type="text" class="form-control text-end" name="station1_serial[]" 
+               value="${g ? g.gauge_ser_no : ''}" placeholder="Enter Serial No" 
+               onblur="checkDuplicateSerial(this)" oninput="trackChanges()">
+        <div class="invalid-feedback"></div>
+      </td>
+
+      <td>
+        <input type="text" class="form-control" name="station1_range[]" 
+               value="${g ? g.range : ''}" placeholder="e.g. 0-100" 
+               onblur="validateRange(this)" oninput="trackChanges()">
+        <div class="invalid-feedback"></div>
+      </td>
+
+      <td>
+        <select class="form-select" name="station1_type[]" onchange="clearError(this); trackChanges()">
+          <option value="">Select</option>
+          ${typeOpts}
+        </select>
+        <div class="invalid-feedback">Type required</div>
+      </td>
+
+      <td>
+        <input type="date" class="form-control done-date" name="station1_done_date[]" 
+               value="${g ? g.cal_done_date : ''}" onblur="validateDates(this)" onchange="validateDates(this); trackChanges(); checkOverdueStatus(this)">
+        <div class="invalid-feedback">Required</div>
+      </td>
+
+      <td>
+        <input type="date" class="form-control due-date" name="station1_due_date[]" 
+               value="${g ? g.cal_due_date : ''}" onblur="validateDates(this)" onchange="validateDates(this); trackChanges(); checkOverdueStatus(this)">
+        <div class="invalid-feedback">Required</div>
+      </td>
+
+      <td>
+        <select class="form-select station-select" name="station1_id[]" onchange="clearError(this); validateStationRowCount(this); trackChanges();">
+          <option value="">Select</option>
+          <option value="1" ${g && g.station_id == 1 ? 'selected' : ''}>Station 1</option>
+          <option value="2" ${g && g.station_id == 2 ? 'selected' : ''}>Station 2</option>
+    
+        </select>
+        <div class="invalid-feedback">Required</div>
+      </td>
+
+
+      <td>
+        <select class="form-select status-select ${g && g.active_status == 1 ? 'status-enabled' : (g && g.active_status == 0 ? 'status-disabled' : '')}" 
+          name="station1_status[]" 
+          onchange="clearError(this); validateStationRowCountOnStatusChange(this); trackChanges(); checkOverdueStatus(this); this.className = 'form-select status-select ' + (this.value === 'Enable' ? 'status-enabled' : (this.value === 'Disable' ? 'status-disabled' : ''));">
+          <option value="">Select</option>
+          <option value="Enable" ${g && g.active_status == 1 ? 'selected' : ''}>Enable</option>
+          <option value="Disable" ${g && g.active_status == 0 ? 'selected' : ''}>Disable</option>
+        </select>
+        <div class="invalid-feedback">Required</div>
+      </td>
+
+
+       <td class="text-center">
+        <button type="button" class="btn-icon delete" onclick="removeRow(this)" title="Delete">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+        <input type="hidden" name="station1_instrument_id[]" value="${g ? g.gauge_id : ''}">
+      </td>
+    `;
+
+    // Check if this row should be highlighted as overdue
+    setTimeout(() => checkOverdueStatus(row.querySelector('.due-date')), 100);
+
+    return row;
+  }
+
+  function addRow() {
+    // Check if there are any unsaved new rows (rows without database ID)
+    const tbody = document.getElementById("gaugeTableBody");
+    const rows = tbody.querySelectorAll('tr');
+
+    for (let row of rows) {
+      const idInput = row.querySelector('input[name="station1_instrument_id[]"]');
+      const id = idInput ? idInput.value : '';
+
+      // If row has no ID, it's a new unsaved row
+      if (!id) {
+        DialogManager.toast({
+          type: 'warning',
+          message: 'Please save or delete the current new row before adding another one.'
+        });
+        return;
+      }
+    }
+
+    tbody.appendChild(createRow(null));
+    hasUnsavedChanges = true;
+    updateAddButtonState();
+
+    // Scroll to bottom
+    const container = document.querySelector('.table-responsive');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function removeRow(btn) {
+    const tbody = document.getElementById("gaugeTableBody");
+    
+    // Check if only one row exists - prevent deletion
+    if (tbody.rows.length <= 1) {
+      DialogManager.toast({ type: 'warning', message: 'Cannot delete the last row. At least one row must remain.' });
+      return;
+    }
+
+    const row = btn.closest('tr');
+    const idInput = row.querySelector('input[name="station1_instrument_id[]"]');
+    const id = idInput ? idInput.value : '';
+
+    if (id) {
+      // Delete from DB
+      DialogManager.confirmAction({
+        title: "Delete Gauge?",
+        text: "Delete this gauge from the database?",
+        confirmText: "Yes, Delete",
+        url: `/api/gauge_details/delete/${id}/`,
+        method: 'POST',
+        onSuccess: () => {
+          row.remove();
+          hasUnsavedChanges = false;
+          setTimeout(updateAddButtonState, 100);
+        }
+      });
+    } else {
+      // Just remove from DOM
+      row.remove();
+      hasUnsavedChanges = false;
+      setTimeout(updateAddButtonState, 100);
+    }
+  }
+
+  function checkEmptyTable() {
+    const tbody = document.getElementById("gaugeTableBody");
+    if (tbody.rows.length === 0) {
+      // Always maintain at least one row
+      tbody.appendChild(createRow(null));
+      updateAddButtonState();
+    }
+  }
+
+  // ============================================
+  // TRACK CHANGES & UPDATE ADD BUTTON STATE
+  // ============================================
+  function trackChanges() {
+    hasUnsavedChanges = true;
+    // Update button state based on row completion, not just changes
+    setTimeout(updateAddButtonState, 100); // Small delay to ensure DOM is updated
+  }
+
+  function updateAddButtonState() {
+    const addBtn = document.getElementById('addRowBtn');
+
+    // Check if there are any unsaved new rows (rows without database ID)
+    const tbody = document.getElementById("gaugeTableBody");
+    const rows = tbody.querySelectorAll('tr');
+    let hasUnsavedNewRow = false;
+
+    for (let row of rows) {
+      const idInput = row.querySelector('input[name="station1_instrument_id[]"]');
+      const id = idInput ? idInput.value : '';
+
+      // If row has no ID, it's a new unsaved row
+      if (!id) {
+        hasUnsavedNewRow = true;
+        break;
+      }
+    }
+
+    if (addBtn) {
+      if (hasUnsavedNewRow) {
+        addBtn.disabled = true;
+        addBtn.title = "Save or delete the current new row before adding another one";
+      } else {
+        addBtn.disabled = false;
+        addBtn.title = "Add Row";
+      }
+    }
+  }
+
+  // ============================================
+  // OVERDUE DATE CHECKING
+  // ============================================
+  function checkOverdueStatus(element) {
+    const row = element.closest('tr');
+    if (!row) return;
+
+    const dueInput = row.querySelector('.due-date');
+    const statusSelect = row.querySelector('.status-select');
+
+    if (!dueInput || !statusSelect) return;
+
+    const dueDate = dueInput.value;
+    const status = statusSelect.value;
+
+    // Check overdue for any gauge (enabled or disabled) with due dates
+    if (dueDate && (status === 'Enable' || status === 'Disable')) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(dueDate);
+      due.setHours(0, 0, 0, 0);
+
+      if (due < today) {
+        // Due date is in the past - mark as overdue
+        row.classList.add('overdue-row');
+      } else {
+        // Due date is today or future - remove overdue
+        row.classList.remove('overdue-row');
+      }
+    } else {
+      // No due date or no status selected - remove overdue
+      row.classList.remove('overdue-row');
+    }
+  }
+
+  function checkAllOverdueRows() {
+    const tbody = document.getElementById("gaugeTableBody");
+    const rows = tbody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+      const dueInput = row.querySelector('.due-date');
+      if (dueInput) {
+        checkOverdueStatus(dueInput);
+      }
+    });
+  }
+
+  // ============================================
+  // VALIDATION LOGIC (Re-implemented with DialogManager)
+  // ============================================
+  function markError(input, msg) {
+    input.classList.add('is-invalid');
+    const fb = input.parentNode.querySelector('.invalid-feedback');
+    if (fb) { fb.textContent = msg; fb.style.display = 'block'; }
+  }
+
+  function clearError(input) {
+    input.classList.remove('is-invalid');
+    const fb = input.parentNode.querySelector('.invalid-feedback');
+    if (fb) { fb.style.display = 'none'; }
+  }
+
+  function checkDuplicateSerial(input) {
+    const val = input.value.trim();
+    if (!val) return markError(input, 'Required');
+
+    // Check local duplicates
+    const allInputs = document.querySelectorAll('input[name="station1_serial[]"]');
+    for (let inp of allInputs) {
+      if (inp !== input && inp.value.trim().toLowerCase() === val.toLowerCase()) {
+        return markError(input, 'Duplicate in table');
+      }
+    }
+
+    // Server Check
+    const row = input.closest('tr');
+    const id = row.querySelector('input[name="station1_instrument_id[]"]').value;
+    const url = `/api/gauge_details/check-serial/?serial=${encodeURIComponent(val)}` + (id ? `&exclude_id=${id}` : '');
+
+    fetch(url).then(r => r.json()).then(d => {
+      if (d.exists) markError(input, 'Exists in DB');
+      else clearError(input);
+    });
+  }
+
+  function validateRange(input) {
+    const val = input.value.trim();
+    if (!val) return markError(input, 'Required');
+
+    if (!/^\d+-\d+$/.test(val)) return markError(input, 'Format: 0-100');
+
+    const parts = val.split('-').map(Number);
+    if (parts[0] >= parts[1]) return markError(input, 'Invalid range');
+
+    clearError(input);
+  }
+
+  function validateDates(input) {
+    const row = input.closest('tr');
+    const doneInp = row.querySelector('.done-date');
+    const dueInp = row.querySelector('.due-date');
+    const statusSelect = row.querySelector('.status-select');
+
+    const done = doneInp.value ? new Date(doneInp.value) : null;
+    const due = dueInp.value ? new Date(dueInp.value) : null;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+    const status = statusSelect.value;
+
+    clearError(doneInp);
+    clearError(dueInp);
+
+    // Only validate dates if status is "Enable"
+    if (status === 'Enable') {
+      // Cal Due Date must be at least 1 day after Cal Done Date (tomorrow onwards)
+      if (done && due) {
+        const minDueDate = new Date(done);
+        minDueDate.setDate(minDueDate.getDate() + 1); // Minimum 1 day after done date
+        if (due < minDueDate) {
+          return markError(dueInp, 'Must be at least 1 day after Done Date');
+        }
+      }
+
+      // Cal Due Date cannot be in the past (must be from tomorrow onwards)
+      if (due && due < tomorrow) {
+        return markError(dueInp, 'Must be from tomorrow onwards');
+      }
+
+      if (due && !done) return markError(doneInp, 'Required if Due Set');
+    }
+  }
+
+  function validateStationRowCount(select) {
+    validateCount(select.value, select);
+  }
+
+  function validateStationRowCountOnStatusChange(select) {
+    if (select.value !== 'Enable') return;
+
+    const row = select.closest('tr');
+    const stSel = row.querySelector('.station-select');
+    const doneInp = row.querySelector('.done-date');
+    const dueInp = row.querySelector('.due-date');
+
+    // Check date validation when enabling
+    const done = doneInp.value ? new Date(doneInp.value) : null;
+    const due = dueInp.value ? new Date(dueInp.value) : null;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+
+    let dateError = false;
+
+    if (done && due) {
+      const minDueDate = new Date(done);
+      minDueDate.setDate(minDueDate.getDate() + 1);
+      if (due < minDueDate) {
+        dateError = true;
+      }
+    }
+
+    if (due && due < tomorrow) {
+      dateError = true;
+    }
+
+    if (dateError) {
+      DialogManager.toast({
+        type: 'warning',
+        message: 'Please fix the due date first. Due date must be at least 1 day after done date and from tomorrow onwards.'
+      });
+      select.value = "Disable"; // Reset to disable
+      return;
+    }
+
+    // Validate station count if dates are valid
+    if (stSel && stSel.value) validateCount(stSel.value, select);
+  }
+
+  function validateCount(stationId, triggerElement) {
+    if (!stationId) return;
+    let count = 0;
+    document.querySelectorAll('#gaugeTableBody tr').forEach(r => {
+      const s = r.querySelector('.station-select').value;
+      const st = r.querySelector('.status-select').value;
+      if (s === stationId && st === 'Enable') count++;
+    });
+
+    if (count > 10) {
+      DialogManager.toast({ type: 'warning', message: `Station ${stationId} limit exceeded (Max 10).` });
+      triggerElement.value = ""; // Reset
+    }
+  }
+
+  // ============================================
+  // FORM SUBMIT
+  // ============================================
+  document.getElementById('gaugeForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Quick Validation Check for existing validation errors (like duplicates)
+    const invis = document.querySelectorAll('.is-invalid');
+    if (invis.length > 0) {
+      return DialogManager.toast({ type: 'error', message: 'Please fix validation errors.' });
+    }
+
+    const tbody = document.getElementById("gaugeTableBody");
+    const rows = tbody.querySelectorAll('tr');
+    let hasError = false;
+    let hasContent = false;
+
+    rows.forEach(row => {
+      // Gather values
+      const serial = row.querySelector('input[name="station1_serial[]"]').value.trim();
+      const range = row.querySelector('input[name="station1_range[]"]').value.trim();
+      const type = row.querySelector('select[name="station1_type[]"]').value;
+      const done = row.querySelector('.done-date').value;
+      const due = row.querySelector('.due-date').value;
+      const station = row.querySelector('.station-select').value;
+      const status = row.querySelector('.status-select').value;
+
+      const isEmpty = !serial && !range && !type && !done && !due && !station && !status;
+      const hasAnyValue = serial || range || type || done || due || station || status;
+
+      if (isEmpty) {
+        // Completely empty row - mark all fields as required
+        const inputs = row.querySelectorAll('input.form-control, select.form-select');
+        inputs.forEach(el => {
+          if (!el.closest('td').classList.contains('d-none')) {
+            markError(el, 'Required');
+            hasError = true;
+          }
+        });
+        return;
+      }
+
+      if (hasAnyValue) {
+        hasContent = true;
+        // If row has any value, ALL fields are required
+        const inputs = row.querySelectorAll('input.form-control, select.form-select');
+        inputs.forEach(el => {
+          if (!el.value && !el.closest('td').classList.contains('d-none')) {
+            markError(el, 'Required');
+            hasError = true;
+          }
+        });
+      }
+    });
+
+    if (hasError) return DialogManager.toast({ type: 'error', message: 'Fill all fields for active rows.' });
+    if (!hasContent) return DialogManager.toast({ type: 'warning', message: 'No data to save.' });
+
+    DialogManager.loading("Saving...", "Processing details");
+    const fd = new FormData(document.getElementById('gaugeForm'));
+
+    fetch('/api/gauge_details/save/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+      body: fd
+    })
+      .then(r => r.json())
+      .then(res => {
+        DialogManager.closeLoading();
+        if (res.success) {
+          DialogManager.toast({ type: 'success', message: 'Saved successfully.' });
+          hasUnsavedChanges = false;
+          loadGauges(); // This will reset the button state
+        } else {
+          DialogManager.toast({ type: 'error', message: res.error || 'Save failed.' });
+        }
+      })
+      .catch(err => {
+        DialogManager.closeLoading();
+        console.error(err);
+        DialogManager.toast({ type: 'error', message: 'Server error.' });
+      });
+  });
+
+</script>
+
+{% endblock %}
