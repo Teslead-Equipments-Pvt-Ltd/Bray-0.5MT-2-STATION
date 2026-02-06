@@ -59,20 +59,20 @@ def get_pressure_duration(request):
         }, status=500)
 
 
-def get_syncstatus(request):
-    try:
-        response = TestleadSmartsyncx.read_holding_registers(HmiAddress.SYNC_OR_NON_SYNC_MODE, 1)
-        if hasattr(response, 'registers'):
-            sync_status = response.registers[0]
-        else:
-            # Handle error (e.g., connection failed)
-            print(f"Modbus Read Error: {response}")
-            sync_status = 0
-    except Exception as e:
-        print(f"Modbus Exception: {e}")
-        sync_status = 0
+# def get_syncstatus(request):
+#     try:
+#         response = TestleadSmartsyncx.read_holding_registers(HmiAddress.SYNC_OR_NON_SYNC_MODE, 1)
+#         if hasattr(response, 'registers'):
+#             sync_status = response.registers[0]
+#         else:
+#             # Handle error (e.g., connection failed)
+#             print(f"Modbus Read Error: {response}")
+#             sync_status = 0
+#     except Exception as e:
+#         print(f"Modbus Exception: {e}")
+#         sync_status = 0
         
-    return JsonResponse({"status": "success", "syncstatus": sync_status})
+#     return JsonResponse({"status": "success", "syncstatus": sync_status})
 
 
 @csrf_exempt

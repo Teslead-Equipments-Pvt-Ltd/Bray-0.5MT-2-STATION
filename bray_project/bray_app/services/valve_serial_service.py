@@ -85,7 +85,10 @@ class ValveSerialService:
             # Ensure ABRS connection is updated with latest config
             update_abrs_connection()
             
-            with pyodbc.connect(abrs_db.get_connection_string()) as abrs_connection:
+            # Add timeout parameter for fast failure when ABRS is disconnected
+            with pyodbc.connect(abrs_db.get_connection_string(), timeout=2) as abrs_connection:
+                # Set query timeout to 2 seconds
+                abrs_connection.timeout = 2
                 abrs_cursor = abrs_connection.cursor()
                 abrs_cursor.execute("""
                     SELECT assemblyId FROM abrsAssembly 

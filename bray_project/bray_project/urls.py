@@ -42,7 +42,7 @@ urlpatterns = [
     
     path("", include("bray_app.urls.pages.category_page_urls")),
     path("", include("bray_app.urls.pages.valvesize_page_urls")),
-    path("", include("bray_app.urls.pages.single_live_page_urls")),
+    # path("", include("bray_app.urls.pages.single_live_page_urls")),
     path("", include("bray_app.urls.pages.sync_live_page_urls")),
 
     
@@ -103,7 +103,7 @@ urlpatterns = [
     #Category API urls
     path("api/", include("bray_app.urls.api.category_api_urls")),
     path("api/", include("bray_app.urls.api.valvesize_api_urls")),
-    path("api/", include("bray_app.urls.api.single_live_page_api_urls")),
+    # path("api/", include("bray_app.urls.api.single_live_page_api_urls")),
     path("", include("bray_app.urls.api.sync_page_api_urls")),
     
     # Employee API urls

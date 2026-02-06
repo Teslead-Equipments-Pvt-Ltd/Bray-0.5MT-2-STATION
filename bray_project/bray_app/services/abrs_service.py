@@ -44,9 +44,12 @@ def get_abrs_connection():
     if not abrs_db.server or not abrs_db.database:
         raise ValueError("ABRS server and database must be configured")
     
-    # Use the same connection string method as configuration API
+    # Use the same connection string method as configuration API with timeout
     conn_str = abrs_db.get_connection_string()
-    return pyodbc.connect(conn_str)
+    conn = pyodbc.connect(conn_str, timeout=2)
+    # Set query timeout to 2 seconds
+    conn.timeout = 2
+    return conn
 
 
 class ABRSService:
@@ -96,12 +99,14 @@ class ABRSService:
         try:
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    SELECT SERIAL_NO, ASSEMBLY_NO, STATUS,
-                           COL1_VALUE, COL2_VALUE, COL3_VALUE, COL4_VALUE, COL5_VALUE,
-                           COL6_VALUE, COL7_VALUE, COL8_VALUE, COL9_VALUE, COL10_VALUE,
-                           COL11_VALUE, COL12_VALUE, COL13_VALUE, PUSHED_COLUMNS
-                    FROM abrs_result_status
-                    ORDER BY id DESC
+                    SELECT a.SERIAL_NO, a.ASSEMBLY_NO, a.STATUS,
+                           a.COL1_VALUE, a.COL2_VALUE, a.COL3_VALUE, a.COL4_VALUE, a.COL5_VALUE,
+                           a.COL6_VALUE, a.COL7_VALUE, a.COL8_VALUE, a.COL9_VALUE, a.COL10_VALUE,
+                           a.COL11_VALUE, a.COL12_VALUE, a.COL13_VALUE, a.PUSHED_COLUMNS,
+                           COALESCE(s.Count_No, 0) as test_count
+                    FROM abrs_result_status a
+                    LEFT JOIN serial_tbl s ON a.SERIAL_NO = s.Serial_No
+                    ORDER BY a.id DESC
                 """)
                 rows = cursor.fetchall()
                 
@@ -109,13 +114,18 @@ class ABRSService:
                 for idx, row in enumerate(rows, 1):
                     status_code = row[2]
                     status_info = ABRSService.get_status_display(status_code)
+                    test_count = row[17] if row[17] is not None else 0
                     
                     # Parse pushed columns (comma-separated string like "0,1,2,3")
                     pushed_columns = []
                     if row[16]:  # PUSHED_COLUMNS field
                         try:
                             pushed_columns = [int(x) for x in row[16].split(',') if x.strip()]
-                        except:
+                            # Debug logging for first few rows
+                            if idx <= 3:
+                                print(f"Row {idx}: Serial={row[0]}, PUSHED_COLUMNS raw='{row[16]}', parsed={pushed_columns}, test_count={test_count}")
+                        except Exception as e:
+                            print(f"Error parsing PUSHED_COLUMNS for row {idx}: {e}")
                             pushed_columns = []
                     
                     row_data = {
@@ -126,7 +136,8 @@ class ABRSService:
                         'status_text': status_info['text'],
                         'status_class': status_info['class'],
                         'col_values': [row[i] if row[i] else '-' for i in range(3, 16)],
-                        'pushed_columns': pushed_columns  # Array of column indices that were pushed
+                        'pushed_columns': pushed_columns,  # Array of column indices that were pushed
+                        'test_count': test_count  # Count from serial_tbl
                     }
                     abrs_data.append(row_data)
                     
@@ -630,6 +641,17 @@ class ABRSService:
             dict: Result with success status and message
         """
         try:
+            # First check if ABRS connection is available
+            try:
+                abrs_conn = get_abrs_connection()
+                abrs_conn.close()  # Close test connection
+            except Exception as conn_error:
+                # Silently handle connection error without printing
+                return {
+                    'success': False,
+                    'message': 'ABRS disconnected. Data saved locally.'
+                }
+            
             # Get test data from local database
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -724,15 +746,18 @@ class ABRSService:
                             WHERE assemblyId = ? AND testDetailId = ?
                         """, [test_value, assembly_no, test_id])
                         success_count += 1
+                        # Track which column was successfully pushed (col1 -> 0, col2 -> 1, etc.)
                         col_index = int(col_key.replace('col', '')) - 1
                         pushed_columns.append(col_index)
-                         # Count results vs durations
+                        
+                        # Count results vs durations
                         # COL4, COL6, COL8, COL10, COL12 are test results (even indices from 4)
                         # COL5, COL7, COL9, COL11, COL13 are durations (odd indices from 5)
                         if col_key in ['col4', 'col6', 'col8', 'col10', 'col12']:
                             pushed_results += 1
                         elif col_key in ['col5', 'col7', 'col9', 'col11', 'col13']:
                             pushed_durations += 1
+                        
                         print(f"Successfully updated {col_key}")
                     else:
                         # Skip if row doesn't exist
@@ -755,12 +780,22 @@ class ABRSService:
             # Store pushed columns information in database as comma-separated string
             if success_count > 0:
                 pushed_cols_str = ','.join(map(str, pushed_columns))
+                print(f"Updating PUSHED_COLUMNS to: {pushed_cols_str} for Serial={serial_no}, Assembly={assembly_no}")
                 with connection.cursor() as cursor:
                     cursor.execute("""
                         UPDATE abrs_result_status 
                         SET PUSHED_COLUMNS = %s
                         WHERE SERIAL_NO = %s AND ASSEMBLY_NO = %s
                     """, [pushed_cols_str, serial_no, assembly_no])
+                    
+                    # Verify the update
+                    cursor.execute("""
+                        SELECT PUSHED_COLUMNS FROM abrs_result_status 
+                        WHERE SERIAL_NO = %s AND ASSEMBLY_NO = %s
+                    """, [serial_no, assembly_no])
+                    verify_row = cursor.fetchone()
+                    if verify_row:
+                        print(f"Verified PUSHED_COLUMNS in DB: {verify_row[0]}")
             
             print(f"Summary: Success={success_count}, Failed={len(failed_tests)}, Skipped={skipped_count}, Pushed columns: {pushed_columns}, Results={pushed_results}, Durations={pushed_durations}")
             
@@ -786,7 +821,7 @@ class ABRSService:
                     'failed_tests': []
                 }
             
-             # Build detailed success message
+            # Build detailed success message
             message_parts = []
             if pushed_results > 0:
                 message_parts.append(f'{pushed_results} test result(s)')
@@ -797,7 +832,7 @@ class ABRSService:
             
             return {
                 'success': True,
-                'message': f'Successfully pushed {success_count} test values to ABRS database',
+                'message': detailed_message,
                 'success_count': success_count,
                 'pushed_results': pushed_results,
                 'pushed_durations': pushed_durations
