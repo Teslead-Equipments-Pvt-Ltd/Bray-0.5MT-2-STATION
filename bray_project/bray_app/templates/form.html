@@ -78,16 +78,16 @@
                 </div>
             </div>
 
-            <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.5rem;"></div>
+            <!-- <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.5rem;"></div> -->
 
             <!-- Sync/Non-Sync Mode Display -->
-            <div class="d-flex align-items-center bg-white rounded border shadow-sm px-3 py-2">
-                <!-- <i class="fas fa-sync-alt me-2 text-primary"></i> -->
-                <!-- <span class="fw-bold text-secondary small text-uppercase me-2">Mode:</span> -->
-                <span id="sync-nonsync-mode" class="badge bg-info text-white">Loading...</span>
-            </div>
+            <!-- <div class="d-flex align-items-center bg-white rounded border shadow-sm px-3 py-2"> -->
+            <!-- <i class="fas fa-sync-alt me-2 text-primary"></i> -->
+            <!-- <span class="fw-bold text-secondary small text-uppercase me-2">Mode:</span> -->
+            <!-- <span id="sync-nonsync-mode" class="badge bg-info text-white">Loading...</span> -->
+            <!-- </div> -->
 
-            <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.5rem;"></div>
+            <!-- <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.5rem;"></div> -->
 
             <div class="d-flex align-items-center bg-white rounded border shadow-sm px-2 py-1">
                 <label for="selectstation" class="me-2 fw-bold text-secondary small text-uppercase mb-0"><i
@@ -586,42 +586,42 @@
     <script src="{% static 'scripts/dialog-manager.js' %}"></script>
     <script>
 
-        // Check HMI/ABRS connections and sync/non-sync mode
-        function checkConnections() {
-            fetch('/api/user_config/get_hmi_abrs/')
-                .then(response => response.json())
-                .then(data => {
-                    const syncNonSyncMode = data.sync_nonsync_status;
-                    const modeElement = document.getElementById('sync-nonsync-mode');
+        // // Check HMI/ABRS connections and sync/non-sync mode
+        // function checkConnections() {
+        //     fetch('/api/user_config/get_hmi_abrs/')
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             const syncNonSyncMode = data.sync_nonsync_status;
+        //             // const modeElement = document.getElementById('sync-nonsync-mode');
 
-                    if (modeElement && syncNonSyncMode) {
-                        modeElement.textContent = syncNonSyncMode;
+        //             if (modeElement && syncNonSyncMode) {
+        //                 modeElement.textContent = syncNonSyncMode;
 
-                        // Update badge color based on mode
-                        modeElement.classList.remove('bg-info', 'bg-success', 'bg-warning');
-                        if (syncNonSyncMode.toLowerCase().includes('sync')) {
-                            modeElement.classList.add('bg-success');
-                        } else if (syncNonSyncMode.toLowerCase().includes('non')) {
-                            modeElement.classList.add('bg-warning');
-                        } else {
-                            modeElement.classList.add('bg-info');
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking connections:', error);
-                    const modeElement = document.getElementById('sync-nonsync-mode');
-                    if (modeElement) {
-                        modeElement.textContent = 'Error';
-                        modeElement.classList.remove('bg-info', 'bg-success', 'bg-warning');
-                        modeElement.classList.add('bg-danger');
-                    }
-                });
-        }
+        //                 // Update badge color based on mode
+        //                 modeElement.classList.remove('bg-info', 'bg-success', 'bg-warning');
+        //                 if (syncNonSyncMode.toLowerCase().includes('sync')) {
+        //                     modeElement.classList.add('bg-success');
+        //                 } else if (syncNonSyncMode.toLowerCase().includes('non')) {
+        //                     modeElement.classList.add('bg-warning');
+        //                 } else {
+        //                     modeElement.classList.add('bg-info');
+        //                 }
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error checking connections:', error);
+        //             const modeElement = document.getElementById('sync-nonsync-mode');
+        //             if (modeElement) {
+        //                 modeElement.textContent = 'Error';
+        //                 modeElement.classList.remove('bg-info', 'bg-success', 'bg-warning');
+        //                 modeElement.classList.add('bg-danger');
+        //             }
+        //         });
+        // }
 
-        // Start polling on page load
-        checkConnections();
-        setInterval(checkConnections, 5000); // Check every 5 seconds
+        // // Start polling on page load
+        // checkConnections();
+        // setInterval(checkConnections, 5000); // Check every 5 seconds
 
 
         // --- Station Logic ---
@@ -712,7 +712,8 @@
 
 
         // Variable Init
-        var test_mode = 0;
+        // SYNC ONLY: Form now only works in sync mode, so test_mode is always 1
+        var test_mode = 1;  // 1 = Sync mode
 
         var loadbutton_status1 = false; var station1_saved = false;
         let all_testnames = [], all_pressure = [], all_duration = [], all_testid = [];
@@ -726,20 +727,20 @@
 
 
 
-        function get_sync_status() {
-            fetch('/api/newform/get_syncstatus/')
-                .then(r => r.json())
-                .then(d => {
-                    test_mode = d.syncstatus;
-                    console.log('Test mode:', test_mode);
-                    restoreButtonStates();
-                })
-                .catch(e => {
-                    console.error('Sync status API error:', e);
-                    test_mode = 0;
-                    restoreButtonStates();
-                });
-        }
+        // function get_sync_status() {
+        //     fetch('/api/newform/get_syncstatus/')
+        //         .then(r => r.json())
+        //         .then(d => {
+        //             test_mode = d.syncstatus;
+        //             console.log('Test mode:', test_mode);
+        //             restoreButtonStates();
+        //         })
+        //         .catch(e => {
+        //             console.error('Sync status API error:', e);
+        //             test_mode = 0;
+        //             restoreButtonStates();
+        //         });
+        // }
 
         function restoreButtonStates() {
             const s1Saved = localStorage.getItem('station1_saved') === 'true';
@@ -748,6 +749,7 @@
             station1_saved = s1Saved;
             station2_saved = s2Saved;
 
+            // SYNC ONLY: Always in sync mode
             if (test_mode === 1) {
                 if (s1Saved) {
                     const btn2 = document.getElementById('next_btn_s2');
@@ -763,18 +765,21 @@
                     const btn2 = document.getElementById('next_btn_s2');
                     if (btn2) btn2.disabled = false;
                 }
-            } else {
-                // Ensure buttons are enabled in non-sync mode (or follow other logic)
-                const btn1 = document.getElementById('next_btn_s1');
-                if (btn1) btn1.disabled = false;
-
-                const btn2 = document.getElementById('next_btn_s2');
-                if (btn2) btn2.disabled = false;
             }
+            // NON-SYNC ONLY: Commented out
+            // else {
+            //     // Ensure buttons are enabled in non-sync mode (or follow other logic)
+            //     const btn1 = document.getElementById('next_btn_s1');
+            //     if (btn1) btn1.disabled = false;
+
+            //     const btn2 = document.getElementById('next_btn_s2');
+            //     if (btn2) btn2.disabled = false;
+            // }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            get_sync_status();
+            // SYNC ONLY: Commented out since test_mode is hardcoded to 1 (sync mode)
+            // get_sync_status();
             get_abrs_status();
 
             // Check ABRS status every 5 seconds
@@ -2040,7 +2045,7 @@
                 localStorage.setItem('station2_saved', 'false');
                 localStorage.setItem('station2_pressure_data', JSON.stringify({ test_name: all_testnames2, pressure: all_pressure2, duration: all_duration2, testid: all_testid2, degree: [open_degree_s2, close_degree_s2] }));
 
-                // In sync mode, sync station 1 data with station 2 data after API response
+                // SYNC ONLY: Always sync station 1 data with station 2 data after API response
                 if (test_mode === 1) {
                     console.log('Sync mode: Syncing Station 2 data to Station 1');
                     // Sync station 1 data with station 2 data
@@ -2319,25 +2324,27 @@
                 const saveText1 = document.getElementById('save_text_s1');
                 if (saveIcon1) saveIcon1.className = 'fas fa-save';
                 if (saveText1) saveText1.textContent = 'Save';
-            } else {
-                // Non-sync mode: Re-enable load button 2
-                document.getElementById('load_btn_s2').disabled = false;
-                // Re-enable testing parameters if they were disabled
-                ['standard_s2', 'size_s2', 'class_s2', 'body_material_s2', 'type_s2'].forEach(id => {
-                    document.getElementById(id).disabled = false;
-                });
-
-                // Always re-enable pressure unit in both stations
-                const pu1 = document.getElementById('pressureunit_s1');
-                const pu2 = document.getElementById('pressureunit_s2');
-                pu1.disabled = false;
-                pu1.style.pointerEvents = 'auto';
-                pu2.disabled = false;
-                pu2.style.pointerEvents = 'auto';
-
-                // Clear pressure unit master lock
-                localStorage.removeItem('pressure_unit_master');
             }
+            // NON-SYNC ONLY: Commented out
+            // else {
+            //     // Non-sync mode: Re-enable load button 2
+            //     document.getElementById('load_btn_s2').disabled = false;
+            //     // Re-enable testing parameters if they were disabled
+            //     ['standard_s2', 'size_s2', 'class_s2', 'body_material_s2', 'type_s2'].forEach(id => {
+            //         document.getElementById(id).disabled = false;
+            //     });
+
+            //     // Always re-enable pressure unit in both stations
+            //     const pu1 = document.getElementById('pressureunit_s1');
+            //     const pu2 = document.getElementById('pressureunit_s2');
+            //     pu1.disabled = false;
+            //     pu1.style.pointerEvents = 'auto';
+            //     pu2.disabled = false;
+            //     pu2.style.pointerEvents = 'auto';
+
+            //     // Clear pressure unit master lock
+            //     localStorage.removeItem('pressure_unit_master');
+            // }
 
             // Hide green ticks and reset save buttons
             hideAssemblyStatus('s2');
@@ -2397,7 +2404,7 @@
                 localStorage_saved: localStorage.getItem('station2_saved')
             });
 
-            // In sync mode, check if both stations are saved
+            // SYNC ONLY: Always check if both stations are saved
             if (test_mode === 1) {
                 const s1Saved = localStorage.getItem('station1_saved') === 'true';
                 const s2Saved = localStorage.getItem('station2_saved') === 'true';
@@ -2820,9 +2827,6 @@
 
                 case 'show_tick':
                     // Status is 0 and assembly ID exists - show green tick
-                    // console.log('Showing green tick for station:', station);
-                    // console.log('Assembly ID from local DB:', data.assembly_id);
-                    // console.log('Assembly input field value:', assemblyInput ? assemblyInput.value : 'Field not found');
                     showGreenTick(station);
                     break;
 

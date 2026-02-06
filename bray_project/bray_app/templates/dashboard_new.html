@@ -460,119 +460,120 @@ window.addEventListener("resize", updateDebug);
         // Check the mode from the first test (all tests should have the same mode)
         const testMode = data.tests[0]?.mode;
 
-        // Handle NON-SYNC mode
-        if (testMode === 'Non_Sync') {
+        // NON-SYNC ONLY: Comment out since dashboard now only works for sync mode
+        // // Handle NON-SYNC mode
+        // if (testMode === 'Non_Sync') {
 
-          const count = data.no_of_stations;
+        //   const count = data.no_of_stations;
 
-          // ONE station → NO LOCK
-          if (count === 1) {
-            localStorage.removeItem("lockedStation");
-          }
+        //   // ONE station → NO LOCK
+        //   if (count === 1) {
+        //     localStorage.removeItem("lockedStation");
+        //   }
 
-          if (count === 2) {
-            localStorage.setItem("lockedStation", "true");
-          }
+        //   if (count === 2) {
+        //     localStorage.setItem("lockedStation", "true");
+        //   }
 
-          let html = `
-        <div style="text-align:left; max-width: 500px; margin: 0 auto;">
-      `;
+        //   let html = `
+        // <div style="text-align:left; max-width: 500px; margin: 0 auto;">
+        // `;
 
-          data.tests.forEach((test, index) => {
-            html += `
-          <div style="
-            margin-bottom: 16px;
-            padding: 20px;
-            // background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background: #667eea;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-          ">
-            <div style="color: white; margin-bottom: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 18px; font-weight: 600;">
-                  Station ${test.id}
-                </span>
-                <span style="
-                  background: rgba(255,255,255,0.2);
-                  padding: 4px 12px;
-                  border-radius: 20px;
-                  font-size: 12px;
-                  font-weight: 500;
-                ">
-                  Incomplete
-                </span>
-              </div>
-              <div style="
-                font-size: 14px;
-                opacity: 0.95;
-                padding: 8px 0;
-                border-top: 1px solid rgba(255,255,255,0.2);
-              ">
-                <strong>Serial No:</strong> ${test.serial_no}
-              </div>
-            </div>
+        //   data.tests.forEach((test, index) => {
+        //     html += `
+        //   <div style="
+        //     margin-bottom: 16px;
+        //     padding: 20px;
+        //     // background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        //     background: #667eea;
+        //     border-radius: 12px;
+        //     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        //     transition: transform 0.2s;
+        //   ">
+        //     <div style="color: white; margin-bottom: 12px;">
+        //       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        //         <span style="font-size: 18px; font-weight: 600;">
+        //           Station ${test.id}
+        //         </span>
+        //         <span style="
+        //           background: rgba(255,255,255,0.2);
+        //           padding: 4px 12px;
+        //           border-radius: 20px;
+        //           font-size: 12px;
+        //           font-weight: 500;
+        //         ">
+        //           Incomplete
+        //         </span>
+        //       </div>
+        //       <div style="
+        //         font-size: 14px;
+        //         opacity: 0.95;
+        //         padding: 8px 0;
+        //         border-top: 1px solid rgba(255,255,255,0.2);
+        //       ">
+        //         <strong>Serial No:</strong> ${test.serial_no}
+        //       </div>
+        //     </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 16px;">
-              <button 
-                class="btn btn-sm"
-                onclick="continueTest('${test.id}')"
-                style="
-                  flex: 1;
-                  background: white;
-                  color: #667eea;
-                  border: none;
-                  padding: 10px 20px;
-                  border-radius: 8px;
-                  font-weight: 600;
-                  font-size: 14px;
-                  cursor: pointer;
-                  transition: all 0.3s;
-                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                "
-                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
-                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
-              >
-                ▶ Continue
-              </button>
+        //     <div style="display: flex; gap: 10px; margin-top: 16px;">
+        //       <button 
+        //         class="btn btn-sm"
+        //         onclick="continueTest('${test.id}')"
+        //         style="
+        //           flex: 1;
+        //           background: white;
+        //           color: #667eea;
+        //           border: none;
+        //           padding: 10px 20px;
+        //           border-radius: 8px;
+        //           font-weight: 600;
+        //           font-size: 14px;
+        //           cursor: pointer;
+        //           transition: all 0.3s;
+        //           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        //         "
+        //         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+        //         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
+        //       >
+        //         ▶ Continue
+        //       </button>
 
-              <button 
-                class="btn btn-sm"
-                onclick="deleteTest('${test.id}','${test.serial_no}')"
-                style="
-                  flex: 1;
-                  background: rgba(220, 53, 69, 0.9);
-                  color: white;
-                  border: none;
-                  padding: 10px 20px;
-                  border-radius: 8px;
-                  font-weight: 600;
-                  font-size: 14px;
-                  cursor: pointer;
-                  transition: all 0.3s;
-                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                "
-                onmouseover="this.style.background='rgba(200, 35, 51, 1)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
-                onmouseout="this.style.background='rgba(220, 53, 69, 0.9)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
-              >
-                🗑 Delete
-              </button>
-            </div>
-          </div>
-        `;
-          });
+        //       <button 
+        //         class="btn btn-sm"
+        //         onclick="deleteTest('${test.id}','${test.serial_no}')"
+        //         style="
+        //           flex: 1;
+        //           background: rgba(220, 53, 69, 0.9);
+        //           color: white;
+        //           border: none;
+        //           padding: 10px 20px;
+        //           border-radius: 8px;
+        //           font-weight: 600;
+        //           font-size: 14px;
+        //           cursor: pointer;
+        //           transition: all 0.3s;
+        //           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        //         "
+        //         onmouseover="this.style.background='rgba(200, 35, 51, 1)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+        //         onmouseout="this.style.background='rgba(220, 53, 69, 0.9)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
+        //       >
+        //         🗑 Delete
+        //       </button>
+        //     </div>
+        //   </div>
+        // `;
+        //   });
 
-          html += `</div>`;
+        //   html += `</div>`;
 
-          DialogManager.alert({
-            title: 'Incomplete Tests Found',
-            message: html,
-            allowOutsideClick: true
-          });
-        }
+        //   DialogManager.alert({
+        //     title: 'Incomplete Tests Found',
+        //     message: html,
+        //     allowOutsideClick: true
+        //   });
+        // }
         // Handle SYNC mode
-        else if (testMode === 'Sync') {
+        if (testMode === 'Sync') {
           // Build message with all serial numbers and test info
           let serialNumbers = data.tests.map(test => test.serial_no).join(', ');
 
@@ -630,44 +631,46 @@ window.addEventListener("resize", updateDebug);
 
 
 
-  function continueTest(id) {
-    if (id === '1') {
-      window.location.href = '/single_page/';
-    } else if (id === '2') {
-      window.location.href = '/single_page/';
-    }
-  }
+  // NON-SYNC ONLY: Comment out since dashboard now only works for sync mode
+  // function continueTest(id) {
+  //   if (id === '1') {
+  //     window.location.href = '/single_page/';
+  //   } else if (id === '2') {
+  //     window.location.href = '/single_page/';
+  //   }
+  // }
 
 
-  function deleteTest(stationNum, serialNo) {
-    DialogManager.confirmAction({
-      title: 'Confirm Delete',
-      text: `Delete incomplete test for Serial No: <b>${serialNo}</b>?`,
-      confirmText: 'Yes, Delete',
-      cancelText: 'Cancel',
-      url: `/api/dashboard/delete_incomplete_test/${stationNum}/${serialNo}/`,
-      method: 'POST',
-      onSuccess: () => {
-        // Clear only keys starting with station{stationNum}_
-        const prefix = `station${stationNum}_`;
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith(prefix)) {
-            localStorage.removeItem(key);
-          }
-        });
+  // NON-SYNC ONLY: Comment out since dashboard now only works for sync mode
+  // function deleteTest(stationNum, serialNo) {
+  //   DialogManager.confirmAction({
+  //     title: 'Confirm Delete',
+  //     text: `Delete incomplete test for Serial No: <b>${serialNo}</b>?`,
+  //     confirmText: 'Yes, Delete',
+  //     cancelText: 'Cancel',
+  //     url: `/api/dashboard/delete_incomplete_test/${stationNum}/${serialNo}/`,
+  //     method: 'POST',
+  //     onSuccess: () => {
+  //       // Clear only keys starting with station{stationNum}_
+  //       const prefix = `station${stationNum}_`;
+  //       Object.keys(localStorage).forEach(key => {
+  //         if (key.startsWith(prefix)) {
+  //           localStorage.removeItem(key);
+  //         }
+  //       });
 
-        fetch('/api/dashboard/check_incomplete_test/')
-          .then(res => res.json())
-          .then(data => {
-            if (data.found) {
-              window.location.href = '/single_page/';
-            } else {
-              window.location.reload();
-            }
-          });
-      }
-    });
-  }
+  //       fetch('/api/dashboard/check_incomplete_test/')
+  //         .then(res => res.json())
+  //         .then(data => {
+  //           if (data.found) {
+  //             window.location.href = '/single_page/';
+  //           } else {
+  //             window.location.reload();
+  //           }
+  //         });
+  //     }
+  //   });
+  // }
 
 
   // Function to delete all sync tests
@@ -748,15 +751,17 @@ window.addEventListener("resize", updateDebug);
             allowOutsideClick: true,
 
             onConfirm: () => {
-              // Redirect based on mode
+              // SYNC ONLY: Dashboard now only works for sync mode
               if (testMode === 'Sync') {
                 window.location.href = '/sync_page/';
-              } else if (testMode === 'Non_Sync') {
-                window.location.href = '/single_page/';
-              } else {
-                // Fallback to single_page if mode is unknown
-                window.location.href = '/single_page/';
               }
+              // NON-SYNC ONLY: Commented out
+              // else if (testMode === 'Non_Sync') {
+              //   window.location.href = '/single_page/';
+              // } else {
+              //   // Fallback to single_page if mode is unknown
+              //   window.location.href = '/single_page/';
+              // }
             }
           });
         } else {

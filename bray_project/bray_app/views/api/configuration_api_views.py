@@ -95,6 +95,7 @@ class ABRSDatabase:
             f'DATABASE={self.database};'
             'Trusted_Connection=yes;'
             'TrustServerCertificate=yes;'
+            'Connection Timeout=2;'  # 2 second timeout for fast failure
         )
     
     def test_connection(self):
@@ -104,8 +105,10 @@ class ABRSDatabase:
             if not self.server or not self.database:
                 return False
             
-            # Create a new connection and test it
-            with pyodbc.connect(self.get_connection_string()) as conn:
+            # Create a new connection and test it with timeout
+            with pyodbc.connect(self.get_connection_string(), timeout=2) as conn:
+                # Set query timeout to 2 seconds
+                conn.timeout = 2
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")
                 result = cursor.fetchone()
@@ -281,12 +284,12 @@ def get_hmi_abrs_api(request):
     except Exception as e:
         print(f"Error getting gauge calibration alerts: {e}")
 
-    sync_nonsync_status = ""
-    sync_nonsync_mode = getstatus(HmiAddress.SYNC_OR_NON_SYNC_MODE)
-    if sync_nonsync_mode == 1:
-        sync_nonsync_status = "Sync Mode"
-    else:
-        sync_nonsync_status = "Non-Sync Mode"
+    # sync_nonsync_status = ""
+    # sync_nonsync_mode = getstatus(HmiAddress.SYNC_OR_NON_SYNC_MODE)
+    # if sync_nonsync_mode == 1:
+    #     sync_nonsync_status = "Sync Mode"
+    # else:
+    #     sync_nonsync_status = "Non-Sync Mode"
 
     return JsonResponse({
         "hmi_connection": hmi_status,
@@ -296,8 +299,8 @@ def get_hmi_abrs_api(request):
         "alarm_s2": alarm_s2_value,
         "alarm_s2_name": alarm_s2_name,
         "recent_alarms": recent_alarms,
-        "gauge_calibration_alerts": gauge_calibration_alerts,
-        "sync_nonsync_status":sync_nonsync_status
+        "gauge_calibration_alerts": gauge_calibration_alerts
+        # "sync_nonsync_status":sync_nonsync_status
     })
 
 

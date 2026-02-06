@@ -554,21 +554,21 @@
   }
 
   .status-cell-pass {
-    background-color: #d1fae5 !important;
-    color: #065f46 !important;
-    font-weight: 600 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border: 1px solid #34d399 !important;
-  }
-
-  .status-cell-pushed {
     background-color: #fed7aa !important;
     color: #9a3412 !important;
     font-weight: 600 !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border: 1px solid #fb923c !important;
+  }
+
+  .status-cell-pushed {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #34d399 !important;
   }
 
   .status-cell-fail {
@@ -592,13 +592,13 @@
   }
 
   .table tbody tr:hover .status-cell-pass {
-    background-color: #a7f3d0 !important;
-    border-color: #10b981 !important;
+    background-color: #fdba74 !important;
+    border-color: #ea580c !important;
   }
 
   .table tbody tr:hover .status-cell-pushed {
-    background-color: #fdba74 !important;
-    border-color: #ea580c !important;
+    background-color: #a7f3d0 !important;
+    border-color: #10b981 !important;
   }
 
   .table tbody tr:hover .status-cell-fail {
@@ -606,15 +606,38 @@
     border-color: #ef4444 !important;
   }
 
-  /* ===== Pushed Value Highlighting ===== */
-  .pushed-value {
+  /* ===== Column Color Coding Based on Test Count and Push Status ===== */
+  /* White - First test, not pushed */
+  .col-white {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+  }
+
+  /* Green - Pushed columns */
+  .col-green {
     background-color: #d1fae5 !important;
     color: #065f46 !important;
     font-weight: 600 !important;
   }
 
-  .table tbody tr:hover .pushed-value {
+  /* Orange - Repeat test, current test columns not pushed */
+  .col-orange {
+    background-color: #fed7aa !important;
+    color: #9a3412 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Hover effects */
+  .table tbody tr:hover .col-white {
+    background-color: #f9fafb !important;
+  }
+
+  .table tbody tr:hover .col-green {
     background-color: #a7f3d0 !important;
+  }
+
+  .table tbody tr:hover .col-orange {
+    background-color: #fdba74 !important;
   }
 
   /* ===== Modal Styles (Updated to Standard) ===== */
@@ -884,7 +907,17 @@
   }
   async function loadTableData() { try { const t = new Date().getTime(); const r = await fetch(`/api/abrs/table-data/?_=${t}`); const d = await r.json(); if (d.status === 'success') { renderTableHeaders(d.column_headers); renderTableBody(d.data); } else renderEmptyState(); } catch { renderEmptyState(); } }
   function renderTableHeaders(h) { let x = `<th>S.No</th><th>Serial No</th><th>Assembly No</th><th>Action</th><th>Status</th>`; if (h && h.length) h.forEach(v => x += `<th>${v}</th>`); else for (let i = 1; i <= 13; i++)x += `<th>COL${i}</th>`; document.querySelector('#abrsTable thead tr').innerHTML = x; calculateStickyPositions(); }
-  function renderTableBody(d) { if (!d || !d.length) { renderEmptyState(); updatePaginationControls(0); return; } allTableData = d; applyStatusFilter(); }
+  function renderTableBody(d) {
+    if (!d || !d.length) {
+      renderEmptyState();
+      updatePaginationControls(0);
+      return;
+    }
+    console.log('Rendering table with', d.length, 'rows');
+    console.log('First row data:', d[0]);
+    allTableData = d;
+    applyStatusFilter();
+  }
   function renderTableBodyFromFiltered() { renderSearchedData(filteredTableData); }
 
   function renderSearchedData(data) {
@@ -901,17 +934,44 @@
         else btn = `<button class="table-btn btn-disabled" disabled><i class="fas fa-upload"></i>Push</button>`;
       } else btn = `<button class="table-btn btn-get" onclick="getAssemblyFromAbrs('${r.serial_no}')"><i class="fas fa-download"></i>Get Assembly</button>`;
 
-      // Build column cells with green background ONLY for pushed columns
-      // Exclude COL1 (Open Torque), COL2 (Close Torque), and COL3 (Valve Cycle Test) from green background
-      const isPushed = r.status_code === 3;
-      const pushedColumns = r.pushed_columns || [];  // Array of column indices that were pushed
+      // Color-coding logic based on test count and push status
+      const testCount = r.test_count || 0;
+      const pushedColumns = r.pushed_columns || [];
+
       let c = '';
       r.col_values.forEach((v, colIndex) => {
-        // Only apply green background if this specific column was pushed
-        // AND it's not COL1 (index 0), COL2 (index 1), or COL3 (index 2)
-        // Only COL4-13 (index 3-12) can have green background
-        const shouldHighlight = isPushed && pushedColumns.includes(colIndex) && colIndex >= 3;
-        const cellClass = shouldHighlight ? 'text-center pushed-value' : 'text-center';
+        let cellClass = 'text-center';
+
+        // Check if value is empty (not performed)
+        const isEmpty = !v || v === '-' || v.trim() === '';
+
+        if (isEmpty) {
+          // Tests not performed or empty → WHITE
+          cellClass = 'text-center col-white';
+        } else {
+          // Determine color based on test count and push status
+          // Treat test_count 0 or 1 as first test
+          if (testCount === 0 || testCount === 1) {
+            // First Test (Count = 0 or 1)
+            if (pushedColumns.includes(colIndex)) {
+              // Pushed → GREEN
+              cellClass = 'text-center col-green';
+            } else {
+              // Not pushed → WHITE
+              cellClass = 'text-center col-white';
+            }
+          } else if (testCount > 1) {
+            // Repeat Tests (Count > 1)
+            if (pushedColumns.includes(colIndex)) {
+              // Any pushed columns → GREEN
+              cellClass = 'text-center col-green';
+            } else {
+              // Current test columns not pushed → ORANGE
+              cellClass = 'text-center col-orange';
+            }
+          }
+        }
+
         c += `<td class="${cellClass}">${v || '-'}</td>`;
       });
 
@@ -1250,7 +1310,21 @@
     }
   });
 
-  window.pushToAbrs = function (s, a) { DialogManager.confirmAction({ title: 'Push Data?', text: `Push serial ${s}?`, confirmText: 'Yes, Push', url: '/api/abrs/push-data/', method: 'POST', data: { serial_no: s, assembly_no: a }, onSuccess: () => loadTableData() }); };
+  window.pushToAbrs = function (s, a) {
+    DialogManager.confirmAction({
+      title: 'Push Data?',
+      text: `Push serial ${s}?`,
+      confirmText: 'Yes, Push',
+      url: '/api/abrs/push-data/',
+      method: 'POST',
+      data: { serial_no: s, assembly_no: a },
+      onSuccess: (response) => {
+        console.log('Push successful, response:', response);
+        console.log('Reloading table data...');
+        loadTableData();
+      }
+    });
+  };
   window.getAssemblyFromAbrs = function (s) { DialogManager.confirmAction({ title: 'Get Assembly?', text: `Fetch assembly for ${s}?`, confirmText: 'Get', url: '/api/abrs/get-assembly/', method: 'POST', data: { serial_no: s }, onSuccess: () => loadTableData() }); };
 </script>
 {% endblock %}
