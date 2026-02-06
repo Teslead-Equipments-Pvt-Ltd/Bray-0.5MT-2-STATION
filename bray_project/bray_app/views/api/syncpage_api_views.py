@@ -206,7 +206,7 @@ def start_auto_test_station1(stationNum):
     s1_machine_mode     = getstatus(HmiAddress.S1_MACHINE_MODE)       # 0=Auto
     s1_test_type        = getstatus(HmiAddress.S1_TEST_TYPE)
     s1_hmi_test_type    = getstatus(HmiAddress.S1_HIM_TEST_TYPE)
-    s1_cycle_start_stop = getstatus(HmiAddress.S1_CYCLE_START_STOP)
+    s1_cycle_start_stop = getstatus(HmiAddress.S1_CYCLE_START_STOP_STATUS)
 
     response = {
         "station_enabled": True,
@@ -248,7 +248,7 @@ def start_auto_test_station2(stationNum):
     s2_machine_mode     = getstatus(HmiAddress.S2_MACHINE_MODE)       # 0=Auto
     s2_test_type        = getstatus(HmiAddress.S2_TEST_TYPE)
     s2_hmi_test_type    = getstatus(HmiAddress.S2_HIM_TEST_TYPE)
-    s2_cycle_start_stop = getstatus(HmiAddress.S2_CYCLE_START_STOP)
+    s2_cycle_start_stop = getstatus(HmiAddress.S2_CYCLE_START_STOP_STATUS)
 
     response = {
         "station_enabled": True,
