@@ -166,7 +166,7 @@
             <div class="label">SET PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s1-set-psr">00000</div>
-              <div class="unit" id="set-psr-unit">BAR</div>
+              <div class="unit" id="set-psr-unit">unit</div>
             </div>
           </div>
         </div>
@@ -175,7 +175,7 @@
             <div class="label">SET DURATION</div>
             <div class="value-group">
               <div class="value" id="s1-set-dur">00000</div>
-              <div class="unit">SECS</div>
+              <div class="unit">sec</div>
             </div>
           </div>
         </div>
@@ -184,7 +184,7 @@
             <div class="label">S1 ACTUAL CLAMPING PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s1-actual-clamping">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -193,7 +193,7 @@
             <div class="label">S1 ACTUAL PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s1-actual-pressure">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -202,7 +202,7 @@
             <div class="label">S1-ACTUAL DURATION</div>
             <div class="value-group">
               <div class="value" id="s1-actual-dur">00000</div>
-              <div class="unit dur">SECS</div>
+              <div class="unit dur">sec</div>
             </div>
           </div>
         </div>
@@ -211,7 +211,7 @@
             <div class="label">S1 START PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s1-start-pressure">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@
             <div class="label">S1 END PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s1-end-pressure">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -256,7 +256,7 @@
             <div class="label">SET PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s2-set-psr">00000</div>
-              <div class="unit" id="set-psr-unit-2">BAR</div>
+              <div class="unit" id="set-psr-unit-2">unit</div>
             </div>
           </div>
         </div>
@@ -265,7 +265,7 @@
             <div class="label">SET DURATION</div>
             <div class="value-group">
               <div class="value" id="s2-set-dur">00000</div>
-              <div class="unit dur">SECS</div>
+              <div class="unit dur">sec</div>
             </div>
           </div>
         </div>
@@ -274,7 +274,7 @@
             <div class="label">S2 ACTUAL CLAMPING PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s2-actual-clamping">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -283,7 +283,7 @@
             <div class="label">S2 ACTUAL PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s2-actual-pressure">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -292,7 +292,7 @@
             <div class="label">S2 ACTUAL DURATION</div>
             <div class="value-group">
               <div class="value" id="s2-actual-dur">00000</div>
-              <div class="unit ">SECS</div>
+              <div class="unit ">sec</div>
             </div>
           </div>
         </div>
@@ -301,7 +301,7 @@
             <div class="label">S2 START PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s2-start-pressure">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -310,7 +310,7 @@
             <div class="label">S2 END PRESSURE</div>
             <div class="value-group">
               <div class="value" id="s2-end-pressure">00000</div>
-              <div class="unit psr">BAR G</div>
+              <div class="unit psr">unit</div>
             </div>
           </div>
         </div>
@@ -564,6 +564,30 @@
       console.warn(`Element with ID '${elementId}' not found`);
     }
   }
+
+
+  function updateStationLabel(id, stationNum, text) {
+    // Handle 'both' case - update both stations
+    if (stationNum === 'both') {
+      const el1 = document.getElementById(`${id}-1`);
+      const el2 = document.getElementById(`${id}-2`);
+      if (el1) el1.textContent = text;
+      if (el2) el2.textContent = text;
+      console.log(`Updated label ${id} for both stations with: ${text}`);
+      return;
+    }
+
+    // Handle single station
+    const elementId = `${id}-${stationNum}`;
+    const el = document.getElementById(elementId);
+    if (!el) {
+      console.warn(`Label element ${elementId} not found`);
+      return;
+    }
+    el.textContent = text;
+    console.log(`Updated label ${elementId} with: ${text}`);
+  }
+
 
   // Initialize charts on page load
   function initializeCharts() {
@@ -1497,6 +1521,93 @@
     console.log('Cleared all cycle data from localStorage');
   }
 
+
+
+  function updateStationValue(baseId, stationNum, value) {
+    console.log(`updateStationValue called: ${baseId}, station ${stationNum}, value: ${value}`);
+
+    // Handle 'both' case - update both stations
+    if (stationNum === 'both') {
+      const el1 = document.getElementById(`${baseId}-1`);
+      const el2 = document.getElementById(`${baseId}-2`);
+      if (el1) {
+        el1.textContent = value ?? "-";
+        el1.classList.remove("d-none");
+      }
+      if (el2) {
+        el2.textContent = value ?? "-";
+        el2.classList.remove("d-none");
+      }
+      console.log(`Updated ${baseId} for both stations with value: ${value}`);
+      return;
+    }
+
+    // Construct the element ID based on station number
+    const elementId = `${baseId}-${stationNum}`;
+    const el = document.getElementById(elementId);
+
+    if (!el) {
+      console.log(`Element ${elementId} not found`);
+      return;
+    }
+
+    // Update the value for the specified station
+    el.textContent = value ?? "-";
+    el.classList.remove("d-none");
+    console.log(`Updated ${elementId} with value: ${value}`);
+  }
+
+  // Function to update degree display based on test name
+  function updateDegreeDisplay(stationNum, testName, openValue, closeValue, isActual = false) {
+    console.log(`updateDegreeDisplay called: station=${stationNum}, test=${testName}, open=${openValue}, close=${closeValue}, isActual=${isActual}`);
+
+    const testNameLower = testName ? testName.toLowerCase() : '';
+
+    // Determine which stations to update
+    const stationsToUpdate = stationNum === 'both' ? [1, 2] : [stationNum];
+
+    stationsToUpdate.forEach(station => {
+      // Get the parent card element that contains the label span
+      const cardSelector = isActual ? `s${station}-actual-deg` : `s${station}-deg`;
+      const valueElement = document.getElementById(cardSelector);
+
+      if (!valueElement) {
+        console.warn(`Degree value element not found: ${cardSelector}`);
+        return;
+      }
+
+      // Find the label span (previous sibling)
+      const labelElement = valueElement.previousElementSibling;
+
+      if (!labelElement) {
+        console.warn(`Degree label element not found for: ${cardSelector}`);
+        return;
+      }
+
+      // Update label and value based on test type
+      if (testNameLower.includes('shell')) {
+        // Show only open degree for shell tests
+        const label = isActual ? `S${station} ACTUAL Open Degree` : `S${station} SET Open Degree`;
+        labelElement.textContent = label;
+        valueElement.textContent = openValue ?? '-';
+        console.log(`Updated ${cardSelector}: ${label} = ${openValue}`);
+      } else if (testNameLower.includes('seat')) {
+        // Show only close degree for seat tests
+        const label = isActual ? `S${station} ACTUAL Close Degree` : `S${station} SET Close Degree`;
+        labelElement.textContent = label;
+        valueElement.textContent = closeValue ?? '-';
+        console.log(`Updated ${cardSelector}: ${label} = ${closeValue}`);
+      } else {
+        // Show both for other tests
+        const label = isActual ? `S${station} ACTUAL Open & Close Degree` : `S${station} SET Open & Close Degree`;
+        labelElement.textContent = label;
+        valueElement.textContent = `${openValue ?? '-'} & ${closeValue ?? '-'}`;
+        console.log(`Updated ${cardSelector}: ${label} = ${openValue} & ${closeValue}`);
+      }
+    });
+  }
+
+
   async function sync_fetch_test_values(stationId, id, name, valve_serial_no, psr_unit) {
 
     try {
@@ -1578,6 +1689,14 @@
       el.textContent = stationData.TESTING_PSR_UNIT;
     });
 
+
+    // Update degree display for SET values based on test name
+    const testName = stationData.TEST_NAME || '';
+    const setOpenDegree = stationData.SET_OPEN_DEGREE || '-';
+    const setCloseDegree = stationData.SET_CLOSE_DEGREE || '-';
+    updateDegreeDisplay(1, testName, setOpenDegree, setCloseDegree, false);
+
+
     // updateValue("s1-set-clamping", stationData.set_clampping_psr);
     // updateValue("allowed-bubbles", stationData.set_bubble_count);
 
@@ -1597,6 +1716,13 @@
     updateValue("s2-set-dur", stationData.TESTING_DUR);
     // updateValue("s2-set-clamping", stationData.set_clampping_psr);
     // updateValue("allowed-bubbles", stationData.set_bubble_count);
+
+
+    // Update degree display for SET values based on test name
+    const testName = stationData.TEST_NAME || '';
+    const setOpenDegree = stationData.SET_OPEN_DEGREE || '-';
+    const setCloseDegree = stationData.SET_CLOSE_DEGREE || '-';
+    updateDegreeDisplay(2, testName, setOpenDegree, setCloseDegree, false);
 
     console.log("Updated station 2 values", stationData);
   }
@@ -2444,12 +2570,18 @@
 
     if (data.actual_open_degree !== undefined) {
       station.actual_open_degree = data.actual_open_degree;
-      updateValue(`s${stationId}-actual-deg`, `${station.actual_open_degree ?? '-'}/${station.actual_close_degree ?? '-'}`);
+      // Update degree display with actual values based on test name
+      const testName = station.currentTest?.testName || station.currentTest?.TEST_NAME || '';
+      updateDegreeDisplay(stationId, testName, station.actual_open_degree ?? '-', station.actual_close_degree ?? '-', true);
+      // updateValue(`s${stationId}-actual-deg`, `${station.actual_open_degree ?? '-'}/${station.actual_close_degree ?? '-'}`);
     }
 
     if (data.actual_close_degree !== undefined) {
       station.actual_close_degree = data.actual_close_degree;
-      updateValue(`s${stationId}-actual-deg`, `${station.actual_open_degree ?? '-'}/${station.actual_close_degree ?? '-'}`);
+      // Update degree display with actual values based on test name
+      const testName = station.currentTest?.testName || station.currentTest?.TEST_NAME || '';
+      updateDegreeDisplay(stationId, testName, station.actual_open_degree ?? '-', station.actual_close_degree ?? '-', true);
+      // updateValue(`s${stationId}-actual-deg`, `${station.actual_open_degree ?? '-'}/${station.actual_close_degree ?? '-'}`);
     }
   }
 
@@ -2858,7 +2990,7 @@
     const station = stations[stationId];
     if (!station) return false;
 
-    const psrUnit = station.currentTest?.psrUnit || 'BAR G';
+    const psrUnit = station.currentTest?.psrUnit || 'unit';
     const serial_no = station.currentTest?.valveSerial || 'None';
 
     if (!station.chart) {

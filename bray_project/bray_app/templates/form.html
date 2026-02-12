@@ -586,44 +586,6 @@
     <script src="{% static 'scripts/dialog-manager.js' %}"></script>
     <script>
 
-        // // Check HMI/ABRS connections and sync/non-sync mode
-        // function checkConnections() {
-        //     fetch('/api/user_config/get_hmi_abrs/')
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             const syncNonSyncMode = data.sync_nonsync_status;
-        //             // const modeElement = document.getElementById('sync-nonsync-mode');
-
-        //             if (modeElement && syncNonSyncMode) {
-        //                 modeElement.textContent = syncNonSyncMode;
-
-        //                 // Update badge color based on mode
-        //                 modeElement.classList.remove('bg-info', 'bg-success', 'bg-warning');
-        //                 if (syncNonSyncMode.toLowerCase().includes('sync')) {
-        //                     modeElement.classList.add('bg-success');
-        //                 } else if (syncNonSyncMode.toLowerCase().includes('non')) {
-        //                     modeElement.classList.add('bg-warning');
-        //                 } else {
-        //                     modeElement.classList.add('bg-info');
-        //                 }
-        //             }
-        //         })
-        //         .catch(error => {
-        //             console.error('Error checking connections:', error);
-        //             const modeElement = document.getElementById('sync-nonsync-mode');
-        //             if (modeElement) {
-        //                 modeElement.textContent = 'Error';
-        //                 modeElement.classList.remove('bg-info', 'bg-success', 'bg-warning');
-        //                 modeElement.classList.add('bg-danger');
-        //             }
-        //         });
-        // }
-
-        // // Start polling on page load
-        // checkConnections();
-        // setInterval(checkConnections, 5000); // Check every 5 seconds
-
-
         // --- Station Logic ---
         function switchStation(id) {
             document.getElementById('station1_container').classList.toggle('hidden', id != '1');
@@ -1808,18 +1770,18 @@
             });
 
             // In sync mode, check if both stations are saved
-            if (test_mode === 1) {
-                const s1Saved = localStorage.getItem('station1_saved') === 'true';
-                const s2Saved = localStorage.getItem('station2_saved') === 'true';
+            // if (test_mode === 1) {
+            //     const s1Saved = localStorage.getItem('station1_saved') === 'true';
+            //     const s2Saved = localStorage.getItem('station2_saved') === 'true';
 
-                if (!s1Saved || !s2Saved) {
-                    DialogManager.toast({
-                        type: 'warning',
-                        message: 'In sync mode, both stations must be saved before continuing. Please save both Station 1 and Station 2.'
-                    });
-                    return;
-                }
-            }
+            //     if (!s1Saved || !s2Saved) {
+            //         DialogManager.toast({
+            //             type: 'warning',
+            //             message: 'In sync mode, both stations must be saved before continuing. Please save both Station 1 and Station 2.'
+            //         });
+            //         return;
+            //     }
+            // }
 
             var station1saved = station1_saved;
 
@@ -2405,18 +2367,18 @@
             });
 
             // SYNC ONLY: Always check if both stations are saved
-            if (test_mode === 1) {
-                const s1Saved = localStorage.getItem('station1_saved') === 'true';
-                const s2Saved = localStorage.getItem('station2_saved') === 'true';
+            // if (test_mode === 1) {
+            //     const s1Saved = localStorage.getItem('station1_saved') === 'true';
+            //     const s2Saved = localStorage.getItem('station2_saved') === 'true';
 
-                if (!s1Saved || !s2Saved) {
-                    DialogManager.toast({
-                        type: 'warning',
-                        message: 'In sync mode, both stations must be saved before continuing. Please save both Station 1 and Station 2.'
-                    });
-                    return;
-                }
-            }
+            //     if (!s1Saved || !s2Saved) {
+            //         DialogManager.toast({
+            //             type: 'warning',
+            //             message: 'In sync mode, both stations must be saved before continuing. Please save both Station 1 and Station 2.'
+            //         });
+            //         return;
+            //     }
+            // }
 
             var station2saved = station2_saved;
 

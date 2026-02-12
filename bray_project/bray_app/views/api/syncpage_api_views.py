@@ -206,7 +206,7 @@ def start_auto_test_station1(stationNum):
     s1_machine_mode     = getstatus(HmiAddress.S1_MACHINE_MODE)       # 0=Auto
     s1_test_type        = getstatus(HmiAddress.S1_TEST_TYPE)
     s1_hmi_test_type    = getstatus(HmiAddress.S1_HIM_TEST_TYPE)
-    s1_cycle_start_stop = getstatus(HmiAddress.S1_CYCLE_START_STOP)
+    s1_cycle_start_stop = getstatus(HmiAddress.S1_CYCLE_START_STOP_STATUS)
 
     response = {
         "station_enabled": True,
@@ -248,7 +248,7 @@ def start_auto_test_station2(stationNum):
     s2_machine_mode     = getstatus(HmiAddress.S2_MACHINE_MODE)       # 0=Auto
     s2_test_type        = getstatus(HmiAddress.S2_TEST_TYPE)
     s2_hmi_test_type    = getstatus(HmiAddress.S2_HIM_TEST_TYPE)
-    s2_cycle_start_stop = getstatus(HmiAddress.S2_CYCLE_START_STOP)
+    s2_cycle_start_stop = getstatus(HmiAddress.S2_CYCLE_START_STOP_STATUS)
 
     response = {
         "station_enabled": True,
@@ -526,6 +526,16 @@ def sync_enabled_test_buttons(request, stationId):
     print("sync enabled test buttons fetch values for stationid",  stationId)
     try:
         with connection.cursor() as cursor:
+            # TEST_ID mapping to HMI addresses:
+            # 1 = HYDRO_SHELL, 2 = HYDRO_SEAT_P, 3 = HYDRO_SEAT_N, 4 = AIR_SEAT_P, 5 = AIR_SEAT_N
+            test_id_to_hmi_map = {
+                1: (HmiAddress.S1_HYDRO_SHELL_E_D_STATUS, HmiAddress.S2_HYDRO_SHELL_E_D_STATUS),
+                2: (HmiAddress.S1_HYDRO_SEAT_P_E_D_STATUS, HmiAddress.S2_HYDRO_SEAT_P_E_D_STATUS),
+                3: (HmiAddress.S1_HYDRO_SEAT_N_E_D_STATUS, HmiAddress.S2_HYDRO_SEAT_N_E_D_STATUS),
+                4: (HmiAddress.S1_AIR_SEAT_P_E_D_STATUS, HmiAddress.S2_AIR_SEAT_P_E_D_STATUS),
+                5: (HmiAddress.S1_AIR_SEAT_N_E_D_STATUS, HmiAddress.S2_AIR_SEAT_N_E_D_STATUS),
+            }
+
             # Determine which table to query based on station_id
             if stationId == 'both':
                 # For both stations, use JOIN to get matching tests from both stations
@@ -537,17 +547,6 @@ def sync_enabled_test_buttons(request, stationId):
                         AND s1.TEST_NAME = s2.TEST_NAME
                 """)
                 test_buttons = cursor.fetchall()
-
-                # Map test_id to HMI addresses for both stations
-                # TEST_ID mapping to HMI addresses:
-                # 1 = HYDRO_SHELL, 2 = HYDRO_SEAT_P, 3 = HYDRO_SEAT_N, 4 = AIR_SEAT_P, 5 = AIR_SEAT_N
-                test_id_to_hmi_map = {
-                    1: (HmiAddress.S1_HYDRO_SHELL_E_D_STATUS, HmiAddress.S2_HYDRO_SHELL_E_D_STATUS),
-                    2: (HmiAddress.S1_HYDRO_SEAT_P_E_D_STATUS, HmiAddress.S2_HYDRO_SEAT_P_E_D_STATUS),
-                    3: (HmiAddress.S1_HYDRO_SEAT_N_E_D_STATUS, HmiAddress.S2_HYDRO_SEAT_N_E_D_STATUS),
-                    4: (HmiAddress.S1_AIR_SEAT_P_E_D_STATUS, HmiAddress.S2_AIR_SEAT_P_E_D_STATUS),
-                    5: (HmiAddress.S1_AIR_SEAT_N_E_D_STATUS, HmiAddress.S2_AIR_SEAT_N_E_D_STATUS),
-                }
 
                 # Write to HMI for each matching test
                 for btn in test_buttons:
@@ -565,11 +564,12 @@ def sync_enabled_test_buttons(request, stationId):
                 """)
                 test_buttons = cursor.fetchall()
 
-                write_to_hmi(HmiAddress.S1_HYDRO_SHELL_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S1_HYDRO_SEAT_P_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S1_HYDRO_SEAT_N_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S1_AIR_SEAT_P_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S1_AIR_SEAT_N_E_D_STATUS, 1)
+                # Write to HMI based on mapped test IDs
+                for btn in test_buttons:
+                    test_id = btn[0]
+                    if test_id in test_id_to_hmi_map:
+                        s1_hmi_addr = test_id_to_hmi_map[test_id][0]
+                        write_to_hmi(s1_hmi_addr, 1)
                 
             elif stationId == '2':
                 # For station 2, get station 2 buttons
@@ -579,11 +579,13 @@ def sync_enabled_test_buttons(request, stationId):
                 """)
                 test_buttons = cursor.fetchall()
 
-                write_to_hmi(HmiAddress.S2_HYDRO_SHELL_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S2_HYDRO_SEAT_P_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S2_HYDRO_SEAT_N_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S2_AIR_SEAT_P_E_D_STATUS, 1)
-                write_to_hmi(HmiAddress.S2_AIR_SEAT_N_E_D_STATUS, 1)
+                # Write to HMI based on mapped test IDs
+                for btn in test_buttons:
+                    test_id = btn[0]
+                    if test_id in test_id_to_hmi_map:
+                        s2_hmi_addr = test_id_to_hmi_map[test_id][1]
+                        write_to_hmi(s2_hmi_addr, 1)
+
             else:
                 # Invalid station_id
                 return JsonResponse({
@@ -793,6 +795,15 @@ def _set_pressure_for_station(station_num, id, name, valve_serial_no, psr_unit):
         
         if not class_id:
             raise ValueError(f"No valve class found for valve serial number: {valve_serial_no}")
+
+         # Get degree values from HMI
+        if station_num == 1:
+            set_open_degree = getstatus(HmiAddress.S1_SET_OPEN_DEGREE)
+            set_close_degree = getstatus(HmiAddress.S1_SET_CLOSE_DEGREE)
+        else:  # station_num == 2
+            set_open_degree = getstatus(HmiAddress.S2_SET_OPEN_DEGREE)
+            set_close_degree = getstatus(HmiAddress.S2_SET_CLOSE_DEGREE)
+        
         
         # Build station data dictionary
         station_data = {
@@ -804,13 +815,20 @@ def _set_pressure_for_station(station_num, id, name, valve_serial_no, psr_unit):
             "TESTING_DUR_UNIT": dur_unit,
             "TESTING_DUR": set_duration,
             "set_clampping_psr": set_clampping_psr,
-            "set_bubble_count": set_bubble_count
+            "set_bubble_count": set_bubble_count,
+            "SET_OPEN_DEGREE": set_open_degree,
+            "SET_CLOSE_DEGREE": set_close_degree
         }
         
         print(f"Station {station_num} - Class: {class_name}, Class ID: {class_id}")
         
+        
+        hmi_pressure = int(set_pressure)
+        if pressure_unit.lower() == 'bar':
+            hmi_pressure = int(set_pressure * 10)
+
         # Write to HMI
-        write_to_hmi(hmi['set_pressure'], int(set_pressure))
+        write_to_hmi(hmi['set_pressure'], hmi_pressure)
         write_to_hmi(hmi['set_time'], int(set_duration))
         write_to_hmi(hmi['valve_class'], int(class_id))
         
@@ -1743,6 +1761,9 @@ def reset_all_station(request):
         write_to_hmi(HmiAddress.S1_HYDRO_SEAT_N_TEST_STATUS, 0)
         write_to_hmi(HmiAddress.S1_AIR_SEAT_P_TEST_STATUS, 0)
         write_to_hmi(HmiAddress.S1_AIR_SEAT_N_TEST_STATUS, 0)
+        write_to_hmi(HmiAddress.S1_SET_OPEN_DEGREE, 0)
+        write_to_hmi(HmiAddress.S1_SET_CLOSE_DEGREE, 0)
+        
         
         # Station 2
         write_to_hmi(HmiAddress.S2_TEST_TYPE, 0)
@@ -1754,7 +1775,9 @@ def reset_all_station(request):
         write_to_hmi(HmiAddress.S2_HYDRO_SEAT_P_TEST_STATUS, 0)
         write_to_hmi(HmiAddress.S2_HYDRO_SEAT_N_TEST_STATUS, 0)
         write_to_hmi(HmiAddress.S2_AIR_SEAT_P_TEST_STATUS, 0)
-        write_to_hmi(HmiAddress.S2_AIR_SEAT_N_TEST_STATUS, 0)   
+        write_to_hmi(HmiAddress.S2_AIR_SEAT_N_TEST_STATUS, 0) 
+        write_to_hmi(HmiAddress.S2_SET_OPEN_DEGREE, 0)   
+        write_to_hmi(HmiAddress.S2_SET_CLOSE_DEGREE, 0)  
         
         # Reset test cycle
         # write_to_hmi(HmiAddress.TEST_CYCLE, 0)
@@ -2007,7 +2030,7 @@ def external_abrs_push(serial_no, assembly_no):
 
 #====================================CYCLE COMPLETE FUCTION=======================================================#
 @csrf_exempt
-def cycle_complete(request):
+def cycle_complete(request, ):
     """
     Optimized cycle complete function for sync mode.
     Handles both stations with proper failure detection, conditional report generation,
@@ -2110,12 +2133,12 @@ def cycle_complete(request):
             elif fail_count > 0:
                 print(f"[CYCLE_COMPLETE] Station {station_id}: {fail_count} test(s) failed")
                 # Reset STATUS to 0 in abrs_result_status for failed tests
-                # with connection.cursor() as cursor:
-                #     cursor.execute("""
-                #         UPDATE abrs_result_status 
-                #         SET STATUS = '0' 
-                #         WHERE SERIAL_NO = %s
-                #     """, [valve_serial])
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        UPDATE pressure_analysis 
+                        SET COUNT_ID = NULL 
+                        WHERE VALVE_SER_NO = %s
+                    """, [valve_serial])
             else:
                 print(f"[CYCLE_COMPLETE] Station {station_id}: All tests passed")
             
@@ -2172,7 +2195,7 @@ def cycle_complete(request):
                 for addr, val in hmi_addresses:
                     write_to_hmi(addr, val)
                 
-                stop_sync_both_stations()
+                # stop_sync_both_stations()
                 stop_sync_station1()
                 disable_sync_station1()
             else:  # station_id == 2
@@ -2314,356 +2337,3 @@ def cycle_complete(request):
 
 
 
-
-
-
-# def cycle_complete(request, stationNum, valveSerial):
-
-#     if request.method != "POST":
-#         return JsonResponse({"error": "Invalid method"}, status=405)
-    
-#     try:        
-#         stationNum = int(stationNum)
-#         # Check pressure drain and cycle test status before allowing cycle complete
-#         pressure_drain_status = getstatus(HmiAddress.S1_PRESSURE_DRAIN) 
-#         cycle_start_stop_status = getstatus(HmiAddress.S1_CYCLE_START_STOP_STATUS) 
-        
-#         print(f"[CYCLE_COMPLETE] Pressure Drain Status: {pressure_drain_status}, Cycle Test Status: {cycle_start_stop_status}")
-        
-#         # Only allow cycle complete if both are 0
-#         if pressure_drain_status != 0 or cycle_start_stop_status != 0:
-#             return JsonResponse({
-#                 "success": False,
-#                 "message": "Cannot complete cycle. Pressure drain or cycle test is still in progress."
-#             }, status=400)
-        
-#         # Get the test IDs that are actually enabled for this valve
-#         with connection.cursor() as cursor:
-#             cursor.execute("SELECT TEST_ID FROM temp_pressure_analysis WHERE VALVE_SER_NO = %s AND CYCLE_COMPLETE = 'No'", [valveSerial])
-#             test_rows = cursor.fetchall()            
-#             enabled_test_ids = [row[0] for row in test_rows]
-        
-#         # Check test status from temp_pressure_analysis table (VALVE_STATUS column)
-#         # If any test has VALVE_STATUS = 'FAIL', skip reports and reset COUNT_ID to 0
-#         # If VALVE_STATUS is 'PASS' or empty/null (not performed), generate reports
-#         skip_reports = False
-#         has_failed_test = False
-#         tests_without_timer = []  # Track which tests have no timer data
-        
-#         with connection.cursor() as cursor:
-#             for test_id in enabled_test_ids:
-#                 # Get VALVE_STATUS from temp_pressure_analysis
-#                 cursor.execute("""
-#                     SELECT VALVE_STATUS 
-#                     FROM temp_pressure_analysis 
-#                     WHERE VALVE_SER_NO = %s AND TEST_ID = %s AND CYCLE_COMPLETE = 'No'
-#                 """, [valveSerial, test_id])
-#                 result = cursor.fetchone()
-#                 valve_status = result[0] if result and result[0] else None
-                
-#                 print(f"[CYCLE_COMPLETE] Test ID {test_id}: VALVE_STATUS = {valve_status}")
-                
-#                 # If any test has VALVE_STATUS = 'FAIL', skip reports and mark for COUNT_ID reset
-#                 if valve_status == 'FAIL':
-#                     skip_reports = True
-#                     has_failed_test = True
-#                     print(f"[CYCLE_COMPLETE] Test ID {test_id} failed (VALVE_STATUS = FAIL), will reset COUNT_ID to 0")
-#                     break
-                
-#                 # Check if this test has timer data (was actually performed)
-#                 cursor.execute("""
-#                     SELECT COUNT(*) 
-#                     FROM current_status_station1 
-#                     WHERE VALVE_SERIAL_NO = %s AND TEST_ID = %s AND TIMER_STATUS = 1
-#                 """, [valveSerial, test_id])
-#                 timer_count = cursor.fetchone()[0]
-#                 if timer_count == 0:
-#                     tests_without_timer.append(test_id)
-#                     print(f"[CYCLE_COMPLETE] Test ID {test_id} has no timer data (not performed)")
-        
-#         # If any test failed, set COUNT_ID to NULL (empty) to mark as failed
-#         if has_failed_test:
-#             with connection.cursor() as cursor:
-#                 # First, get the current COUNT_ID from temp_pressure_analysis
-#                 cursor.execute("""
-#                     SELECT DISTINCT COUNT_ID 
-#                     FROM temp_pressure_analysis     
-#                     WHERE VALVE_SER_NO = %s AND CYCLE_COMPLETE = 'No'
-#                 """, [valveSerial])
-#                 count_result = cursor.fetchone()
-#                 current_count_id = count_result[0] if count_result else None
-                
-#                 if current_count_id is not None:
-#                     # Update temp_pressure_analysis - set COUNT_ID to NULL
-#                     cursor.execute("""
-#                         UPDATE temp_pressure_analysis 
-#                         SET COUNT_ID = NULL 
-#                         WHERE VALVE_SER_NO = %s AND COUNT_ID = %s AND CYCLE_COMPLETE = 'No'
-#                     """, [valveSerial, current_count_id])
-#                     temp_rows_updated = cursor.rowcount
-                    
-#                     # Update pressure_analysis - set COUNT_ID to NULL
-#                     cursor.execute("""
-#                         UPDATE pressure_analysis 
-#                         SET COUNT_ID = NULL 
-#                         WHERE VALVE_SER_NO = %s AND COUNT_ID = %s
-#                     """, [valveSerial, current_count_id])
-#                     pressure_rows_updated = cursor.rowcount
-                    
-#                     print(f"[CYCLE_COMPLETE] Set COUNT_ID to NULL (from {current_count_id}) for {valveSerial} due to failed test(s)")
-#                     print(f"[CYCLE_COMPLETE] Updated {temp_rows_updated} rows in temp_pressure_analysis, {pressure_rows_updated} rows in pressure_analysis")
-#                 else:
-#                     print(f"[CYCLE_COMPLETE] Could not find COUNT_ID for {valveSerial}, skipping COUNT_ID reset")
-        
-#         # If all enabled tests have no timer data, it means tests were clicked but not performed
-#         all_tests_not_performed = len(tests_without_timer) == len(enabled_test_ids) and len(enabled_test_ids) > 0
-        
-#         if not skip_reports:
-#             # STEP 1: Push to ABRS FIRST (populates abrs_result_status with pressure/duration)
-#             with connection.cursor() as cursor:
-#                 #Fetch ALL pending tests BEFORE marking cycle complete
-#                 cursor.execute("""
-#                     SELECT TEST_ID
-#                     FROM pressure_analysis
-#                     WHERE VALVE_SER_NO = %s
-#                     AND CYCLE_COMPLETE = 'No'
-#                 """, [valveSerial])
-
-#                 test_rows = cursor.fetchall()
-
-#                 #Push each test to ABRS if it was performed (has timer data) and NOT failed
-#                 for (test_id,) in test_rows:
-#                     # Check if this test was performed (has timer on/off data)
-#                     cursor.execute("""
-#                         SELECT COUNT(*) 
-#                         FROM current_status_station1 
-#                         WHERE VALVE_SERIAL_NO = %s AND TEST_ID = %s AND TIMER_STATUS = 1
-#                     """, [valveSerial, test_id])
-#                     timer_count = cursor.fetchone()[0]
-                    
-#                     # Check if this test passed (VALVE_STATUS from temp_pressure_analysis)
-#                     cursor.execute("""
-#                         SELECT VALVE_STATUS 
-#                         FROM temp_pressure_analysis 
-#                         WHERE VALVE_SER_NO = %s AND TEST_ID = %s AND CYCLE_COMPLETE = 'No'
-#                     """, [valveSerial, test_id])
-#                     result = cursor.fetchone()
-#                     valve_status = result[0] if result and result[0] else None
-                    
-#                     # Push if test was performed AND NOT failed
-#                     # Push when: VALVE_STATUS = 'PASS' OR VALVE_STATUS is NULL/empty (test performed but status not set)
-#                     # Don't push when: VALVE_STATUS = 'FAIL' OR test not performed (no timer data)
-#                     if timer_count > 0 and valve_status != 'FAIL':
-#                         # Test was performed and not failed, push to ABRS
-#                         abrs_push(valveSerial, test_id)
-#                         print(f"[CYCLE_COMPLETE] Pushed test ID {test_id} to ABRS (test performed, VALVE_STATUS = {valve_status})")
-#                     else:
-#                         if timer_count == 0:
-#                             print(f"[CYCLE_COMPLETE] Skipped pushing test ID {test_id} to ABRS (test not performed)")
-#                         elif valve_status == 'FAIL':
-#                             print(f"[CYCLE_COMPLETE] Skipped pushing test ID {test_id} to ABRS (VALVE_STATUS = FAIL)")
-            
-#             # Export report - check configuration_table for enabled reports
-#             with connection.cursor() as cursor:
-#                 cursor.execute("SELECT GRAPH_PDF_REPORT, VTR_PDF_REPORT, VTR_CSV_REPORT FROM configuration_table WHERE ID=1")
-#                 report_generation = cursor.fetchone()
-#                 print('report_generation',report_generation)
-                
-#                 if report_generation:
-#                     graph_report = report_generation[0]  # GRAPH_PDF_REPORT (merged PDF with graphs)
-#                     excel_report = report_generation[1]  # VTR_PDF_REPORT (Excel template)
-#                     csv_report = report_generation[2]    # VTR_CSV_REPORT (CSV export)
-                    
-#                     print(f"[CYCLE_COMPLETE] Report generation settings - Graph: {graph_report}, Excel: {excel_report}, CSV: {csv_report}")
-
-#                     # IMPORTANT: Generate CSV/Excel FIRST, then PDF (PDF needs Excel file to exist)
-                    
-#                     # Step 1: Export CSV data to Excel file (creates the Excel file in D:/Bray_DB_export)
-#                     if csv_report == "Enabled":
-#                         export_station_data_to_e_drive(valveSerial, stationNum)
-#                         print(f"[CYCLE_COMPLETE] CSV/Excel data exported for {valveSerial}")
-                    
-#                     # Step 2: Copy Excel template (needs to happen after data export)
-#                     if excel_report == "Enabled":
-#                         copy_excel_template_to_report_path(valveSerial, stationNum)
-#                         print(f"[CYCLE_COMPLETE] Excel template report exported for {valveSerial}")
-                    
-#                     # Step 3: Generate Graph PDF (needs Excel file from Step 1 to exist)
-#                     if graph_report == "Enabled":
-#                         export_merged_report_to_e_drive(valveSerial, stationNum)
-#                         print(f"[CYCLE_COMPLETE] Graph PDF report exported for {valveSerial}")
-#                 else:
-#                     print(f"[CYCLE_COMPLETE] No report configuration found, skipping report generation")
-
-
-#             # ---------- STEP 3: EXTERNAL ABRS PUSH ----------
-#             with connection.cursor() as cursor:
-#                 cursor.execute("""
-#                     SELECT ASSEMBLY_NO
-#                     FROM abrs_result_status
-#                     WHERE SERIAL_NO = %s
-#                 """, [valveSerial])
-
-#                 row = cursor.fetchone()
-
-#                 # If no record found or no assembly ID, still allow cycle complete
-#                 if not row:
-#                     print(f"[CYCLE_COMPLETE] No record found in abrs_result_status for {valveSerial}")
-#                     # Continue to cleanup instead of returning early
-#                     abrs_response = {
-#                         "success": True, 
-#                         "local": True,
-#                         "abrs": False,
-#                         "message": "Cycle completed. Data saved locally (No ABRS record found)"
-#                     }
-#                 elif not row[0]:
-#                     print(f"[CYCLE_COMPLETE] Assembly ID missing for {valveSerial}")
-#                     # Continue to cleanup instead of returning early
-#                     abrs_response = {
-#                         "success": True, 
-#                         "local": True,
-#                         "abrs": False,
-#                         "message": "Cycle completed. Data saved locally (Assembly ID missing - cannot push to ABRS)"
-#                     }
-#                 else:
-#                     abrs_response = bray_abrs_push(valveSerial, row[0])
-                    
-#                     # Only increment count if tests were actually enabled/selected
-#                     if enabled_test_ids and len(enabled_test_ids) > 0:
-#                         with connection.cursor() as cursor:
-#                             cursor.execute("select Serial_No from serial_tbl where Serial_No = %s", [valveSerial])
-#                             row = cursor.fetchone()
-#                             if row:
-#                                 cursor.execute("update serial_tbl set Count_No = Count_No + 1 where Serial_No = %s", [valveSerial])
-#                             else:   
-#                                 cursor.execute("insert into serial_tbl (Serial_No, Count_No) values (%s, %s)", [valveSerial, 1])
-#                         print(f"[CYCLE_COMPLETE] Count incremented for {valveSerial}")
-#                     else:
-#                         print(f"[CYCLE_COMPLETE] No tests enabled, skipping count increment for {valveSerial}")
-#         else:
-#             print("[CYCLE_COMPLETE] Skipping report generation and ABRS push due to test failure(s)")
-            
-#             # Reset STATUS to 0 in abrs_result_status when tests fail
-#             with connection.cursor() as cursor:
-#                 cursor.execute("""
-#                     UPDATE abrs_result_status 
-#                     SET STATUS = '0' 
-#                     WHERE SERIAL_NO = %s
-#                 """, [valveSerial])
-#                 print(f"[CYCLE_COMPLETE] STATUS reset to 0 for {valveSerial} due to test failure")
-            
-#             abrs_response = {
-#                 "success": True,
-#                 "local": True,
-#                 "abrs": False,
-#                 "message": "Cycle completed. Tests failed - reports and ABRS push skipped."
-#             }
-            
-#             # Increment count ONLY when ALL tests have no timer data (tests clicked but not performed)
-#             if all_tests_not_performed:
-#                 with connection.cursor() as cursor:
-#                     cursor.execute("select Serial_No from serial_tbl where Serial_No = %s", [valveSerial])
-#                     row = cursor.fetchone()
-#                     if row:
-#                         cursor.execute("update serial_tbl set Count_No = Count_No + 1 where Serial_No = %s", [valveSerial])
-#                     else:   
-#                         cursor.execute("insert into serial_tbl (Serial_No, Count_No) values (%s, %s)", [valveSerial, 1])
-#                 print(f"[CYCLE_COMPLETE] Count incremented for {valveSerial} (tests clicked but not performed)")
-#             else:
-#                 print(f"[CYCLE_COMPLETE] Tests failed after running, skipping count increment for {valveSerial}")
-#                 print(f"[CYCLE_COMPLETE] Count incremented for {valveSerial} (tests failed)")
-#             # else:
-#             #     print(f"[CYCLE_COMPLETE] No tests enabled, skipping count increment for {valveSerial}")
-        
-        
-
-#         # Copy Excel template from bray_app to report path AFTER ABRS push
-#         # This ensures abrs_result_status has the latest data
-#         # Only generate Excel template if tests passed
-#         # if not skip_reports:
-#         #     copy_excel_template_to_report_path(valveSerial, stationNum)
-#         # else:
-#         #     print("[CYCLE_COMPLETE] Skipping Excel template generation due to test failure")
-        
-#         with connection.cursor() as cursor:
-#             # Update STATUS to 0 for all tests when cycle completes
-#             cursor.execute("""
-#                 UPDATE temp_pressure_analysis
-#                 SET STATUS = 0
-#                 WHERE VALVE_SER_NO = %s
-#                 AND CYCLE_COMPLETE = 'No'
-#             """, [valveSerial])
-
-#             #Now mark cycle complete
-#             cursor.execute("""
-#                 UPDATE pressure_analysis
-#                 SET CYCLE_COMPLETE = 'Yes',CYCLE_COMPLETED_DATE= NOW()
-#                 WHERE VALVE_SER_NO = %s
-#             """, [valveSerial])
-            
-
-#             #Station specific cleanup
-#             if stationNum == 1:
-#                 cursor.execute("""
-#                     UPDATE master_temp_data
-#                     SET STATION_STATUS = 'Disabled'
-#                     WHERE ID = 1
-#                 """)
-
-#                 # cursor.execute("""
-#                 #     DELETE FROM temp_testing_data_s1
-#                 #     WHERE VALVE_SERIAL_NO = %s
-#                 # """, [valveSerial])
-
-#                 # cursor.execute("""
-#                 #     DELETE FROM temp_pressure_analysis
-#                 #     WHERE VALVE_SER_NO = %s
-#                 # """, [valveSerial])
-                
-#                 cursor.execute("""
-#                     TRUNCATE TABLE temp_testing_data_s1
-#                     """)
-
-#                 cursor.execute("""
-#                     TRUNCATE TABLE temp_pressure_analysis
-#                     """)
-
-
-#                 # Set all S1 HMI addresses to 0 (addresses 2000-2036)
-#                 # for address in range(2000, 2045):
-#                 #     write_to_hmi(address, 0)
-
-#                 write_to_hmi(HmiAddress.S1_TEST_TYPE, 0)
-#                 write_to_hmi(HmiAddress.S1_VALVE_SIZE, 0)
-#                 write_to_hmi(HmiAddress.S1_VALVE_CLASS, 0)
-#                 write_to_hmi(HmiAddress.S1_SET_PRESSURE, 0)
-#                 write_to_hmi(HmiAddress.S1_SET_HOLDING_TIME, 0)
-#                 write_to_hmi(HmiAddress.S1_SET_OPEN_DEGREE, 0)
-#                 write_to_hmi(HmiAddress.S1_SET_CLOSE_DEGREE, 0)
-#                 write_to_hmi(HmiAddress.PRESSURE_UNIT, 0)
-#                 write_to_hmi(HmiAddress.S1_SET_TEST_TIME, 0)
-#                 write_to_hmi(HmiAddress.S1_TEST_RESULT, 0)
-#                 write_to_hmi(HmiAddress.S1_E_D_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_HYDRO_SHELL_E_D_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_HYDRO_SEAT_P_E_D_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_HYDRO_SEAT_N_E_D_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_AIR_SEAT_P_E_D_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_AIR_SEAT_N_E_D_STATUS, 0)
-
-#                 write_to_hmi(HmiAddress.S1_HYDRO_SHELL_TEST_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_HYDRO_SEAT_P_TEST_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_HYDRO_SEAT_N_TEST_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_AIR_SEAT_P_TEST_STATUS, 0)
-#                 write_to_hmi(HmiAddress.S1_AIR_SEAT_N_TEST_STATUS, 0)
-                
-#                 stop_station1()
-#                 clear_station_1()
-
-#             else:
-#                 return JsonResponse({"error": "Invalid station number"},status=400)
-        
-#         # Return the response after all cleanup is done
-#         return JsonResponse(abrs_response)
-
-#     except Exception as e:
-#         return JsonResponse({"status": "error", "success": False, "message": str(e)}, status=500)
