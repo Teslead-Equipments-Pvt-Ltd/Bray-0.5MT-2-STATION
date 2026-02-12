@@ -96,10 +96,12 @@
             <span class="ms-2">HMI Connected</span>
           </div>
 
+          <!-- ABRS Status - COMMENTED OUT
           <div class="d-flex align-items-center">
             <span class="status-dot bg-danger"></span>
             <span class="ms-2">ABRS Disconnected</span>
           </div>
+          -->
         </div>
       </div>
 
@@ -190,17 +192,18 @@ window.addEventListener("resize", updateDebug);
   // });
 
   var hmistatus = ""
-  // HMI AND ABRS CONNECTION STATUS CHECKING //
+  // HMI CONNECTION STATUS CHECKING //
   function checkConnections() {
-    fetch('/api/user_config/get_hmi_abrs/', {
+    fetch('/api/user_config/get_hmi_status/', {
 
     })
       .then(response => response.json())
       .then(data => {
         const hmiStatusDot = document.querySelector('.right-block .status-row .d-flex:nth-child(1) .status-dot');
         const hmiStatusText = document.querySelector('.right-block .status-row .d-flex:nth-child(1) span.ms-2');
-        const abrsStatusDot = document.querySelector('.right-block .status-row .d-flex:nth-child(2) .status-dot');
-        const abrsStatusText = document.querySelector('.right-block .status-row .d-flex:nth-child(2) span.ms-2');
+        // ABRS selectors commented out
+        // const abrsStatusDot = document.querySelector('.right-block .status-row .d-flex:nth-child(2) .status-dot');
+        // const abrsStatusText = document.querySelector('.right-block .status-row .d-flex:nth-child(2) span.ms-2');
         hmistatus = data.hmi_connection;
 
         const sync_nonsync_status = data.sync_nonsync_status;
@@ -230,16 +233,18 @@ window.addEventListener("resize", updateDebug);
           hmiStatusText.textContent = 'HMI Disconnected';
         }
 
-        // Update ABRS status
-        if (data.abrs_connection == 1) {
-          abrsStatusDot.classList.remove('bg-danger');
-          abrsStatusDot.classList.add('bg-success');
-          abrsStatusText.textContent = 'ABRS Connected';
-        } else {
-          abrsStatusDot.classList.remove('bg-success');
-          abrsStatusDot.classList.add('bg-danger');
-          abrsStatusText.textContent = 'ABRS Disconnected';
-        }
+        // Update ABRS status - COMMENTED OUT
+        // const abrsStatusDot = document.querySelector('.right-block .status-row .d-flex:nth-child(2) .status-dot');
+        // const abrsStatusText = document.querySelector('.right-block .status-row .d-flex:nth-child(2) span.ms-2');
+        // if (data.abrs_connection == 1) {
+        //   abrsStatusDot.classList.remove('bg-danger');
+        //   abrsStatusDot.classList.add('bg-success');
+        //   abrsStatusText.textContent = 'ABRS Connected';
+        // } else {
+        //   abrsStatusDot.classList.remove('bg-success');
+        //   abrsStatusDot.classList.add('bg-danger');
+        //   abrsStatusText.textContent = 'ABRS Disconnected';
+        // }
 
 
       })

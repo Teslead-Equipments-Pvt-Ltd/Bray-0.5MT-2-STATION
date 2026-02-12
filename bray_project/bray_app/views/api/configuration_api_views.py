@@ -169,7 +169,7 @@ def update_abrs_connection():
 
 @login_required
 @csrf_exempt
-def get_hmi_abrs_api(request):
+def get_hmi_api(request):
     # HMI connection check
     alarm_s1_value = 0
     alarm_s2_value = 0
@@ -182,8 +182,6 @@ def get_hmi_abrs_api(request):
     
     try:
         connection = TestleadSmartsyncx.read_holding_registers(2000, 1)
-        alarm_s1_result = TestleadSmartsyncx.read_holding_registers(2035, 1)  # station1
-        alarm_s2_result = TestleadSmartsyncx.read_holding_registers(2133, 1)  # station2
         
         if connection.isError():
             hmi_status = 0
@@ -192,11 +190,15 @@ def get_hmi_abrs_api(request):
             hmi_status = 1
             update_hmi_enabled()
             
-            # Get alarm values from HMI
-            if not alarm_s1_result.isError():
-                alarm_s1_value = alarm_s1_result.registers[0]
-            if not alarm_s2_result.isError():
-                alarm_s2_value = alarm_s2_result.registers[0]
+            # Get alarm values from HMI using getstatus (returns int or None)
+            alarm_s1_result = getstatus(HmiAddress.S1_ALARM_STATUS)
+            alarm_s2_result = getstatus(HmiAddress.S2_ALARM_STATUS)
+            
+            # getstatus() returns int or None, not a Modbus result object
+            if alarm_s1_result is not None:
+                alarm_s1_value = alarm_s1_result
+            if alarm_s2_result is not None:
+                alarm_s2_value = alarm_s2_result
             
     except Exception as e:
         print(f'HMI connection error: {e}')
@@ -204,21 +206,24 @@ def get_hmi_abrs_api(request):
         update_hmi_disabled()
         
 
-    # ABRS connection check
-    # Update ABRS connection if config changed
-    update_abrs_connection()
+    # ABRS connection check - COMMENTED OUT
+    # # Update ABRS connection if config changed
+    # update_abrs_connection()
+    # 
+    # try:
+    #     abrs_connection = 1 if abrs_db.test_connection() else 0
+    #     
+    #     if abrs_connection == 0:
+    #         update_abrs_disabled()
+    #     else:
+    #         update_abrs_enabled()
+    #         
+    # except Exception as e:
+    #     abrs_connection = 0
+    #     update_abrs_disabled()
     
-    try:
-        abrs_connection = 1 if abrs_db.test_connection() else 0
-        
-        if abrs_connection == 0:
-            update_abrs_disabled()
-        else:
-            update_abrs_enabled()
-            
-    except Exception as e:
-        abrs_connection = 0
-        update_abrs_disabled()
+    # ABRS disabled - always return 0
+    abrs_connection = 0
     
     # Process alarms if HMI is connected
     if hmi_status == 1:
@@ -284,23 +289,16 @@ def get_hmi_abrs_api(request):
     except Exception as e:
         print(f"Error getting gauge calibration alerts: {e}")
 
-    # sync_nonsync_status = ""
-    # sync_nonsync_mode = getstatus(HmiAddress.SYNC_OR_NON_SYNC_MODE)
-    # if sync_nonsync_mode == 1:
-    #     sync_nonsync_status = "Sync Mode"
-    # else:
-    #     sync_nonsync_status = "Non-Sync Mode"
 
     return JsonResponse({
         "hmi_connection": hmi_status,
-        "abrs_connection": abrs_connection,
+        "abrs_connection": abrs_connection,  # Always 0 (ABRS disabled)
         "alarm_s1": alarm_s1_value,
         "alarm_s1_name": alarm_s1_name,
         "alarm_s2": alarm_s2_value,
         "alarm_s2_name": alarm_s2_name,
         "recent_alarms": recent_alarms,
         "gauge_calibration_alerts": gauge_calibration_alerts
-        # "sync_nonsync_status":sync_nonsync_status
     })
 
 
