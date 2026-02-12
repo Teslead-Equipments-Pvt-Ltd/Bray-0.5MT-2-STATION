@@ -1,9 +1,9 @@
 from django.urls import path
 from bray_app import views
-from bray_app.views.api.configuration_api_views import get_abrs_values, get_hmi_abrs_api, save_abrs_field, save_report_path, update_backup_toggle,update_graph_toggle, update_pdf_toggle, update_csv_toggle, get_all_toggle, connect_hmi, connect_abrs
+from bray_app.views.api.configuration_api_views import get_abrs_values, get_hmi_api, save_abrs_field, save_report_path, update_backup_toggle,update_graph_toggle, update_pdf_toggle, update_csv_toggle, get_all_toggle, connect_hmi, connect_abrs
 
 urlpatterns = [
-    path("get_hmi_abrs/", get_hmi_abrs_api, name="get_hmi_abrs"),
+    path("get_hmi_status/", get_hmi_api, name="get_hmi_status"),
     path('update_graph_toggle/', update_graph_toggle, name='update_graph_toggle'),
     path('update_pdf_toggle/', update_pdf_toggle, name='update_pdf_toggle'),
     path('update_csv_toggle/', update_csv_toggle, name='update_csv_toggle'),

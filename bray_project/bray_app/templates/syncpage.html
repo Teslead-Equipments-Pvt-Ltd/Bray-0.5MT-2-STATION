@@ -491,10 +491,10 @@
   });
 
 
-  async function chekc_hmi_abrs_connection() {
+  async function chekc_hmi_connection() {
 
     try {
-      const response = await fetch('/api/user_config/get_hmi_abrs/');
+      const response = await fetch('/api/user_config/get_hmi_status/');
 
       const data = await response.json();
       console.log("hmi abrs connection", data)
@@ -511,7 +511,7 @@
     }
   }
 
-  setInterval(chekc_hmi_abrs_connection, 3000);
+  setInterval(chekc_hmi_connection, 3000);
 
   function normalizeBool(value) {
     return value === true || value === 1 || value === "1";
@@ -636,50 +636,65 @@
       console.log("Station 1 Enabled:", isStation1Enabled);
       console.log("Station 2 Enabled:", isStation2Enabled);
 
-      // Determine which station to load values for
-      let stationIdForValues = null;
-      let stationIdForButtons = null;
-
-      if (isStation1Enabled && isStation2Enabled) {
-        stationIdForValues = "both"; // Use 'both' to fetch data from both stations
-        stationIdForButtons = "both";   // Use first station for test buttons
-      } else if (isStation1Enabled) {
-        stationIdForValues = "1";
-        stationIdForButtons = "1";
-      } else if (isStation2Enabled) {
-        stationIdForValues = "2";
-        stationIdForButtons = "2";
-      }
-
+      // Get test modes (0 = Auto, 1 = Manual)
       let station1mode = data.s1_test_mode;
       let station2mode = data.s2_test_mode;
 
-      console.log("station1mode", station1mode)
-      console.log("station2mode", station2mode)
+      console.log("Station 1 Mode:", station1mode === 0 ? "Auto" : "Manual");
+      console.log("Station 2 Mode:", station2mode === 0 ? "Auto" : "Manual");
 
-      // If both stations are in manual mode (1), set mode to Manual
-      // If either one or both are in auto mode (0), set mode to Auto and start polling
+      // Determine which station to load values for based on enabled status
+      let stationId = null;
+
+      if (isStation1Enabled && isStation2Enabled) {
+        stationId = "both"; // Use 'both' to fetch data from both stations
+      } else if (isStation1Enabled) {
+        stationId = "1";
+      } else if (isStation2Enabled) {
+        stationId = "2";
+      }
+
+      // Determine mode display and start auto polling
       if (station1mode === 1 && station2mode === 1) {
         // Both stations in manual mode
-        updateValue("mode", "Manual")
-        console.log("Mode: Manual - Both stations in manual mode");
-
+        updateValue("mode", "Manual");
       } else {
-        // At least one station in auto mode (0)
-        updateValue("mode", "Auto")
-        startAutoPolling(1);
-        startAutoPolling(2);
-        console.log("Mode: Auto - Auto polling started for both stations");
+        // At least one station in auto mode
+        updateValue("mode", "Auto");
 
+        // OPTIMIZED POLLING LOGIC:
+        // If both stations are enabled and at least one is in auto mode:
+        //   → Poll with "both" (single API call, writes to both stations)
+        // Otherwise:
+        //   → Poll individual stations that are in auto mode
+
+        const bothEnabled = isStation1Enabled && isStation2Enabled;
+        const atLeastOneAuto = station1mode === 0 || station2mode === 0;
+
+        if (bothEnabled && atLeastOneAuto) {
+          console.log("Starting auto polling for BOTH stations (At least one in Auto - Optimized)");
+          startAutoPolling("both");
+        } else {
+          // Poll individual stations that are enabled and in auto mode
+          if (isStation1Enabled && station1mode === 0) {
+            console.log("Starting auto polling for Station 1 (Enabled + Auto Mode)");
+            startAutoPolling(1);
+          }
+
+          if (isStation2Enabled && station2mode === 0) {
+            console.log("Starting auto polling for Station 2 (Enabled + Auto Mode)");
+            startAutoPolling(2);
+          }
+        }
       }
 
       // Only call GetStationValues and get_enabled_test_buttons if at least one station is enabled
-      if (stationIdForValues) {
-        console.log("Loading values for station:", stationIdForValues);
-        await GetStationValues(stationIdForValues);
+      if (stationId) {
+        console.log("Loading values for station:", stationId);
+        await GetStationValues(stationId);
 
         // Load test buttons for the active station
-        await get_enabled_test_buttons(stationIdForButtons);
+        await get_enabled_test_buttons(stationId);
       } else {
         console.log("No stations are enabled");
       }
@@ -719,39 +734,61 @@
         /* MANUAL MODE → ignore */
         if (data.machine_mode !== 0) return;
 
-        const prev = lastAutoState[stationNum] || {};
+        // Handle "both" stations case
+        if (stationNum === "both") {
+          const prev = lastAutoState["both"] || {};
 
+          // TEST CHANGE DETECTED for both stations
+          if (data.test_changed && data.test_id) {
+            // prevent duplicate start
+            if (autoRunningTest["both"] === data.test_id) return;
 
-        //TEST CHANGE DETECTED
+            console.log(`[AUTO] BOTH Stations → Test ${data.test_id}`);
+            autoRunningTest["both"] = data.test_id;
 
-        if (data.test_changed && data.test_id) {
+            /* Start test for both stations - use "both" as stationNum */
+            await startTestFlowByTestId("both", data.test_id);
+          }
 
-          // prevent duplicate start
-          if (autoRunningTest[stationNum] === data.test_id) return;
+          // CYCLE COMPLETE DETECTED for both stations
+          if (data.cycle_complete && !prev.cycleComplete) {
+            console.log(`[AUTO] Cycle complete → BOTH Stations`);
+            // reset AUTO running test
+            delete autoRunningTest["both"];
+          }
 
-          console.log(`[AUTO] Station ${stationNum} → Test ${data.test_id}`);
+          lastAutoState["both"] = {
+            testId: data.test_id,
+            cycleComplete: data.cycle_complete
+          };
+        } else {
+          // Handle individual station (1 or 2)
+          const prev = lastAutoState[stationNum] || {};
 
-          autoRunningTest[stationNum] = data.test_id;
+          // TEST CHANGE DETECTED
+          if (data.test_changed && data.test_id) {
+            // prevent duplicate start
+            if (autoRunningTest[stationNum] === data.test_id) return;
 
-          /* Start test like manual click */
-          await startTestFlowByTestId(stationNum, data.test_id);
+            console.log(`[AUTO] Station ${stationNum} → Test ${data.test_id}`);
+            autoRunningTest[stationNum] = data.test_id;
+
+            /* Start test like manual click */
+            await startTestFlowByTestId(stationNum, data.test_id);
+          }
+
+          // CYCLE COMPLETE DETECTED
+          if (data.cycle_complete && !prev.cycleComplete) {
+            console.log(`[AUTO] Cycle complete → Station ${stationNum}`);
+            // reset AUTO running test
+            delete autoRunningTest[stationNum];
+          }
+
+          lastAutoState[stationNum] = {
+            testId: data.test_id,
+            cycleComplete: data.cycle_complete
+          };
         }
-
-
-        //CYCLE COMPLETE DETECTED
-
-        if (data.cycle_complete && !prev.cycleComplete) {
-          console.log(`[AUTO] Cycle complete → Station ${stationNum}`);
-
-          // reset AUTO running test
-          delete autoRunningTest[stationNum];
-
-        }
-
-        lastAutoState[stationNum] = {
-          testId: data.test_id,
-          cycleComplete: data.cycle_complete
-        };
 
       } catch (err) {
         console.error(`[AUTO] Polling failed → Station ${stationNum}`, err);
@@ -805,9 +842,15 @@
     console.log(`[AUTO] Found test button:`, btn);
 
     // Determine the correct stationId for the test
-    // In auto mode, we need to check if both stations are enabled
-    const shouldPollBothStations = isStation1Enabled && isStation2Enabled;
-    const effectiveStationId = shouldPollBothStations ? "both" : String(stationNum);
+    // If stationNum is already "both", use it directly (from optimized polling)
+    // Otherwise, check if both stations are enabled
+    let effectiveStationId;
+    if (stationNum === "both") {
+      effectiveStationId = "both";
+    } else {
+      const shouldPollBothStations = isStation1Enabled && isStation2Enabled;
+      effectiveStationId = shouldPollBothStations ? "both" : String(stationNum);
+    }
 
     // Call the manual test flow function
     await onTestButtonClick(effectiveStationId, btn, buttonEl);
@@ -844,11 +887,13 @@
         } else if (data.station_id === 1) {
           // Only station 1
           updateValue("s1-deg", `${data.open_degree || 0} / ${data.close_degree || 0}`);
+          updateValue("clamping-method", `${data.clamping_method}`);
 
 
         } else if (data.station_id === 2) {
           // Only station 2
           updateValue("s2-deg", `${data.open_degree || 0} / ${data.close_degree || 0}`);
+          updateValue("clamping-method", `${data.clamping_method}`);
         }
 
         console.log("Updated station values on UI");

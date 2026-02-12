@@ -52,8 +52,8 @@
         <div class="d-flex align-items-center gap-3">
             <!-- Action Buttons Moved to Header -->
             <div class="d-flex align-items-center gap-2">
-                <img id="abrs_status_icon_s1" src="{% static 'images/icons/abrs_disconnected.png' %}" alt="ABRS Status"
-                    style="height: 43px; width: 43px; object-fit: contain; display: none;" title="ABRS Disconnected">
+                <!-- <img id="abrs_status_icon_s1" src="{% static 'images/icons/abrs_disconnected.png' %}" alt="ABRS Status"
+                    style="height: 43px; width: 43px; object-fit: contain; display: none;" title="ABRS Disconnected"> -->
                 <div class="action-bar" id="actionBarS1">
                     <button id="save_btn_s1" class="btn btn-custom btn-success-custom" onclick="save_station1()"><i
                             id="save_icon_s1" class="fas fa-save"></i>
@@ -65,8 +65,8 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2 hidden" id="actionBarS2Wrapper">
-                <img id="abrs_status_icon_s2" src="{% static 'images/icons/abrs_disconnected.png' %}" alt="ABRS Status"
-                    style="height: 43px; width: 43px; object-fit: contain; display: none;" title="ABRS Disconnected">
+                <!-- <img id="abrs_status_icon_s2" src="{% static 'images/icons/abrs_disconnected.png' %}" alt="ABRS Status" 
+                    style="height: 43px; width: 43px; object-fit: contain; display: none;" title="ABRS Disconnected"> -->
                 <div class="action-bar" id="actionBarS2">
                     <button id="save_btn_s2" class="btn btn-custom btn-success-custom" onclick="save_station2()"><i
                             id="save_icon_s2" class="fas fa-save"></i>
@@ -687,6 +687,31 @@
         let open_degree_s2 = null, close_degree_s2 = null;
         let disabled_btn2 = [], disabled_testid2 = [];
 
+        // Restore degree values from localStorage on page load
+        try {
+            const savedPressureData1 = localStorage.getItem('station1_pressure_data');
+            if (savedPressureData1) {
+                const data1 = JSON.parse(savedPressureData1);
+                if (data1.degree && Array.isArray(data1.degree) && data1.degree.length === 2) {
+                    open_degree_s1 = data1.degree[0];
+                    close_degree_s1 = data1.degree[1];
+                    console.log('Restored Station 1 degree values from localStorage:', open_degree_s1, close_degree_s1);
+                }
+            }
+
+            const savedPressureData2 = localStorage.getItem('station2_pressure_data');
+            if (savedPressureData2) {
+                const data2 = JSON.parse(savedPressureData2);
+                if (data2.degree && Array.isArray(data2.degree) && data2.degree.length === 2) {
+                    open_degree_s2 = data2.degree[0];
+                    close_degree_s2 = data2.degree[1];
+                    console.log('Restored Station 2 degree values from localStorage:', open_degree_s2, close_degree_s2);
+                }
+            }
+        } catch (e) {
+            console.error('Error restoring degree values from localStorage:', e);
+        }
+
 
 
         // function get_sync_status() {
@@ -742,10 +767,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             // SYNC ONLY: Commented out since test_mode is hardcoded to 1 (sync mode)
             // get_sync_status();
-            get_abrs_status();
+            // get_abrs_status();
 
             // Check ABRS status every 5 seconds
-            setInterval(get_abrs_status, 5000);
+            // setInterval(get_abrs_status, 5000);
 
             restoreButtonStates();
             setTimeout(() => {
@@ -3263,56 +3288,56 @@
 
 
         // HMI AND ABRS CONNECTION STATUS CHECKING //
-        function get_abrs_status() {
-            fetch('/api/user_config/get_hmi_abrs/', {
+        // function get_abrs_status() {
+        //     fetch('/api/user_config/get_hmi_status/', {
 
-            })
-                .then(response => response.json())
-                .then(data => {
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
 
-                    const abrsHeader = document.querySelectorAll('.card-header');
-                    const abrsIconS1 = document.getElementById('abrs_status_icon_s1');
-                    const abrsIconS2 = document.getElementById('abrs_status_icon_s2');
+        //             // const abrsHeader = document.querySelectorAll('.card-header');
+        //             // const abrsIconS1 = document.getElementById('abrs_status_icon_s1');
+        //             // const abrsIconS2 = document.getElementById('abrs_status_icon_s2');
 
 
-                    // Update ABRS status
-                    if (data.abrs_connection == 1) {
-                        // Update card headers
-                        abrsHeader.forEach(header => {
-                            header.classList.remove('card-header');
-                            header.classList.add('abrs-online');
-                        });
+        //             // Update ABRS status
+        //             if (data.abrs_connection == 1) {
+        //                 // Update card headers
+        //                 abrsHeader.forEach(header => {
+        //                     header.classList.remove('card-header');
+        //                     header.classList.add('abrs-online');
+        //                 });
 
-                        // Update status icons to connected
-                        if (abrsIconS1) {
-                            abrsIconS1.src = "{% static 'images/icons/abrs_connected.png' %}";
-                            abrsIconS1.title = "ABRS Connected";
-                            abrsIconS1.style.display = "block";
-                        }
-                        if (abrsIconS2) {
-                            abrsIconS2.src = "{% static 'images/icons/abrs_connected.png' %}";
-                            abrsIconS2.title = "ABRS Connected";
-                            abrsIconS2.style.display = "block";
-                        }
-                    } else {
-                        // Update status icons to disconnected
-                        if (abrsIconS1) {
-                            abrsIconS1.src = "{% static 'images/icons/abrs_disconnected.png' %}";
-                            abrsIconS1.title = "ABRS Disconnected";
-                            abrsIconS1.style.display = "block";
-                        }
-                        if (abrsIconS2) {
-                            abrsIconS2.src = "{% static 'images/icons/abrs_disconnected.png' %}";
-                            abrsIconS2.title = "ABRS Disconnected";
-                            abrsIconS2.style.display = "block";
-                        }
-                    }
+        //                 // Update status icons to connected
+        //                 if (abrsIconS1) {
+        //                     abrsIconS1.src = "{% static 'images/icons/abrs_connected.png' %}";
+        //                     abrsIconS1.title = "ABRS Connected";
+        //                     abrsIconS1.style.display = "block";
+        //                 }
+        //                 if (abrsIconS2) {
+        //                     abrsIconS2.src = "{% static 'images/icons/abrs_connected.png' %}";
+        //                     abrsIconS2.title = "ABRS Connected";
+        //                     abrsIconS2.style.display = "block";
+        //                 }
+        //             } else {
+        //                 // Update status icons to disconnected
+        //                 if (abrsIconS1) {
+        //                     abrsIconS1.src = "{% static 'images/icons/abrs_disconnected.png' %}";
+        //                     abrsIconS1.title = "ABRS Disconnected";
+        //                     abrsIconS1.style.display = "block";
+        //                 }
+        //                 if (abrsIconS2) {
+        //                     abrsIconS2.src = "{% static 'images/icons/abrs_disconnected.png' %}";
+        //                     abrsIconS2.title = "ABRS Disconnected";
+        //                     abrsIconS2.style.display = "block";
+        //                 }
+        //             }
 
-                })
-                .catch(error => {
-                    console.error('Error checking connections:', error);
-                });
-        }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error checking connections:', error);
+        //         });
+        // }
 
 
 

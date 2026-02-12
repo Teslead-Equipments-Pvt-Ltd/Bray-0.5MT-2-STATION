@@ -56,34 +56,31 @@ def write_to_hmi(place, value):
 
 def sync_check_status(request):
     try:
-        # Initialize ALL variables outside cursor block so they're accessible in response
-        s1_enabled = False
-        s2_enabled = False
-        station1_data = None
-        station2_data = None
-        polling_station_id = None
-        both_enabled = False
-        station1_status = "Disabled"
-        station2_status = "Disabled"
-        is_sync_mode = False
-        
         with connection.cursor() as cursor:
             # Get station statuses from database
             cursor.execute("SELECT STATION_STATUS FROM master_temp_data WHERE id=1")
-            station1_status = cursor.fetchone()[0]
+            station1_row = cursor.fetchone()
+            station1_status = station1_row[0] if station1_row else "Disabled"
           
             cursor.execute("SELECT STATION_STATUS FROM master_temp_data WHERE id=2")
-            station2_status = cursor.fetchone()[0]
+            station2_row = cursor.fetchone()
+            station2_status = station2_row[0] if station2_row else "Disabled"
 
+            # Get HMI values with null checks (default to 1 = Manual mode if HMI disconnected)
             s1_test_mode = getstatus(HmiAddress.S1_MACHINE_MODE)
+            if s1_test_mode is None:
+                s1_test_mode = 1  # Default to manual mode if HMI disconnected
+                print("[Warning] HMI disconnected - Station 1 mode defaulting to Manual")
 
             s2_test_mode = getstatus(HmiAddress.S2_MACHINE_MODE)
+            if s2_test_mode is None:
+                s2_test_mode = 1  # Default to manual mode if HMI disconnected
+                print("[Warning] HMI disconnected - Station 2 mode defaulting to Manual")
 
         
-        # Create the base response data first
+        # Create the response data
         response_data = {
             "status": "success",
-            "is_sync_mode": is_sync_mode,
             "station1_status": station1_status,
             "station2_status": station2_status,
             "s1_test_mode": s1_test_mode,
@@ -94,11 +91,42 @@ def sync_check_status(request):
         return JsonResponse(response_data)
     except Exception as e:
         print("Error in check_status:", e)
-        return JsonResponse({"status": "failure", "error": str(e)})
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            "status": "failure", 
+            "error": str(e),
+            "station1_status": "Disabled",
+            "station2_status": "Disabled",
+            "s1_test_mode": 1,  # Default to manual
+            "s2_test_mode": 1   # Default to manual
+        })
 
 
 
 def auto_test(request, stationNum):
+
+    print("auto test start for station:", stationNum)
+
+    # Handle "both" case - optimized path when frontend sends "both"
+    if stationNum == "both":
+        print("[AUTO] Optimized polling for BOTH stations")
+        # Frontend already verified both are enabled and in auto mode
+        # Directly call the both stations handler
+        data = start_auto_test_both_stations(triggering_station=1)  # Use station 1 as trigger
+        return JsonResponse({
+            "status": "success",
+            **data
+        })
+    
+    # Convert string to int for backward compatibility
+    try:
+        stationNum = int(stationNum)
+    except (ValueError, TypeError):
+        return JsonResponse({
+            "status": "error",
+            "message": f"Invalid station number: {stationNum}"
+        }, status=400)
 
     if stationNum not in [1, 2]:
         return JsonResponse({
@@ -106,19 +134,56 @@ def auto_test(request, stationNum):
             "message": "Invalid station number"
         }, status=400)
 
-    # Check if both stations are in auto mode
+    # Check which stations are enabled from database
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT STATION_STATUS FROM master_temp_data WHERE id=1")
+            station1_row = cursor.fetchone()
+            station1_enabled = station1_row and station1_row[0] and station1_row[0].lower() == "enabled"
+            
+            cursor.execute("SELECT STATION_STATUS FROM master_temp_data WHERE id=2")
+            station2_row = cursor.fetchone()
+            station2_enabled = station2_row and station2_row[0] and station2_row[0].lower() == "enabled"
+    except Exception as e:
+        print(f"[Error] Failed to check station enabled status: {e}")
+        station1_enabled = False
+        station2_enabled = False
+
+    # Check machine modes
     s1_machine_mode = getstatus(HmiAddress.S1_MACHINE_MODE)
     s2_machine_mode = getstatus(HmiAddress.S2_MACHINE_MODE)
     
-    both_auto = (s1_machine_mode == 0 and s2_machine_mode == 0)
-    # both_auto = None
+    # Default to manual mode if HMI read fails
+    if s1_machine_mode is None:
+        s1_machine_mode = 1
+    if s2_machine_mode is None:
+        s2_machine_mode = 1
     
-    if both_auto:
-        # Both stations in auto mode - handle synchronization
+    # Determine if we should sync both stations:
+    # If BOTH stations are ENABLED:
+    #   - If BOTH are in MANUAL mode (1) → Individual station handling
+    #   - If at least ONE is in AUTO mode (0) → Sync both stations
+    both_enabled = station1_enabled and station2_enabled
+    both_manual = s1_machine_mode == 1 and s2_machine_mode == 1
+    at_least_one_auto = s1_machine_mode == 0 or s2_machine_mode == 0
+    
+    should_sync_both = both_enabled and at_least_one_auto
+    
+    print(f"[AUTO] Station 1: Enabled={station1_enabled}, Mode={'Auto' if s1_machine_mode == 0 else 'Manual'}")
+    print(f"[AUTO] Station 2: Enabled={station2_enabled}, Mode={'Auto' if s2_machine_mode == 0 else 'Manual'}")
+    print(f"[AUTO] Both enabled: {both_enabled}, Both manual: {both_manual}, At least one auto: {at_least_one_auto}")
+    print(f"[AUTO] Should sync both stations: {should_sync_both}")
+    
+    if should_sync_both:
+        # Both stations enabled AND at least one in auto mode
+        # Write test IDs to BOTH stations for synchronization
+        print(f"[AUTO] Calling start_auto_test_both_stations for station {stationNum}")
         data = start_auto_test_both_stations(stationNum)
     elif stationNum == 1:
+        print(f"[AUTO] Calling start_auto_test_station1")
         data = start_auto_test_station1(stationNum)
     elif stationNum == 2:
+        print(f"[AUTO] Calling start_auto_test_station2")
         data = start_auto_test_station2(stationNum)
             
     return JsonResponse({
@@ -402,6 +467,15 @@ def get_station_values(request, stationId):
             
             # Handle station 1
             elif stationId == '1':
+
+                s1_clamping_method = getstatus(HmiAddress.S1_CLAMPING_METHOD)
+                if s1_clamping_method == 1:
+                    clamping_method = "Control Clamping"
+                elif s1_clamping_method== 0 :
+                    clamping_method = "Proportional Clamping"
+                else:
+                    clamping_method = "Unknown"
+
                 cursor.execute("""
                     SELECT VALVE_SER_NO, SIZE_NAME, CLASS_NAME, PRESSURE_UNIT, 
                            SHELL_MATERIAL_NAME, COL7_VALUE, COL8_VALUE, STATION_STATUS
@@ -426,7 +500,8 @@ def get_station_values(request, stationId):
                         "assembled_by": s1_row[5],
                         "tested_by": s1_row[6],
                         "open_degree": s1_open_deg,
-                        "close_degree": s1_close_deg
+                        "close_degree": s1_close_deg,
+                        "clamping_method": clamping_method
                     }
 
                     size = s1_row[1]
@@ -456,6 +531,14 @@ def get_station_values(request, stationId):
             
             # Handle station 2
             elif stationId == '2':
+                s2_clamping_method = getstatus(HmiAddress.S2_CLAMPING_METHOD)
+                if s2_clamping_method == 1:
+                    clamping_method = "Control Clamping"
+                elif s2_clamping_method== 0 :
+                    clamping_method = "Proportional Clamping"
+                else:
+                    clamping_method = "Unknown"
+                
                 cursor.execute("""
                     SELECT VALVE_SER_NO, SIZE_NAME, CLASS_NAME, PRESSURE_UNIT, 
                            SHELL_MATERIAL_NAME, COL7_VALUE, COL8_VALUE, STATION_STATUS
@@ -480,7 +563,8 @@ def get_station_values(request, stationId):
                         "assembled_by": s2_row[5],
                         "tested_by": s2_row[6],
                         "open_degree": s2_open_deg,
-                        "close_degree": s2_close_deg
+                        "close_degree": s2_close_deg,
+                        "clamping_method": clamping_method
                     }
                     
                     size2 = s2_row[1]

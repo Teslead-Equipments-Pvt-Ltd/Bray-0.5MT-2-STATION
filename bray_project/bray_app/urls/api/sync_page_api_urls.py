@@ -19,7 +19,7 @@ from bray_app.views.api.syncpage_api_views import(
 urlpatterns = [
 
     path('api/syncpage_api/check_status/', sync_check_status, name='check_status'),
-    path('api/syncpage_api/auto_station_action/<int:stationNum>/',auto_test, name='test_mode_selection'),
+    path('api/syncpage_api/auto_station_action/<str:stationNum>/',auto_test, name='test_mode_selection'),
     path('api/syncpage_api/enabled_test_buttons/<str:stationId>/',sync_enabled_test_buttons, name='sync_enabled_test_buttons'),
     path('api/syncpage_api/get_station_values/<str:stationId>/',get_station_values, name='get_station_values'),
     path('api/syncpage_api/get_test_values/<str:stationId>/<int:id>/<str:name>/<str:valve_serial_no>/<str:psr_unit>/', get_set_pressure, name='get_set_pressure'),
