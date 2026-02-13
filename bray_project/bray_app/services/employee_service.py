@@ -97,7 +97,8 @@ def get_menu_items_by_section():
             SELECT id, name, section
             FROM newapp_menuitem
             WHERE name NOT IN ('Employee', 'Category', 'Instrument Type', 'Test Type', 'Test type', 'Accounting User Accounting', 'Access Control')
-            AND UPPER(section) NOT IN ('ABRS', 'SETTINGS')
+            AND UPPER(TRIM(section)) NOT IN ('ABRS', 'SETTINGS', '')
+            AND section IS NOT NULL
             ORDER BY section, name
         """)
         menu_items = dictfetchall(cursor)
@@ -143,8 +144,8 @@ def get_menu_items_by_section():
     
     for item in remaining_items:
         section = item['section']
-        # Normalize section name to uppercase for consistency
-        section_normalized = section.upper() if section else 'OTHER'
+        # Normalize section name to uppercase for consistency (and trim whitespace)
+        section_normalized = section.strip().upper() if section else 'OTHER'
         # For all sections, add all items (ABRS and Settings already excluded in query)
         if section_normalized not in temp_sections:
             temp_sections[section_normalized] = []

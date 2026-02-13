@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Employee Permissions API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            background: #f5f7fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover { background: #2980b9; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .section-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        .item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-left: 3px solid #3498db;
+            border-radius: 3px;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #3498db;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Employee Permissions API Test</h1>
+        <p style="color: #7f8c8d; margin-bottom: 20px;">
+            This page tests the <code>/api/employee/</code> endpoint to verify that permission sections are being returned correctly.
+        </p>
+        
+        <button onclick="testAPI()">🚀 Test API Endpoint</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="status info">⏳ Loading data from /api/employee/...</div>';
+            
+            try {
+                const response = await fetch('/api/employee/');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                let html = '<div class="status success">✅ API call successful!</div>';
+                
+                // Summary
+                html += '<div class="section">';
+                html += '<div class="section-header">📊 Summary</div>';
+                html += `<p>👥 Employees found: <strong>${data.employees?.length || 0}</strong></p>`;
+                html += `<p>🔐 Permission sections: <strong>${Object.keys(data.menu_items_by_section || {}).length}</strong></p>`;
+                html += '</div>';
+                
+                // Permission Sections
+                const sections = data.menu_items_by_section || {};
+                const sectionNames = Object.keys(sections);
+                
+                if (sectionNames.length === 0) {
+                    html += '<div class="status error">❌ ERROR: No permission sections found in API response!</div>';
+                } else {
+                    // Check for MASTER
+                    if (sections['MASTER']) {
+                        html += '<div class="section">';
+                        html += '<div class="section-header">✅ MASTER Section <span class="badge">' + sections['MASTER'].length + ' items</span></div>';
+                        sections['MASTER'].forEach(item => {
+                            html += `<div class="item">📌 ${item.name} <span style="color: #7f8c8d;">(ID: ${item.id})</span></div>`;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div class="status error">❌ MASTER section NOT found in API response</div>';
+                    }
+                    
+                    // Check for REPORT
+                    if (sections['REPORT']) {
+                        html += '<div class="section">';
+                        html += '<div class="section-header">✅ REPORT Section <span class="badge">' + sections['REPORT'].length + ' items</span></div>';
+                        sections['REPORT'].forEach(item => {
+                            html += `<div class="item">📊 ${item.name} <span style="color: #7f8c8d;">(ID: ${item.id})</span></div>`;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div class="status error">❌ REPORT section NOT found in API response</div>';
+                    }
+                    
+                    // Show any other sections
+                    for (const [sectionName, items] of Object.entries(sections)) {
+                        if (sectionName !== 'MASTER' && sectionName !== 'REPORT') {
+                            html += '<div class="section">';
+                            html += `<div class="section-header">📁 ${sectionName} Section <span class="badge">${items.length} items</span></div>`;
+                            items.forEach(item => {
+                                html += `<div class="item">• ${item.name} <span style="color: #7f8c8d;">(ID: ${item.id})</span></div>`;
+                            });
+                            html += '</div>';
+                        }
+                    }
+                }
+                
+                // Conclusion
+                html += '<div class="section">';
+                html += '<div class="section-header">🎯 Conclusion</div>';
+                if (sections['MASTER'] && sections['REPORT']) {
+                    html += '<div class="status success">';
+                    html += '✅ <strong>BOTH MASTER AND REPORT sections are present!</strong><br>';
+                    html += 'The backend is returning data correctly. If permissions are not showing in the Employee page, the issue is in the frontend rendering.';
+                    html += '</div>';
+                } else if (sections['MASTER'] && !sections['REPORT']) {
+                    html += '<div class="status error">';
+                    html += '❌ <strong>MASTER section exists but REPORT section is MISSING!</strong><br>';
+                    html += 'The backend query needs to be fixed to include REPORT items.';
+                    html += '</div>';
+                } else {
+                    html += '<div class="status error">';
+                    html += '❌ <strong>Permission sections are incomplete or missing!</strong><br>';
+                    html += 'Check the backend service: get_menu_items_by_section()';
+                    html += '</div>';
+                }
+                html += '</div>';
+                
+                // Raw JSON
+                html += '<div class="section">';
+                html += '<div class="section-header">📄 Raw JSON Response</div>';
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                html += '</div>';
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>Error calling API:</strong><br>
+                        ${error.message}
+                        <br><br>
+                        <strong>Possible causes:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Server is not running</li>
+                            <li>Not logged in (authentication required)</li>
+                            <li>API endpoint is incorrect</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-run on page load
+        window.addEventListener('load', () => {
+            testAPI();
+        });
+    </script>
+</body>
+</html>

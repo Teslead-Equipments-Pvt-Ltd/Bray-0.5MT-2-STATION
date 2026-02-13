@@ -737,7 +737,6 @@
 </div>
 
 <script src="{% static 'scripts/bootstrap/bootstrap.bundle.js' %}"></script>
-<script src="{% static 'scripts/form-validator.js' %}"></script>
 <script>
   // ==========================================
   //  Employee Management
@@ -747,6 +746,7 @@
   let searchQuery = ''; let currentPage = 1; let entriesPerPage = 10;
   let employeesData = []; let filteredData = []; let menuItemsBySection = {}; let existingCodes = [];
   let currentEditId = null;
+  let dataLoadedPromise = null; // Promise to track when data is loaded
 
   // Validators
   let addValidator, editValidator;
@@ -846,18 +846,26 @@
       togglePermissionsVisibility('edit', this.value);
     });
 
-    // Reset forms on modal open
-    document.getElementById('addEmployeeBtn').addEventListener('click', () => {
+    // Get modal references
+    const addModal = document.getElementById('addEmployeeModal');
+    const editModal = document.getElementById('editEmployeeModal');
+    
+    // Reset forms on modal open - use Bootstrap modal event to ensure data is loaded
+    addModal.addEventListener('show.bs.modal', async () => {
       addValidator.reset();
       document.getElementById('saveAddEmployee').textContent = 'Save';
+      // Ensure data is loaded before rendering permissions
+      if (dataLoadedPromise) {
+        try {
+          await dataLoadedPromise;
+        } catch (e) {
+          console.error('Error loading employee data:', e);
+        }
+      }
       renderPermissions('addPermissionList', []);
       // Reset permissions visibility
       togglePermissionsVisibility('add', '');
     });
-
-    // Add modal event listeners to prevent stuck/blur issues
-    const addModal = document.getElementById('addEmployeeModal');
-    const editModal = document.getElementById('editEmployeeModal');
 
     // Handle modal hidden events
     addModal.addEventListener('hidden.bs.modal', function () {
@@ -940,14 +948,21 @@
   }
   function applySearch() { if (searchQuery === '') filteredData = employeesData; else filteredData = employeesData.filter(r => (r.code || '').toLowerCase().includes(searchQuery) || (r.name || '').toLowerCase().includes(searchQuery) || (r.email || '').toLowerCase().includes(searchQuery)); renderTable(); }
   function loadEmployees() { 
-    fetch('/api/employee/').then(r => r.json()).then(d => { 
-      employeesData = d.employees || []; 
-      existingCodes = d.existing_codes || []; 
-      menuItemsBySection = d.menu_items_by_section || {}; 
-      applySearch(); 
-    }).catch(e => {
-      DialogManager.toast({ type: 'error', message: 'Failed to load data' });
-    }); 
+    dataLoadedPromise = fetch('/api/employee/')
+      .then(r => r.json())
+      .then(d => { 
+        employeesData = d.employees || []; 
+        existingCodes = d.existing_codes || []; 
+        menuItemsBySection = d.menu_items_by_section || {}; 
+        // Log available sections for debugging
+        console.log('Available permission sections:', Object.keys(menuItemsBySection));
+        applySearch(); 
+        return true; // Resolve promise when data is loaded
+      }).catch(e => {
+        DialogManager.toast({ type: 'error', message: 'Failed to load data' });
+        throw e;
+      }); 
+    return dataLoadedPromise;
   }
 
   function renderTable() {
@@ -1018,24 +1033,39 @@
   function renderPermissions(containerId, selected) { 
     const c = document.getElementById(containerId); 
     c.innerHTML = ''; 
+    
+    console.log(`[renderPermissions] Rendering to: ${containerId}`);
+    console.log(`[renderPermissions] Sections available:`, Object.keys(menuItemsBySection));
+    
     if (!Object.keys(menuItemsBySection).length) { 
-      c.innerHTML = 'No permissions available'; 
+      c.innerHTML = '<p class="text-danger">No permissions available. Please refresh the page.</p>'; 
+      console.error('[renderPermissions] menuItemsBySection is empty!');
       return; 
     } 
+    
     // Convert selected to strings for comparison
     const selectedIds = (selected || []).map(id => String(id));
+    console.log(`[renderPermissions] Selected IDs:`, selectedIds);
+    
+    let itemCount = 0;
     for (const [sec, items] of Object.entries(menuItemsBySection)) { 
+      console.log(`[renderPermissions] Rendering section "${sec}" with ${items.length} items`);
+      
       const st = document.createElement('div'); 
       st.className = 'permission-section-title'; 
       st.textContent = sec; 
       c.appendChild(st); 
+      
       items.forEach(i => { 
+        itemCount++;
         const d = document.createElement('div'); 
         d.className = 'permission-item'; 
         d.innerHTML = `<span>${i.name}</span><div class="form-check form-switch"><input class="form-check-input permission-checkbox" type="checkbox" value="${i.id}" ${selectedIds.includes(String(i.id)) ? 'checked' : ''}></div>`; 
         c.appendChild(d); 
       }); 
-    } 
+    }
+    
+    console.log(`[renderPermissions] Rendered ${itemCount} total permission items`);
   }
 
   function getCsrfToken() { return document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''; }
@@ -1137,7 +1167,16 @@
     });
   }
 
-  window.editEmployee = function (id) {
+  window.editEmployee = async function (id) {
+    // Ensure data is loaded before accessing employeesData
+    if (dataLoadedPromise) {
+      try {
+        await dataLoadedPromise;
+      } catch (e) {
+        console.error('Error loading employee data:', e);
+      }
+    }
+    
     const e = employeesData.find(x => x.id === id);
     if (!e) return;
 
