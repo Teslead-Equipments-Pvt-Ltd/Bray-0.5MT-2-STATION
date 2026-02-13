@@ -831,10 +831,18 @@
 
     // Handle employee type change to show/hide permissions
     document.querySelector('#addEmployeeModal select[name="employee_type"]').addEventListener('change', function() {
+      // If changing to tester, clear all permissions
+      if (this.value === 'tester') {
+        document.querySelectorAll('#addPermissionList .permission-checkbox').forEach(c => c.checked = false);
+      }
       togglePermissionsVisibility('add', this.value);
     });
 
     document.querySelector('#editEmployeeModal select[name="employee_type"]').addEventListener('change', function() {
+      // If changing to tester, clear all permissions
+      if (this.value === 'tester') {
+        document.querySelectorAll('#editPermissionList .permission-checkbox').forEach(c => c.checked = false);
+      }
       togglePermissionsVisibility('edit', this.value);
     });
 
@@ -931,7 +939,16 @@
     document.addEventListener('click', e => { if (w.classList.contains('active') && !w.contains(e.target) && !t.contains(e.target)) { w.classList.remove('active'); t.classList.remove('active'); i.value = ''; searchQuery = ''; saveSession(); applySearch(); } });
   }
   function applySearch() { if (searchQuery === '') filteredData = employeesData; else filteredData = employeesData.filter(r => (r.code || '').toLowerCase().includes(searchQuery) || (r.name || '').toLowerCase().includes(searchQuery) || (r.email || '').toLowerCase().includes(searchQuery)); renderTable(); }
-  function loadEmployees() { fetch('/api/employee/').then(r => r.json()).then(d => { employeesData = d.employees || []; existingCodes = d.existing_codes || []; menuItemsBySection = d.menu_items_by_section || {}; applySearch(); }).catch(e => DialogManager.toast({ type: 'error', message: 'Failed to load data' })); }
+  function loadEmployees() { 
+    fetch('/api/employee/').then(r => r.json()).then(d => { 
+      employeesData = d.employees || []; 
+      existingCodes = d.existing_codes || []; 
+      menuItemsBySection = d.menu_items_by_section || {}; 
+      applySearch(); 
+    }).catch(e => {
+      DialogManager.toast({ type: 'error', message: 'Failed to load data' });
+    }); 
+  }
 
   function renderTable() {
     const tbody = document.querySelector('#employeeTable tbody');
@@ -998,7 +1015,28 @@
   window.goToPage = function (p) { const t = Math.ceil(filteredData.length / entriesPerPage); if (p < 1 || (t > 0 && p > t)) return; currentPage = p; saveSession(); renderTable(); };
   window.changeItemsPerPage = function (v) { entriesPerPage = parseInt(v); currentPage = 1; saveSession(); renderTable(); };
 
-  function renderPermissions(containerId, selected) { const c = document.getElementById(containerId); c.innerHTML = ''; if (!Object.keys(menuItemsBySection).length) { c.innerHTML = 'No permissions available'; return; } for (const [sec, items] of Object.entries(menuItemsBySection)) { const st = document.createElement('div'); st.className = 'permission-section-title'; st.textContent = sec; c.appendChild(st); items.forEach(i => { const d = document.createElement('div'); d.className = 'permission-item'; d.innerHTML = `<span>${i.name}</span><div class="form-check form-switch"><input class="form-check-input permission-checkbox" type="checkbox" value="${i.id}" ${selected.includes(i.id) ? 'checked' : ''}></div>`; c.appendChild(d); }); } }
+  function renderPermissions(containerId, selected) { 
+    const c = document.getElementById(containerId); 
+    c.innerHTML = ''; 
+    if (!Object.keys(menuItemsBySection).length) { 
+      c.innerHTML = 'No permissions available'; 
+      return; 
+    } 
+    // Convert selected to strings for comparison
+    const selectedIds = (selected || []).map(id => String(id));
+    for (const [sec, items] of Object.entries(menuItemsBySection)) { 
+      const st = document.createElement('div'); 
+      st.className = 'permission-section-title'; 
+      st.textContent = sec; 
+      c.appendChild(st); 
+      items.forEach(i => { 
+        const d = document.createElement('div'); 
+        d.className = 'permission-item'; 
+        d.innerHTML = `<span>${i.name}</span><div class="form-check form-switch"><input class="form-check-input permission-checkbox" type="checkbox" value="${i.id}" ${selectedIds.includes(String(i.id)) ? 'checked' : ''}></div>`; 
+        c.appendChild(d); 
+      }); 
+    } 
+  }
 
   function getCsrfToken() { return document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''; }
 
@@ -1074,11 +1112,9 @@
     const form = document.getElementById('employeeAddForm');
     const fd = new FormData(form);
     
-    // Only add permissions if not a tester
-    const employeeType = form.querySelector('select[name="employee_type"]').value;
-    if (employeeType !== 'tester') {
-      document.querySelectorAll('#addPermissionList .permission-checkbox:checked').forEach(c => fd.append('menu_items', c.value));
-    }
+    // Always collect permissions - backend will handle based on employee type
+    // For testers, send empty array; for others, send selected permissions
+    document.querySelectorAll('#addPermissionList .permission-checkbox:checked').forEach(c => fd.append('menu_items', c.value));
 
     DialogManager.loading('Saving...');
     fetch('/api/employee/add/', { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() }, body: fd }).then(r => r.json()).then(d => {
@@ -1119,16 +1155,10 @@
     document.getElementById('editMobile').value = e.mobile || '';
     document.getElementById('editStatus').value = e.status || 'active';
     
-    // Handle permissions based on employee type
-    if (e.employee_type === 'tester') {
-      renderPermissions('editPermissionList', []);
-      togglePermissionsVisibility('edit', 'tester');
-    } else {
-      document.getElementById('saveEditEmployee').textContent = 'Update';
-    document.getElementById('saveEditEmployee').className = 'btn btn-info';
-    renderPermissions('editPermissionList', e.permissions || []);
-      togglePermissionsVisibility('edit', e.employee_type || '');
-    }
+    // Always render permissions with the employee's current permissions
+    const perms = e.permissions || [];
+    renderPermissions('editPermissionList', perms);
+    togglePermissionsVisibility('edit', e.employee_type || '');
     
     new bootstrap.Modal(document.getElementById('editEmployeeModal')).show();
   };
@@ -1138,11 +1168,14 @@
     const fd = new FormData(form);
     const id = document.getElementById('editEmployeeId').value;
     
-    // Only add permissions if not a tester
+    // Always collect permissions - backend will handle based on employee type
+    // For testers, send empty array; for others, send selected permissions
     const employeeType = form.querySelector('select[name="employee_type"]').value;
-    if (employeeType !== 'tester') {
-      document.querySelectorAll('#editPermissionList .permission-checkbox:checked').forEach(c => fd.append('menu_items', c.value));
-    }
+    const checkedPermissions = [];
+    document.querySelectorAll('#editPermissionList .permission-checkbox:checked').forEach(c => {
+      fd.append('menu_items', c.value);
+      checkedPermissions.push(c.value);
+    });
 
     DialogManager.loading('Updating...');
     fetch('/api/employee/edit/' + id + '/', { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() }, body: fd }).then(r => r.json()).then(d => {

@@ -117,7 +117,8 @@ def add_employee_api(request):
     image_name = image.name if image else None
     new_id = insert_employee(employee_type, code, name, password, email, mobile, image_name, status)
     
-    if new_id and selected_permissions:
+    # Always update permissions - for testers, this will be empty; for others, it will set selected permissions
+    if new_id:
         update_employee_permissions(new_id, selected_permissions)
     
     return JsonResponse({
@@ -160,6 +161,9 @@ def edit_employee_api(request, pk):
     image_name = image.name if image else None
     # Password is optional for edit - pass empty string if not provided (won't update)
     update_employee(pk, employee_type, code, name, password, email, mobile, status, image_name)
+    
+    # Always update permissions - for testers, this will clear any existing permissions
+    # For other types, it will set the selected permissions
     update_employee_permissions(pk, selected_permissions)
     
     return JsonResponse({

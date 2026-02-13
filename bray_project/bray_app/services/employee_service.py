@@ -73,7 +73,8 @@ def get_employee_permissions(employee_ids):
             WHERE employee_id IN ({placeholders})
         """, employee_ids)
         for emp_id, menu_id in cursor.fetchall():
-            permissions_map.setdefault(emp_id, []).append(int(menu_id))
+            if emp_id in permissions_map:
+                permissions_map[emp_id].append(int(menu_id))
     
     return permissions_map
 
@@ -96,7 +97,7 @@ def get_menu_items_by_section():
             SELECT id, name, section
             FROM newapp_menuitem
             WHERE name NOT IN ('Employee', 'Category', 'Instrument Type', 'Test Type', 'Test type', 'Accounting User Accounting', 'Access Control')
-            AND section NOT IN ('ABRS', 'Settings', 'settings')
+            AND UPPER(section) NOT IN ('ABRS', 'SETTINGS')
             ORDER BY section, name
         """)
         menu_items = dictfetchall(cursor)
@@ -142,8 +143,12 @@ def get_menu_items_by_section():
     
     for item in remaining_items:
         section = item['section']
+        # Normalize section name to uppercase for consistency
+        section_normalized = section.upper() if section else 'OTHER'
         # For all sections, add all items (ABRS and Settings already excluded in query)
-        temp_sections.setdefault(section, []).append(item)
+        if section_normalized not in temp_sections:
+            temp_sections[section_normalized] = []
+        temp_sections[section_normalized].append(item)
     
     # Define the desired order for remaining sections (after MASTER)
     remaining_order = [
@@ -156,9 +161,9 @@ def get_menu_items_by_section():
             menu_items_by_section[section_name] = temp_sections[section_name]
     
     # Add any other sections that weren't in the desired order
-    for section_name, items in temp_sections.items():
-        if section_name not in remaining_order:
-            menu_items_by_section[section_name] = items
+    for section_name in sorted(temp_sections.keys()):
+        if section_name not in remaining_order and section_name not in menu_items_by_section:
+            menu_items_by_section[section_name] = temp_sections[section_name]
     
     return menu_items_by_section
 
