@@ -14,8 +14,8 @@
         <div class="tab-navigation">
             <button class="tab-btn active" onclick="switchTab('connectivity')">Connectivity</button>
             <button class="tab-btn" onclick="switchTab('reports')">Reports</button>
-            <button class="tab-btn" onclick="switchTab('abrs-parameters')">ABRS Parameters</button>
             <button class="tab-btn" onclick="switchTab('system')">System</button>
+            <!-- <button class="tab-btn" onclick="switchTab('abrs-parameters')">ABRS Parameters</button> -->
         </div>
 
         <!-- Tab Content Container -->
@@ -77,7 +77,7 @@
                         </div>
                     </div>
 
-                    <!-- ABRS Server Card -->
+                    <!-- ABRS Server Card
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <div class="card device-card">
                             <div class="card-body">
@@ -144,7 +144,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -195,148 +195,7 @@
             </div>
 
             <!-- ========================================
-                 TAB 3: ABRS PARAMETERS
-                 ======================================== -->
-            <div class="tab-content" id="abrs-parameters-tab">
-                <div class="abrs-parameters-container">
-
-                    <!-- Accordion 1: Torque & Cycle Tests -->
-                    <div class="param-accordion">
-                        <div class="param-accordion-header active" onclick="toggleParamAccordion('torque-cycle')">
-                            <span class="param-accordion-title">Torque & Cycle Tests</span>
-                            <div class="param-accordion-chevron" id="torque-cycle-chevron">
-                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="param-accordion-body show" id="torque-cycle-body">
-                            <div class="param-grid">
-                                <div class="param-field">
-                                    <label title="OPENING TORQUE TEST - OBSERVED">OPENING TORQUE - OBS</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="OPENING_TORQUETEST_OBSERVED" name="OPENING TORQUE TEST-OBSERVED">
-                                </div>
-                                <div class="param-field">
-                                    <label title="CLOSE TORQUE TEST - OBSERVED">CLOSE TORQUE - OBS</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="CLOSE_TORQUETEST_OBSERVED" name="CLOSE TORQUE TEST-OBSERVED">
-                                </div>
-                                <div class="param-field">
-                                    <label title="VALVE CYCLES TEST - PERFORMED">VALVE CYCLES - PERF</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="VALVE_CYCLESTEST_PERFORMED" name="VALVE CYCLES TEST-PERFORMED">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Accordion 2: High Pressure Tests -->
-                    <div class="param-accordion">
-                        <div class="param-accordion-header" onclick="toggleParamAccordion('high-pressure')">
-                            <span class="param-accordion-title">High Pressure Tests</span>
-                            <div class="param-accordion-chevron" id="high-pressure-chevron">
-                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="param-accordion-body" id="high-pressure-body">
-                            <div class="param-grid">
-                                <div class="param-field">
-                                    <label title="HIGH PRESSURE SHELL WATER TEST - WATER">HP SHELL WT - WATER</label>
-                                    <input type="text" class="form-control abrs-input" data-field="HP_SHELL_WT_WATER"
-                                        name="HIGH PRESSURE SHELL WATER TEST-WATER">
-                                </div>
-                                <div class="param-field">
-                                    <label title="HIGH PRESSURE SHELL WATER TEST - DURATION">HP SHELL WT - DUR</label>
-                                    <input type="text" class="form-control abrs-input" data-field="HP_SHELL_WT_DUR"
-                                        name="HIGH PRESSURE SHELL WATER TEST-DURATION">
-                                </div>
-                                <div class="param-field">
-                                    <label title="HIGH PRESSURE PREFERRED SEAT WATER TEST - WATER">HP PREF SEAT WT -
-                                        WAT</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="HP_PREFERED_SEAT_WT_WATER"
-                                        name="HIGH PRESSURE PREFERRED SEAT WATER TEST-WATER">
-                                </div>
-                                <div class="param-field">
-                                    <label title="HIGH PRESSURE PREFERRED SEAT WATER TEST - DURATION">HP PREF SEAT WT -
-                                        DUR</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="HP_PREFERED_SEAT_WT_DUR"
-                                        name="HIGH PRESSURE PREFERRED SEAT WATER TEST-DURATION">
-                                </div>
-                                <div class="param-field">
-                                    <label title="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST - WATER">HP NON-PF SEAT WT
-                                        - WAT</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="HP_NON_PREFERED_SEAT_WT_WATER"
-                                        name="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST-WATER">
-                                </div>
-                                <div class="param-field">
-                                    <label title="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST - DURATION">HP NON-PF SEAT
-                                        WT - DUR</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="HP_NON_PREFERED_SEAT_WT_DUR"
-                                        name="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST-DURATION">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Accordion 3: Low Pressure Tests -->
-                    <div class="param-accordion">
-                        <div class="param-accordion-header" onclick="toggleParamAccordion('low-pressure')">
-                            <span class="param-accordion-title">Low Pressure Tests</span>
-                            <div class="param-accordion-chevron" id="low-pressure-chevron">
-                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="param-accordion-body" id="low-pressure-body">
-                            <div class="param-grid">
-                                <div class="param-field">
-                                    <label title="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST - AIR">LP PREF SEAT AIR
-                                        - AIR</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="LP_PREFERRED_SEAT_AIR_NITROGEN_AIR"
-                                        name="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST-AIR">
-                                </div>
-                                <div class="param-field">
-                                    <label title="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST - DURATION">LP PREF SEAT
-                                        AIR - DUR</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="LP_PREFERRED_SEAT_AIR_NITROGEN_DUR"
-                                        name="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST-DURATION">
-                                </div>
-                                <div class="param-field">
-                                    <label title="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST - AIR">LP NON-PF
-                                        SEAT AIR - AIR</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="LP_NON_PREFERRED_SEAT_AIR_NITROGEN_AIR"
-                                        name="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST-AIR">
-                                </div>
-                                <div class="param-field">
-                                    <label title="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST - DURATION">LP
-                                        NON-PF SEAT AIR - DUR</label>
-                                    <input type="text" class="form-control abrs-input"
-                                        data-field="LP_NON_PREFERRED_SEAT_AIR_NITROGEN_DUR"
-                                        name="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST-DURATION">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- ========================================
-                 TAB 4: SYSTEM
+                 TAB 3: SYSTEM
                  ======================================== -->
             <div class="tab-content" id="system-tab">
                 <div class="system-container">
@@ -357,6 +216,146 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ========================================
+                 TAB 4: ABRS PARAMETERS
+                 ======================================== -->
+            <!-- <div class="tab-content" id="abrs-parameters-tab">
+                <div class="abrs-parameters-container">
+
+                    Accordion 1: Torque & Cycle Tests
+            <div class="param-accordion">
+                <div class="param-accordion-header active" onclick="toggleParamAccordion('torque-cycle')">
+                    <span class="param-accordion-title">Torque & Cycle Tests</span>
+                    <div class="param-accordion-chevron" id="torque-cycle-chevron">
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="param-accordion-body show" id="torque-cycle-body">
+                    <div class="param-grid">
+                        <div class="param-field">
+                            <label title="OPENING TORQUE TEST - OBSERVED">OPENING TORQUE - OBS</label>
+                            <input type="text" class="form-control abrs-input" data-field="OPENING_TORQUETEST_OBSERVED"
+                                name="OPENING TORQUE TEST-OBSERVED">
+                        </div>
+                        <div class="param-field">
+                            <label title="CLOSE TORQUE TEST - OBSERVED">CLOSE TORQUE - OBS</label>
+                            <input type="text" class="form-control abrs-input" data-field="CLOSE_TORQUETEST_OBSERVED"
+                                name="CLOSE TORQUE TEST-OBSERVED">
+                        </div>
+                        <div class="param-field">
+                            <label title="VALVE CYCLES TEST - PERFORMED">VALVE CYCLES - PERF</label>
+                            <input type="text" class="form-control abrs-input" data-field="VALVE_CYCLESTEST_PERFORMED"
+                                name="VALVE CYCLES TEST-PERFORMED">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            Accordion 2: High Pressure Tests
+            <div class="param-accordion">
+                <div class="param-accordion-header" onclick="toggleParamAccordion('high-pressure')">
+                    <span class="param-accordion-title">High Pressure Tests</span>
+                    <div class="param-accordion-chevron" id="high-pressure-chevron">
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="param-accordion-body" id="high-pressure-body">
+                    <div class="param-grid">
+                        <div class="param-field">
+                            <label title="HIGH PRESSURE SHELL WATER TEST - WATER">HP SHELL WT - WATER</label>
+                            <input type="text" class="form-control abrs-input" data-field="HP_SHELL_WT_WATER"
+                                name="HIGH PRESSURE SHELL WATER TEST-WATER">
+                        </div>
+                        <div class="param-field">
+                            <label title="HIGH PRESSURE SHELL WATER TEST - DURATION">HP SHELL WT - DUR</label>
+                            <input type="text" class="form-control abrs-input" data-field="HP_SHELL_WT_DUR"
+                                name="HIGH PRESSURE SHELL WATER TEST-DURATION">
+                        </div>
+                        <div class="param-field">
+                            <label title="HIGH PRESSURE PREFERRED SEAT WATER TEST - WATER">HP PREF SEAT WT -
+                                WAT</label>
+                            <input type="text" class="form-control abrs-input" data-field="HP_PREFERED_SEAT_WT_WATER"
+                                name="HIGH PRESSURE PREFERRED SEAT WATER TEST-WATER">
+                        </div>
+                        <div class="param-field">
+                            <label title="HIGH PRESSURE PREFERRED SEAT WATER TEST - DURATION">HP PREF SEAT WT -
+                                DUR</label>
+                            <input type="text" class="form-control abrs-input" data-field="HP_PREFERED_SEAT_WT_DUR"
+                                name="HIGH PRESSURE PREFERRED SEAT WATER TEST-DURATION">
+                        </div>
+                        <div class="param-field">
+                            <label title="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST - WATER">HP NON-PF SEAT WT
+                                - WAT</label>
+                            <input type="text" class="form-control abrs-input"
+                                data-field="HP_NON_PREFERED_SEAT_WT_WATER"
+                                name="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST-WATER">
+                        </div>
+                        <div class="param-field">
+                            <label title="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST - DURATION">HP NON-PF SEAT
+                                WT - DUR</label>
+                            <input type="text" class="form-control abrs-input" data-field="HP_NON_PREFERED_SEAT_WT_DUR"
+                                name="HIGH PRESSURE NON-PREFERRED SEAT WATER TEST-DURATION">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            Accordion 3: Low Pressure Tests
+            <div class="param-accordion">
+                <div class="param-accordion-header" onclick="toggleParamAccordion('low-pressure')">
+                    <span class="param-accordion-title">Low Pressure Tests</span>
+                    <div class="param-accordion-chevron" id="low-pressure-chevron">
+                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="param-accordion-body" id="low-pressure-body">
+                    <div class="param-grid">
+                        <div class="param-field">
+                            <label title="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST - AIR">LP PREF SEAT AIR
+                                - AIR</label>
+                            <input type="text" class="form-control abrs-input"
+                                data-field="LP_PREFERRED_SEAT_AIR_NITROGEN_AIR"
+                                name="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST-AIR">
+                        </div>
+                        <div class="param-field">
+                            <label title="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST - DURATION">LP PREF SEAT
+                                AIR - DUR</label>
+                            <input type="text" class="form-control abrs-input"
+                                data-field="LP_PREFERRED_SEAT_AIR_NITROGEN_DUR"
+                                name="LOW PRESSURE PREFERRED SEAT AIR/NITROGEN TEST-DURATION">
+                        </div>
+                        <div class="param-field">
+                            <label title="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST - AIR">LP NON-PF
+                                SEAT AIR - AIR</label>
+                            <input type="text" class="form-control abrs-input"
+                                data-field="LP_NON_PREFERRED_SEAT_AIR_NITROGEN_AIR"
+                                name="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST-AIR">
+                        </div>
+                        <div class="param-field">
+                            <label title="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST - DURATION">LP
+                                NON-PF SEAT AIR - DUR</label>
+                            <input type="text" class="form-control abrs-input"
+                                data-field="LP_NON_PREFERRED_SEAT_AIR_NITROGEN_DUR"
+                                name="LOW PRESSURE NON-PREFERRED SEAT AIR/NITROGEN TEST-DURATION">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div> -->
+
+
 
         </div>
     </div>
@@ -438,42 +437,42 @@
             });
     }
 
-    function connectABRS() {
-        const host = document.getElementById('abrs_host').value;
-        const port = document.getElementById('abrs_port').value;
-        const database = document.getElementById('abrs_database').value;
-        const username = document.getElementById('abrs_username').value;
-        const password = document.getElementById('abrs_password').value;
+    // function connectABRS() {
+    //     const host = document.getElementById('abrs_host').value;
+    //     const port = document.getElementById('abrs_port').value;
+    //     const database = document.getElementById('abrs_database').value;
+    //     const username = document.getElementById('abrs_username').value;
+    //     const password = document.getElementById('abrs_password').value;
 
-        if (!host || !port || !database || !username) {
-            alert('Please fill all the fields');
-            return;
-        }
+    //     if (!host || !port || !database || !username) {
+    //         alert('Please fill all the fields');
+    //         return;
+    //     }
 
-        fetch('/api/user_config/connect_abrs/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                host: host,
-                port: port,
-                database: database,
-                username: username,
-                password: password
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status == 'success') {
-                    alert("ABRS Updated Successfully")
-                }
-                else {
-                    alert("ABRS not Updated")
-                }
-            });
-    }
+    //     fetch('/api/user_config/connect_abrs/', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRFToken': getCookie('csrftoken')
+    //         },
+    //         body: JSON.stringify({
+    //             host: host,
+    //             port: port,
+    //             database: database,
+    //             username: username,
+    //             password: password
+    //         })
+    //     })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.status == 'success') {
+    //                 alert("ABRS Updated Successfully")
+    //             }
+    //             else {
+    //                 alert("ABRS not Updated")
+    //             }
+    //         });
+    // }
 
     // ============================
     // INITIALIZATION
@@ -504,13 +503,13 @@
     // ============================
     // HMI & ABRS STATUS
     // ============================
-    function fetch_hmi_abrs() {
+    function fetch_hmi_status() {
         var hmiconnection = document.getElementsByClassName('hmiconnect')[0];
         var abrsconnection = document.getElementsByClassName('abrsconnect')[0];
         var hmistatus = document.getElementById('hmistatus');
         var abrsstatus = document.getElementById('abrsstatus');
 
-        fetch('/api/user_config/get_hmi_abrs/')
+        fetch('/api/user_config/get_hmi_status/')
             .then(response => response.json())
             .then(data => {
                 if (data.hmi_connection == 1) {
@@ -524,20 +523,20 @@
                     hmiconnection.style.color = "#FF0000";
                 }
 
-                if (data.abrs_connection == 1) {
-                    abrsconnection.style.backgroundColor = "#E6F6D1";
-                    abrsstatus.innerHTML = "Connected";
-                    abrsconnection.style.color = "#6BC213";
-                }
-                else {
-                    abrsconnection.style.backgroundColor = "#F6D1D1";
-                    abrsstatus.innerHTML = "Not Connected";
-                    abrsconnection.style.color = "#FF0000";
-                }
+                // if (data.abrs_connection == 1) {
+                //     abrsconnection.style.backgroundColor = "#E6F6D1";
+                //     abrsstatus.innerHTML = "Connected";
+                //     abrsconnection.style.color = "#6BC213";
+                // }
+                // else {
+                //     abrsconnection.style.backgroundColor = "#F6D1D1";
+                //     abrsstatus.innerHTML = "Not Connected";
+                //     abrsconnection.style.color = "#FF0000";
+                // }
             });
     }
-    fetch_hmi_abrs();
-    setInterval(fetch_hmi_abrs, 5000);
+    fetch_hmi_status();
+    setInterval(fetch_hmi_status, 5000);
 
     // ============================
     // REPORT TOGGLES
@@ -585,11 +584,11 @@
 
                 document.getElementById('report_path').value = reports.report_path;
                 document.getElementById('hmi_ip').value = hmi_abrs.hmi_ip;
-                document.getElementById('abrs_host').value = hmi_abrs.abrs_host;
-                document.getElementById('abrs_port').value = hmi_abrs.abrs_port;
-                document.getElementById('abrs_database').value = hmi_abrs.abrs_db;
-                document.getElementById('abrs_username').value = hmi_abrs.abrs_username;
-                document.getElementById('abrs_password').value = hmi_abrs.abrs_password;
+                // document.getElementById('abrs_host').value = hmi_abrs.abrs_host;
+                // document.getElementById('abrs_port').value = hmi_abrs.abrs_port;
+                // document.getElementById('abrs_database').value = hmi_abrs.abrs_db;
+                // document.getElementById('abrs_username').value = hmi_abrs.abrs_username;
+                // document.getElementById('abrs_password').value = hmi_abrs.abrs_password;
 
                 Object.keys(toggleMap).forEach(key => {
                     const checkboxId = toggleMap[key].checkbox;
@@ -628,28 +627,28 @@
     // ============================
     // ABRS PARAMETERS
     // ============================
-    document.querySelectorAll(".abrs-input").forEach(input => {
-        input.addEventListener("input", function () {
-            const fieldName = this.getAttribute("name");
-            const fieldValue = this.value;
+    // document.querySelectorAll(".abrs-input").forEach(input => {
+    //     input.addEventListener("input", function () {
+    //         const fieldName = this.getAttribute("name");
+    //         const fieldValue = this.value;
 
-            fetch('/api/user_config/save_abrs_field/', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie("csrftoken")
-                },
-                body: JSON.stringify({
-                    name: fieldName,
-                    value: fieldValue
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(fieldName + " saved:", fieldValue);
-                });
-        });
-    });
+    //         fetch('/api/user_config/save_abrs_field/', {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 "X-CSRFToken": getCookie("csrftoken")
+    //             },
+    //             body: JSON.stringify({
+    //                 name: fieldName,
+    //                 value: fieldValue
+    //             })
+    //         })
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 console.log(fieldName + " saved:", fieldValue);
+    //             });
+    //     });
+    // });
 
     function load_abrs_values() {
         fetch('/api/user_config/get_abrs_values/')
